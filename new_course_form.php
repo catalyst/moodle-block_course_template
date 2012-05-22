@@ -40,6 +40,16 @@ class block_course_template_new_course_form extends moodleform {
 
         $mform =& $this->_form;
         $template = $this->_customdata['template'];
+        // prevent file attachments
+        $editoroptions = array(
+            'maxfiles' => 0,
+            'maxbytes' => 0,
+            'subdirs' => 0,
+            'changeformat' => 0,
+            'context' => null,
+            'noclean' => 0,
+            'trusttext' => 0
+        );
 
         //
         // Details fieldset
@@ -48,7 +58,7 @@ class block_course_template_new_course_form extends moodleform {
 
         // Template
         $selecttemp = array();
-        $selecttemp = $DB->get_records('course_template');
+        $selecttemp = $DB->get_records('block_course_template');
         $selecttemp = array_map(function($n){return $n->name;}, $selecttemp);
         $mform->addelement('select', 'coursetemplate', get_string('template', 'block_course_template'), $selecttemp);
 
@@ -92,14 +102,14 @@ class block_course_template_new_course_form extends moodleform {
         $mform->addHelpButton('summary_editor', 'coursesummary');
         $mform->setType('summary_editor', PARAM_RAW);
 
-        if (!empty($course->id) and !has_capability('moodle/course:changesummary', $coursecontext)) {
-            $mform->hardFreeze('summary_editor');
-        }
+        // Start date
+        $mform->addElement('date_selector', 'startdate', get_string('startdate'));
 
         //
         // Hidden fields
         //
         $mform->addElement('hidden', 'template', $template);
+        $mform->addElement('hidden', 'referer', $this->_customdata['referer']);
 
         //
         // Action buttons
@@ -107,15 +117,15 @@ class block_course_template_new_course_form extends moodleform {
         $this->add_action_buttons(true, get_string('createcourse', 'block_course_template'));
     }
 
-    public function validation($data) {
+    public function validation($data, $files) {
         global $DB;
 
-        $errors = array();
-        print_object($data);
-        die;
+        $errors = parent::validation($data, $files);
 
-        $fullname = $DB->get_field('course_template', 'name', array('name' => $data['name']));
-        $shortname = $DB->get_field('course_template', 'name', array('name' => $data['name']));
+        // does the course name already exist?
+        //$fullname = $DB->get_field('block_course_template', 'name', array('name' => $data['name']));
+        //$shortname = $DB->get_field('block_course_template', 'name', array('name' => $data['name']));
+
 
         return $errors;
     }

@@ -42,7 +42,7 @@ $templateid = optional_param('template', -1, PARAM_INT);
 // Page settings
 //
 $PAGE->set_url('/blocks/course_template/view.php');
-$PAGE->set_context(get_context_instance($cxt));
+$PAGE->set_context($cxt);
 $PAGE->set_pagelayout('course');
 $PAGE->set_title(get_string('pluginname', 'block_course_template'));
 $PAGE->set_heading(get_string('pluginname', 'block_course_template'));
@@ -82,7 +82,7 @@ if ($mform->is_submitted() && $mform->is_validated()) {
 // Handle (if) a passed tag param
 //
 if ($tagid !== -1) {
-    if (!$tagrawname = $DB->get_field('course_template_tag', 'name', array('id' => $tagid))) {
+    if (!$tagrawname = $DB->get_field('block_course_template_tag', 'name', array('id' => $tagid))) {
         print_error(get_string('error:couldntgettag', 'block_course_template', $tagid));
     } else {
         $showtags = $tagrawname;
@@ -92,12 +92,12 @@ if ($tagid !== -1) {
 //
 // Get records to display
 //
-$sql  = "FROM {$CFG->prefix}course_template tmp";
+$sql  = "FROM {$CFG->prefix}block_course_template tmp";
 
 // if we have been passed some tag ids to filter by
 if (!empty($showtags)) {
-    $sql .= " JOIN {$CFG->prefix}course_template_tag_instance ins ON tmp.id = ins.template
-              JOIN {$CFG->prefix}course_template_tag tag ON ins.tag = tag.id
+    $sql .= " JOIN {$CFG->prefix}block_course_template_tag_instance ins ON tmp.id = ins.template
+              JOIN {$CFG->prefix}block_course_template_tag tag ON ins.tag = tag.id
          WHERE tag.name IN ('{$showtags}')";
 }
 
@@ -123,7 +123,7 @@ if ($delete == 1) {
         // confirm ('delete' code at top of script due to redirect() needing to be called before page output begins)
         $confirmurl = new moodle_url($PAGE->url, array('delete' => 1, 'confirm' => 1, 'template' => $templateid));
         $cancelurl = new moodle_url($PAGE->url);
-        if (!$templatename = $DB->get_field('course_template', 'name', array('id' => $templateid))) {
+        if (!$templatename = $DB->get_field('block_course_template', 'name', array('id' => $templateid))) {
             print_error('error:notemplate', 'block_course_template', $templateid);
         }
         echo $OUTPUT->confirm(get_string('confirmdelete', 'block_course_template', $templatename), $confirmurl, $cancelurl);
@@ -137,16 +137,16 @@ if ($delete == 1) {
     $mform->display();
 
     // display table
-    $table = new flexible_table('course_templates');
+    $table = new flexible_table('block_course_templates');
     $table->set_attribute('width', '100%');
     $table->set_attribute('cellspacing', '0');
     $table->set_attribute('cellpadding', '3');
-    $table->set_attribute('id', 'course_templates');
+    $table->set_attribute('id', 'block_course_templates');
     $table->set_attribute('class', 'generaltable generalbox');
 
     $table->define_columns(array('preview', 'details', 'tags', 'actions'));
     $table->define_headers(array(get_string('preview', 'block_course_template'), get_string('details', 'block_course_template'), get_string('tags', 'block_course_template'), get_string('actions', 'block_course_template')));
-    $table->define_baseurl("{$CFG->wwwroot}/blocks/course_template/manage.php");
+    $table->define_baseurl("{$CFG->wwwroot}/blocks/course_template/view.php");
 
     $table->pageable(true);
     $table->setup();
@@ -192,15 +192,34 @@ if ($delete == 1) {
             //
             // Preview column
             //
-            $preview = html_writer::tag('img', null, array('src' => '//TODO', 'class' => 'preview'));
+            if (!empty($temp->screenshot)) {
+
+                $fs = get_file_storage();
+                $file = $fs->get_file(
+                    $cxt->id,
+                    'block_course_template',
+                    'screenshot',
+                    $temp->id,
+                    '/',
+                    $temp->screenshot
+                );
+
+                $filename = $file->get_filename();
+                $path  = '/' . $cxt->id . '/block_course_template/screenshot/';
+                $path .= $temp->id . '/' . $filename;
+                $file = $fs->get_file_by_hash(sha1($path));
+                $imageurl = file_encode_url($CFG->wwwroot . '/pluginfile.php', $path, false);
+            }
+
+            $preview = html_writer::tag('img', null, array('src' => $imageurl, 'class' => 'preview'));
 
             //
             // Tags column
             //
             $tags = '';
             // get tags associated with this template
-            $tagsql = "SELECT tag.* FROM {$CFG->prefix}course_template_tag_instance ins
-                                    JOIN {$CFG->prefix}course_template_tag tag ON ins.tag = tag.id
+            $tagsql = "SELECT tag.* FROM {$CFG->prefix}block_course_template_tag_instance ins
+                                    JOIN {$CFG->prefix}block_course_template_tag tag ON ins.tag = tag.id
                                     WHERE ins.template = {$temp->id}
                                     ORDER BY tag.name";
 

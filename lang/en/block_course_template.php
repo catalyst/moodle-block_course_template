@@ -83,3 +83,5 @@ $string['error:couldntgetcourse'] = 'Unable to find course with id \'{$a}\'';
 $string['error:deleteinst'] = 'Unable to delete tag instances';
 $string['error:deletetag'] = 'Unable to delete tags';
 $string['error:deleteinst'] = 'Unable to delete template {$a}';
+$string['error:createtemplatefile'] = 'Unable to create backup file for template {$a}';
+$string['error:movearchive'] = 'Unable to copy restore archive';

@@ -40,6 +40,16 @@ class block_course_template_add_template_form extends moodleform {
         $mform =& $this->_form;
         $courseid = $this->_customdata['basecourseid'];
         $coursename = $DB->get_field('course', 'fullname', array('id' => $courseid));
+        // prevent file attachments
+        $editoroptions = array(
+            'maxfiles' => 0,
+            'maxbytes' => 0,
+            'subdirs' => 0,
+            'changeformat' => 0,
+            'context' => null,
+            'noclean' => 0,
+            'trusttext' => 0
+        );
 
         //
         // Details fieldset
@@ -59,11 +69,11 @@ class block_course_template_add_template_form extends moodleform {
         $mform->addRule('name', get_string('required'), 'required', 'client');
 
         // Description
-        $mform->addElement('editor', 'description', get_string('description'));
+        $mform->addElement('editor', 'description', get_string('description'), $editoroptions);
         $mform->setType('description', PARAM_TEXT);
 
         // Screenshot
-        $mform->addElement('filepicker', 'screenshot', get_string('screenshot', 'block_course_template'), array('maxbytes' => get_max_upload_file_size($CFG->maxbytes), 'accepted_types' => 'image'));
+        $mform->addElement('filepicker', 'screenshot', get_string('screenshot', 'block_course_template'), null, array('maxbytes' => get_max_upload_file_size($CFG->maxbytes), 'accepted_types' => 'image'));
 
         //
         // Tags fieldset
@@ -89,5 +99,11 @@ class block_course_template_add_template_form extends moodleform {
         //
         $actiontxt = ($this->_customdata['templateid'] !== -1) ? get_string('updatetemplate', 'block_course_template') : get_string('createtemplate', 'block_course_template');
         $this->add_action_buttons(true, $actiontxt);
+    }
+
+    public function validation($data, $files) {
+        $errors = parent::validation($data, $files);
+
+        return $errors;
     }
 }

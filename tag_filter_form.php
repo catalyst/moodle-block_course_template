@@ -47,7 +47,7 @@ class block_course_template_tag_filter_form extends moodleform {
 
 
         // tags
-        $tags =  $DB->get_records('course_template_tag');
+        $tags =  $DB->get_records('block_course_template_tag');
         if (empty($tags)) {
             $mform->addElement('html', html_writer::tag('p', get_string('notags', 'block_course_template')));
         } else {
