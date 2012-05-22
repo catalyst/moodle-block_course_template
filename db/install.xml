@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="blocks/course_template" VERSION="20120508" COMMENT="XMLDB file for Moodle course template block"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="course_template" COMMENT="Table for course template block" NEXT="course_template_tag">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="file"/>
+        <FIELD NAME="file" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" PREVIOUS="id" NEXT="name"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="file" NEXT="description"/>
+        <FIELD NAME="description" TYPE="text" LENGTH="big" NOTNULL="false" SEQUENCE="false" PREVIOUS="name" NEXT="course"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="description" NEXT="screenshot"/>
+        <FIELD NAME="screenshot" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="course" NEXT="created"/>
+        <FIELD NAME="created" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="screenshot" NEXT="timemodified"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="created" />
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="file"/>
+        <KEY NAME="file" TYPE="foreign" FIELDS="file" REFTABLE="files" REFFIELDS="id" PREVIOUS="primary" NEXT="course"  />
+        <KEY NAME="course" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id" PREVIOUS="file" NEXT="screenshot" />
+        <KEY NAME="screenshot" TYPE="foreign" FIELDS="screenshot" REFTABLE="files" REFFIELDS="id" PREVIOUS="course" />
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="course_template_tag" COMMENT="Table for course template module" PREVIOUS="course_template" NEXT="course_template_tag_instance">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="name"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="rawname"/>
+        <FIELD NAME="rawname" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="name" NEXT="timemodified"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="rawname" />
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" />
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="course_template_tag_instance" COMMENT="Table for course template module" PREVIOUS="course_template_tag">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="tag"/>
+        <FIELD NAME="tag" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="template" />
+        <FIELD NAME="template" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="tag" NEXT="timemodified" />
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="template" />
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="tag" />
+        <KEY NAME="tag" TYPE="foreign" FIELDS="tag" REFTABLE="course_template_tag" REFFIELDS="id" PREVIOUS="primary" NEXT="template"  />
+        <KEY NAME="template" TYPE="foreign" FIELDS="template" REFTABLE="course_template" REFFIELDS="id" PREVIOUS="tag" />
+      </KEYS>
+    </TABLE>
+  </TABLES>
+</XMLDB>
