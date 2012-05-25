@@ -302,9 +302,9 @@ function block_course_template_create_template_file($coursetemplate, $userid) {
                 $file->delete();
             }
         }
-
         $outcome = true;
     } catch (backup_exception $e) {
+        print_error($e);
         print_error(get_string('error:createbackupfile', 'block_course_template', $coursetemplate->id));
         $outcome = false;
     }
@@ -312,7 +312,7 @@ function block_course_template_create_template_file($coursetemplate, $userid) {
     $bc->destroy();
     unset($bc);
 
-    return $templatefile;
+    return (isset($templatefile)) ? $templatefile : false;
 }
 
 /**
@@ -366,8 +366,7 @@ function block_course_template_get_settings() {
     $config->backup_auto_logs = 0;
     $config->backup_auto_histories = 0;
     $config->backup_auto_active = 2;    // this value for 'manual' backups
-    $directoryname = str_replace(' ', '_', strtolower(get_string('pluginname', 'block_course_template')));
-    $config->backup_auto_destination = "{$CFG->dataroot}/temp/" . $directoryname;
+    $config->backup_auto_destination = "{$CFG->dataroot}/temp/backup/";
 
     return $config;
 }

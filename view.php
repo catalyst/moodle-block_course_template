@@ -192,6 +192,7 @@ if ($delete == 1) {
             //
             // Preview column
             //
+            $imageurl = '';
             if (!empty($temp->screenshot)) {
 
                 $fs = get_file_storage();
