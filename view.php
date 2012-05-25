@@ -255,7 +255,7 @@ if ($delete == 1) {
             }
 
             // new course from template
-            $actions .= $OUTPUT->action_icon(new moodle_url('/backup/restorefile.php',
+            $actions .= $OUTPUT->action_icon(new moodle_url('/blocks/course_template/newcourse.php',
                                 array('template' => $temp->id)),
                                 new pix_icon('t/restore', get_string('newcourse', 'block_course_template')));
 
