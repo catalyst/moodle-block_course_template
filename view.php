@@ -212,7 +212,7 @@ if ($delete == 1) {
                 $imageurl = file_encode_url($CFG->wwwroot . '/pluginfile.php', $path, false);
             }
 
-            $preview = html_writer::tag('img', null, array('src' => $imageurl, 'class' => 'preview'));
+            $preview = html_writer::tag('img', null, array('src' => $imageurl, 'class' => 'preview', 'alt' => get_string('screenshotof', 'block_course_template') . ' ' . $temp->name));
 
             //
             // Tags column
