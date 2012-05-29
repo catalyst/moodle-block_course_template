@@ -119,7 +119,8 @@ if ($mform->is_submitted() && $mform->is_validated()) {
         //
         $tempobj = new stdClass();
         $tempobj->file = null;
-        $tempobj->name = $data->name;
+        $tempobj->name = str_replace(' ', '_', strtolower($data->name));
+        $tempobj->rawname = $data->name;
         $tempobj->description = $data->description['text'];
         $tempobj->course = $data->course;
         $tempobj->screenshot = null;
@@ -152,6 +153,7 @@ if ($mform->is_submitted() && $mform->is_validated()) {
         }
         // update the template db record to store filename
         $tempobj->file = $backupfile->get_filename();
+
         $DB->set_field(
             'block_course_template',
             'file',

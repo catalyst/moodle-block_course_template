@@ -59,8 +59,13 @@ class block_course_template_new_course_form extends moodleform {
         // Template
         $selecttemp = array();
         $selecttemp = $DB->get_records('block_course_template');
-        $selecttemp = array_map(function($n){return $n->name;}, $selecttemp);
-        $mform->addelement('select', 'coursetemplate', get_string('template', 'block_course_template'), $selecttemp);
+        if (!empty($selecttemp)) {
+            $selecttemp = array_map(function($n){return $n->name;}, $selecttemp);
+        }
+        $mform->addelement('select', 'template', get_string('template', 'block_course_template'), $selecttemp);
+        if ($template != -1) {
+            $mform->setDefault('template', $template);
+        }
 
         // Category
         $selectcat = array();
@@ -108,7 +113,6 @@ class block_course_template_new_course_form extends moodleform {
         //
         // Hidden fields
         //
-        $mform->addElement('hidden', 'template', $template);
         $mform->addElement('hidden', 'referer', $this->_customdata['referer']);
 
         //

@@ -72,6 +72,7 @@ $string['newtemplate'] = 'Template from this course';
 $string['notemplates'] = 'No available course templates to create course';
 $string['confirmdelete'] = 'Are you sure you want to delete template \'{$a}\'?';
 $string['templatedeleted'] = 'The template was deleted successfully';
+$string['screenshotof'] = 'Screenshot of';
 
 // errors
 $string['error:notemplate'] = 'No template record for id {$a}';
@@ -85,3 +86,5 @@ $string['error:deletetag'] = 'Unable to delete tags';
 $string['error:deleteinst'] = 'Unable to delete template {$a}';
 $string['error:createtemplatefile'] = 'Unable to create backup file for template {$a}';
 $string['error:movearchive'] = 'Unable to copy restore archive';
+$string['error:extractarchive'] = 'Unable to extract archive';
+$string['error:nametaken'] = 'That template name is already in use. Please choose another.';

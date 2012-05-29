@@ -102,7 +102,20 @@ class block_course_template_add_template_form extends moodleform {
     }
 
     public function validation($data, $files) {
+        global $DB;
+
         $errors = parent::validation($data, $files);
+
+        // template name must be unique
+        $samename = $DB->get_records(
+            'block_course_template',
+            array(
+                'name' => str_replace(' ', '_', strtolower($data['name']))
+            )
+        );
+        if (!empty($samename)) {
+            $errors['name'] = get_string('error:nametaken', 'block_course_template');
+        }
 
         return $errors;
     }

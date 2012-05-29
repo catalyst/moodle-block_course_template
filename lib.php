@@ -304,7 +304,6 @@ function block_course_template_create_template_file($coursetemplate, $userid) {
         }
         $outcome = true;
     } catch (backup_exception $e) {
-        print_error($e);
         print_error(get_string('error:createbackupfile', 'block_course_template', $coursetemplate->id));
         $outcome = false;
     }

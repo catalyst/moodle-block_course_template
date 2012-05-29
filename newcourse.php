@@ -31,7 +31,7 @@ require_once('../../config.php');
 require_once('new_course_form.php');
 require_once('lib.php');
 require_once($CFG->dirroot . '/lib/moodlelib.php');
-require_once($CFG->dirroot . '/backup/controller/restore_controller.class.php');
+require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
 
 $referer = optional_param('referer', null, PARAM_TEXT);
 if ($referer === null) {
@@ -71,35 +71,150 @@ if ($mform->is_submitted() && $mform->is_validated()) {
     if ($data = $mform->get_data()) {
         require_sesskey();
 
-        print_object($data);
-
         // get course_template record
-        if (!$coursetemplate = $DB->get_record('block_course_template', array('id' => $data->coursetemplate))) {
-            print_error(get_string('error:notemplate', 'block_course_template', $data->coursetemplate));
+        if (!$coursetemplate = $DB->get_record('block_course_template', array('id' => $data->template))) {
+            print_error(get_string('error:notemplate', 'block_course_template', $data->template));
         }
+
         // get the restore file
         $fs = get_file_storage();
-        $restorefile = $fs->get_file(
-            $cxt->id,               // context id
-            'course_template',      // location
-            'backupfile',           // area
-            $coursetemplate->id,    // item id (id of associated course_template record)
-            '/',                    // filepath
-            $coursetemplate->file   // filename
-        );
+        $restorefile = $fs->get_file_by_hash(sha1("/$cxt->id/block_course_template/backupfile/$coursetemplate->id/$coursetemplate->file"));
 
         // copy file into the temp directory for extraction
-        if (!$tmpcopy = $restorefile->copy_content_to($CFG->tempdir . '/backup/' . md5($coursetemplate->file))) {
+        $tmpcopyname = md5($coursetemplate->file);
+        if (!$tmpcopy = $restorefile->copy_content_to($CFG->tempdir . '/backup/' . $tmpcopyname)) {
             print_error('error:movearchive', 'block_course_template');
         }
 
+        /////////////////////
+        //                 //
+        // Restore process //
+        //                 //
+        /////////////////////
+
+        // The following are based on the Moodle restore functionality. Specifically
+        // the restore stage classes. Code below is based on __construct() and process()
+        // methods of these classes found in backup/util/ui/restore_ui_stage.class.php
+/*
         //
-        // Restore process
+        // restore_ui_stage_confirm
         //
         $fb = get_file_packer();
-        $tempdirnewname = restore_controller::get_tempdir_name($cxt->id, $USER->id);
-        print_object($tmpcopy->get_filename());
-        //$extractdir = $fb->extract_to_pathname();
+        $tmpdirnewname = restore_controller::get_tempdir_name($cxt->id, $USER->id);
+        $tmpdirpath =  $CFG->tempdir . '/backup/' . $tmpdirnewname . '/';
+        $outcome = $fb->extract_to_pathname($CFG->tempdir . '/backup/' . $tmpcopyname, $tmpdirpath);
+
+        if ($outcome) {
+            fulldelete($tmpcopyname);
+        } else {
+            print_error('error:extractarchive', 'block_course_template');
+        }
+
+        //
+        // restore_ui_stage_destination
+        //
+        $fullname = $data->fullname;
+        $shortname = $data->shortname;
+        $courseid = restore_dbops::create_new_course($fullname, $shortname, $data->category);
+        $newcourse = $DB->get_record('course', array('id' => $courseid));
+
+        //
+        // restore_ui_stage_settings
+        //
+        // do nothing from this stage as we are keeping settings already defined in the .mbz package
+
+        //
+        // restore_ui_stage_schema
+        //
+        $info = backup_general_helper::get_backup_information($tmpdirnewname);
+        $controller = new restore_controller(
+            $tmpdirnewname,
+            $courseid,
+            backup::INTERACTIVE_NO,
+            backup::MODE_GENERAL,
+            $USER->id,
+            backup::TARGET_NEW_COURSE
+        );
+
+        $plan = $controller->get_plan();
+        $info = $controller->get_info();
+        $task = restore_factory::get_restore_course_task($info->course, $courseid);
+        print_object($task->get_settings());
+        $plan->add_task($task);
+        print_object($newcourse);
+*/
+  //$blocks = backup_general_helper::get_blocks_from_path($task->get_taskbasepath);
+
+        $stages = array(
+            restore_ui::STAGE_CONFIRM,
+            restore_ui::STAGE_DESTINATION,
+            restore_ui::STAGE_SETTINGS,
+            restore_ui::STAGE_SCHEMA,
+            restore_ui::STAGE_REVIEW,
+            restore_ui::STAGE_PROCESS,
+            restore_ui::STAGE_COMPLETE
+        );
+
+        print_object($stages);
+
+        //
+        // Set parameters expected to come from a user's interaction
+        //
+        $_POST['filename'] = clean_param($tmpcopyname, PARAM_FILE);
+        $_POST['stage'] = null;
+        $_POST['contextid'] = null;
+        $_POST['filepath'] = null;
+
+        foreach ($stages as $stage) {
+        echo "STAGE {$stage}-------------<br />";
+        print_object($_POST);
+        echo "...........................<br />";
+            if ($stage & restore_ui::STAGE_CONFIRM + restore_ui::STAGE_DESTINATION) {
+                if ($stage == restore_ui::STAGE_DESTINATION) {
+                    $_POST['filepath'] = $outcome;
+                    $_POST['contextid'] = $cxt->id;
+                    $_POST['stage'] = $stage;
+                }
+                $restore = restore_ui::engage_independent_stage($stage, $cxt->id);
+            } else {
+                // insert required params expected from form input
+                $restore = restore_ui::engage_independent_stage($stage, $cxt->id);
+                if ($restore->process()) {
+                    $rc = new restore_controller(
+                        $restore->get_filepath(),
+                        $restore->get_course_id(),
+                        backup::INTERACTIVE_NO,
+                        backup::MODE_GENERAL,
+                        $USER->id,
+                        $restore->get_target()
+                    );
+                }
+            }
+
+            $outcome = $restore->process();
+            if (!$restore->is_independent()) {
+                if ($restore->get_stage() == restore_ui::STAGE_PROCESS && !$restore->requires_substage()) {
+                    try {
+                        $restore->execute();
+                    } catch (Exception $e) {
+                        $restore->cleanup();
+                        throw $e;
+                    }
+                } else {
+                    $restore->save_controller();
+                }
+            }
+        }
+/*
+        $controller = new restore_controller(
+            $tmpdirnewname,
+            1,
+            backup::INTERACTIVE_NO,
+            backup::MODE_GENERAL,
+            $USER->id,
+            backup::TARGET_NEW_COURSE
+        );
+*/
 
 
         die;
