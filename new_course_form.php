@@ -60,7 +60,7 @@ class block_course_template_new_course_form extends moodleform {
         $selecttemp = array();
         $selecttemp = $DB->get_records('block_course_template');
         if (!empty($selecttemp)) {
-            $selecttemp = array_map(function($n){return $n->name;}, $selecttemp);
+            $selecttemp = array_map(function($n){return $n->rawname;}, $selecttemp);
         }
         $mform->addelement('select', 'template', get_string('template', 'block_course_template'), $selecttemp);
         if ($template != -1) {

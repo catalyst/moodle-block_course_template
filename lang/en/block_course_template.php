@@ -88,3 +88,4 @@ $string['error:createtemplatefile'] = 'Unable to create backup file for template
 $string['error:movearchive'] = 'Unable to copy restore archive';
 $string['error:extractarchive'] = 'Unable to extract archive';
 $string['error:nametaken'] = 'That template name is already in use. Please choose another.';
+$string['error:nodirectory'] = 'No backup template directory';

@@ -357,8 +357,8 @@ function block_course_template_get_settings() {
     $config->backup_auto_keep = 1;      // only keep one backup
     $config->backup_auto_users = 0;
     $config->backup_auto_role_assignments = 0;
-    $config->backup_auto_activities = 0;
-    $config->backup_auto_blocks = 0;
+    $config->backup_auto_activities = 1;
+    $config->backup_auto_blocks = 1;
     $config->backup_auto_filters = 1;
     $config->backup_auto_comments = 0;
     $config->backup_auto_userscompletion = 0;
