@@ -73,6 +73,7 @@ $string['notemplates'] = 'No available course templates to create course';
 $string['confirmdelete'] = 'Are you sure you want to delete template \'{$a}\'?';
 $string['templatedeleted'] = 'The template was deleted successfully';
 $string['screenshotof'] = 'Screenshot of';
+$string['createdsuccessfully'] = 'Your course was created successfully';
 
 // errors
 $string['error:notemplate'] = 'No template record for id {$a}';

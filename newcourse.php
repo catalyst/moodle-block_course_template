@@ -16,7 +16,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * <one-line descriptionet
+ * <one-line description>
  *
  * <longer description [optional]>
  *
@@ -32,19 +32,17 @@ require_once('new_course_form.php');
 require_once('lib.php');
 require_once($CFG->dirroot . '/lib/moodlelib.php');
 require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
-require_once('coursetemplate_restore_ui_stage.class.php');
 
 $referer = optional_param('referer', null, PARAM_TEXT);
 if ($referer === null) {
    $referer = get_referer(false);
 }
 
-require_login();
 $cxt = get_context_instance(CONTEXT_SYSTEM);
-
-require_capability('block/course_template:createcourse', $cxt);
-
 $templateid = optional_param('template', -1, PARAM_INT);
+
+require_login();
+require_capability('block/course_template:createcourse', $cxt);
 
 // if there aren't any templates then redirect
 $numtemps = $DB->count_records('block_course_template');
@@ -70,6 +68,7 @@ $mform = new block_course_template_new_course_form(null, array('template' => $te
 if ($mform->is_submitted() && $mform->is_validated()) {
 
     if ($data = $mform->get_data()) {
+
         require_sesskey();
 
         // get course_template record
@@ -93,7 +92,6 @@ if ($mform->is_submitted() && $mform->is_validated()) {
         //                 //
         /////////////////////
 
-        //*********************
         $courseid = restore_dbops::create_new_course($data->fullname, $data->shortname, $data->category);
         $newcourse = $DB->get_record('course', array('id' => $courseid));
         // set the start date
@@ -157,7 +155,7 @@ if ($mform->is_submitted() && $mform->is_validated()) {
 
                 echo $OUTPUT->header();
                 echo $renderer->precheck_notices($precheckresults);
-                echo $OUTPUT->continue_button(new moodle_url('/course/view.php', array('id'=>$course->id)));
+                echo $OUTPUT->continue_button(new moodle_url('/course/view.php', array('id'=>$courseid)));
                 echo $OUTPUT->footer();
                 die();
             }
@@ -172,7 +170,8 @@ if ($mform->is_submitted() && $mform->is_validated()) {
         // Delete the temp directory now
         fulldelete($tempdestination);
 
-        //***********************
+        // forward to the shiny new course
+        redirect(new moodle_url('/course/view.php', array('id' => $courseid)) , get_string('createdsuccessfully', 'block_course_template'));
 
     }
 }

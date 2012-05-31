@@ -126,10 +126,16 @@ class block_course_template_new_course_form extends moodleform {
 
         $errors = parent::validation($data, $files);
 
-        // does the course name already exist?
-        //$fullname = $DB->get_field('block_course_template', 'name', array('name' => $data['name']));
-        //$shortname = $DB->get_field('block_course_template', 'name', array('name' => $data['name']));
-
+        // does the course shortname already exist?
+        if ($foundcourses = $DB->get_records('course', array('shortname'=>$data['shortname']))) {
+            if (!empty($foundcourses)) {
+                foreach ($foundcourses as $foundcourse) {
+                    $foundcoursenames[] = $foundcourse->fullname;
+                }
+                $foundcoursenamestring = implode(',', $foundcoursenames);
+                $errors['shortname']= get_string('shortnametaken', '', $foundcoursenamestring);
+            }
+        }
 
         return $errors;
     }
