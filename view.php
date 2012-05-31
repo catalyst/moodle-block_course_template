@@ -102,8 +102,8 @@ if (!empty($showtags)) {
 }
 
 // get template records - most recently modified first
-$templates = $DB->get_records_sql('SELECT DISTINCT(tmp.*) ' . $sql . ' ORDER BY tmp.timemodified DESC');
-$numtemps = $DB->count_records_sql('SELECT COUNT(DISTINCT tmp.*) ' . $sql);
+$templates = $DB->get_records_sql('SELECT tmp.* ' . $sql . ' ORDER BY tmp.timemodified DESC');
+$numtemps = $DB->count_records_sql('SELECT COUNT(tmp.id) ' . $sql);
 
 //
 // Start page output

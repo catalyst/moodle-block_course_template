@@ -78,15 +78,6 @@ if ($templateid !== -1) {
     }
 }
 
-//
-// Navigation
-//
-// set navigation (so that breadcrumb is generated correctly)
-$coursenode = $PAGE->navigation->find($basecourseid, navigation_node::TYPE_COURSE);
-$nodetitle = ($templateid !== -1) ? get_string('updatetemplate', 'block_course_template') : get_string('createtemplate', 'block_course_template');
-$editnode = $coursenode->add($nodetitle);
-$editnode->make_active();
-
 // mform instance
 $mform = new block_course_template_add_template_form(null, array('basecourseid' => $basecourseid, 'templateid' => $templateid, 'referer' => $referer));
 
@@ -150,16 +141,16 @@ if ($mform->is_submitted() && $mform->is_validated()) {
             if (!$backupfile = block_course_template_create_template_file($tempobj, $USER->id)) {
                 print_error(get_string('error:createtemplatefile', 'block_course_template', $tempobj->id));
             }
-        }
-        // update the template db record to store filename
-        $tempobj->file = $backupfile->get_filename();
+            // update the template db record to store filename
+            $tempobj->file = $backupfile->get_filename();
 
-        $DB->set_field(
-            'block_course_template',
-            'file',
-            $tempobj->file,
-            array('id' => $tempobj->id)
-        );
+            $DB->set_field(
+                'block_course_template',
+                'file',
+                $tempobj->file,
+                array('id' => $tempobj->id)
+            );
+        }
 
         //
         // Screenshot file
