@@ -1,65 +1,80 @@
 <?php
 
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * <one-line description>
+ *
+ * <longer description [optional]>
+ *
+ * @package      <package name>
+ * @subpackage   <subpackage name>
+ * @copyright    2012 Catalyst-IT Europe
+ * @author       Joby Harding <joby.harding@catalyst-eu.net>
+ * @license      http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 class block_course_template extends block_base {
 
-    //
-    // Don't allow multiple instances
-    //
+    public function init() {
+
+        $this->title = get_string('pluginname', 'block_course_template');
+    }
+
     public function instance_allow_multiple() {
+
         return false;
     }
 
-    //
-    // Define courseformats the block may be displayed on
-    //
     public function applicable_formats() {
-        // only allow to be created on site index (global)
-        $formatopts = array(
+
+        return array(
             'site-index' => true,
             'mod' => false,
             'course' => false
         );
-
-        return $formatopts;
-    }
-
-    //
-    // Initialise and insert custom items into navigation tree
-    //
-    public function init() {
-        global $CFG, $PAGE;
-
-        // set block title
-        $this->title = get_string('pluginname', 'block_course_template');
     }
 
     public function get_content() {
-        global $CFG, $DB, $OUTPUT, $PAGE, $COURSE;
-
-        // make sure that the block only displays if the current view is of an allowed course format
-        $isallowedformat = $this->is_allowed_format();
+        global $CFG, $DB, $OUTPUT;
 
         if($this->content !== null) {
             return $this->content;
+        }
+
+        // make sure that the block only displays if the current view is of an allowed course format
+        if ($allowedformats = get_config('block_course_template', 'allowcourseformats')) {
+            $allowedformats = explode(',', $allowedformats);
+            if(!in_array($this->page->course->format, $allowedformats)) {
+                return null;
+            }
         }
 
         $this->content = new stdClass();
         $this->content->text = '';
         $this->content->footer = '';
 
-        $course = $this->page->course;
-
-        //
-        // Generate content
-        //
-        $tempurl = new moodle_url("{$CFG->wwwroot}/blocks/course_template/edit.php", array('course' => $COURSE->id));
-        $courseurl = new moodle_url("{$CFG->wwwroot}/blocks/course_template/newcourse.php");
-        $viewurl = new moodle_url("{$CFG->wwwroot}/blocks/course_template/view.php");
+        $tempurl = new moodle_url('/blocks/course_template/edit.php', array('c' => $this->page->course->id));
+        $courseurl = new moodle_url('/blocks/course_template/newcourse.php');
+        $viewurl = new moodle_url('/blocks/course_template/view.php');
 
         $this->content->text .= html_writer::start_tag('ul');
 
-        $cxt = get_context_instance(CONTEXT_SYSTEM);
-        $canedit = has_capability('block/course_template:edit', $cxt);
+        $context = get_context_instance(CONTEXT_SYSTEM);
+        $canedit = has_capability('block/course_template:edit', $context);
 
         // new template
         if ($canedit) {
@@ -68,7 +83,6 @@ class block_course_template extends block_base {
             $this->content->text .= html_writer::end_tag('li');
         }
 
-        // new course
         $this->content->text .= html_writer::start_tag('li');
         $this->content->text .= html_writer::link($courseurl, get_string('newcourse', 'block_course_template'));
         $this->content->text .= html_writer::end_tag('li');
@@ -80,39 +94,7 @@ class block_course_template extends block_base {
 
         $this->content->text .= html_writer::end_tag('ul');
 
-        //
-        // Format-orientated display
-        //
-        // if view is not an allowed courseformat prevent display
-        if (!$isallowedformat) {
-            $this->content = null;
-        }
-
         return $this->content;
-    }
-
-    /**
-     * Check whether the course view in which the block is displayed has
-     * been allowed in the global settings.
-     *
-     * @return boolean success
-     */
-    private function is_allowed_format() {
-        global $COURSE;
-
-        $settings = get_config('block_course_template', 'allowcourseformats');
-        $allowed = false;
-
-        if (!empty($settings)) {
-            $settings = explode(',', $settings);
-            foreach ($settings as $setting) {
-                if ($COURSE->format === $setting) {
-                    $allowed = true;
-                }
-            }
-        }
-
-        return $allowed;
     }
 }
 

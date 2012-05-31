@@ -32,14 +32,15 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/formslib.php');
 
-class block_course_template_add_template_form extends moodleform {
+class course_template_edit_form extends moodleform {
 
     public function definition() {
         global $CFG, $DB;
 
         $mform =& $this->_form;
-        $courseid = $this->_customdata['basecourseid'];
-        $coursename = $DB->get_field('course', 'fullname', array('id' => $courseid));
+
+        extract($this->_customdata);
+
         // prevent file attachments
         $editoroptions = array(
             'maxfiles' => 0,
@@ -51,15 +52,13 @@ class block_course_template_add_template_form extends moodleform {
             'trusttext' => 0
         );
 
-        //
-        // Details fieldset
-        //
+        // Heading
         $mform->addElement('header', 'detailsheading', get_string('details', 'block_course_template'));
 
         // Based on
         $basedontxt  = html_writer::start_tag('p');
         $basedontxt .= get_string('basedoncourse', 'block_course_template') . ' ';
-        $basedontxt .= html_writer::link("{$CFG->wwwroot}/course/view.php?id={$courseid}", $coursename);
+        $basedontxt .= html_writer::link("{$CFG->wwwroot}/course/view.php?id={$basecourse->id}", format_string($basecourse->fullname));
         $basedontxt .= html_writer::end_tag('p');
         $mform->addElement('html', $basedontxt);
 
@@ -75,29 +74,24 @@ class block_course_template_add_template_form extends moodleform {
         // Screenshot
         $mform->addElement('filepicker', 'screenshot', get_string('screenshot', 'block_course_template'), null, array('maxbytes' => get_max_upload_file_size($CFG->maxbytes), 'accepted_types' => 'image'));
 
-        //
-        // Tags fieldset
-        //
+        // Tags heading
         $mform->addElement('header', 'tagsheading', get_string('tags'));
+
         // Existing tags
         $tagtxt = html_writer::tag('p', get_string('existingtags', 'block_course_template') . ': ' . block_course_template_get_tag_list());
         $mform->addElement('html', $tagtxt);
+
         // Tags
         $mform->addElement('text', 'tags', get_string('tags'));
         $mform->setType('tags', PARAM_TEXT);
         $mform->addHelpButton('tags', 'tagshelp', 'block_course_template');
 
-        //
         // Hidden fields
-        //
-        $mform->addElement('hidden', 'course', $this->_customdata['basecourseid']);
-        $mform->addElement('hidden', 'template', $this->_customdata['templateid']);
-        $mform->addElement('hidden', 'referer', $this->_customdata['referer']);
+        $mform->addElement('hidden', 'course', $basecourse->id);
+        $mform->addElement('hidden', 'template', $templateid);
 
-        //
         // Action buttons
-        //
-        $actiontxt = ($this->_customdata['templateid'] !== -1) ? get_string('updatetemplate', 'block_course_template') : get_string('createtemplate', 'block_course_template');
+        $actiontxt = ($templateid !== -1) ? get_string('updatetemplate', 'block_course_template') : get_string('createtemplate', 'block_course_template');
         $this->add_action_buttons(true, $actiontxt);
     }
 

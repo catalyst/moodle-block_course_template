@@ -225,7 +225,7 @@ function block_course_template_pluginfile($course, $birecord_or_cm, $context, $f
  * @param int $userid
  * @return bool
  */
-function block_course_template_create_template_file($coursetemplate, $userid) {
+function course_template_create_archive($coursetemplate, $userid) {
     global $DB;
 
     $course = $DB->get_record('course', array('id' => $coursetemplate->course));
