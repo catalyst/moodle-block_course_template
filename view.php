@@ -16,44 +16,42 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
-* For most people, just lists the course categories
-* Allows the admin to create, delete and rename course categories
-*
-* @copyright 1999 Martin Dougiamas  http://dougiamas.com
-* @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-* @package course
-*/
-
-require_once('../../config.php');
+ * <one-line description>
+ *
+ * <longer description [optional]>
+ *
+ * @package      blocks
+ * @subpackage   course_template
+ * @copyright    2012 Catalyst-IT Europe
+ * @author       Joby Harding <joby.harding@catalyst-eu.net>
+ * @license      http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once('tag_filter_form.php');
 require_once('lib.php');
 require_once("{$CFG->libdir}/tablelib.php");
 
 require_login();
-$cxt = get_context_instance(CONTEXT_SYSTEM);
-require_capability('block/course_template:createcourse', $cxt);
 
-$tagid = optional_param('tag', -1, PARAM_INT);
-$delete = optional_param('delete', -1, PARAM_INT);
-$confirm = optional_param('confirm', -1, PARAM_INT);
-$templateid = optional_param('template', -1, PARAM_INT);
+$context = get_context_instance(CONTEXT_SYSTEM);
 
-//
-// Page settings
-//
+$tagid      = optional_param('tag', 0, PARAM_INT);
+$delete     = optional_param('delete', 0, PARAM_INT);
+$confirm    = optional_param('confirm', 0, PARAM_INT);
+$templateid = optional_param('template', 0, PARAM_INT);
+
+require_capability('block/course_template:createcourse', $context);
+
 $PAGE->set_url('/blocks/course_template/view.php');
-$PAGE->set_context($cxt);
+$PAGE->set_context($context);
 $PAGE->set_pagelayout('course');
 $PAGE->set_title(get_string('pluginname', 'block_course_template'));
 $PAGE->set_heading(get_string('pluginname', 'block_course_template'));
 
-//
-// Handle any deletion
-//
+// Handle any confirmed deletion
 if ($delete == 1) {
     if ($confirm == 1) {
-        require_capability('block/course_template:edit', $cxt);
-        // delete the template
+        require_capability('block/course_template:edit', $context);
         block_course_template_delete_template($templateid);
         redirect($PAGE->url, get_string('templatedeleted', 'block_course_template'));
     }
@@ -81,7 +79,7 @@ if ($mform->is_submitted() && $mform->is_validated()) {
 //
 // Handle (if) a passed tag param
 //
-if ($tagid !== -1) {
+if ($tagid !== 0) {
     if (!$tagrawname = $DB->get_field('block_course_template_tag', 'name', array('id' => $tagid))) {
         print_error(get_string('error:couldntgettag', 'block_course_template', $tagid));
     } else {
@@ -105,21 +103,14 @@ if (!empty($showtags)) {
 $templates = $DB->get_records_sql('SELECT tmp.* ' . $sql . ' ORDER BY tmp.timemodified DESC');
 $numtemps = $DB->count_records_sql('SELECT COUNT(tmp.id) ' . $sql);
 
-//
-// Start page output
-//
 echo $OUTPUT->header();
 
-// 'namespace' CSS styles by including custom container id
 echo $OUTPUT->container_start(null, 'manage_coursetemplates');
 
-
-//
 // Handle any deletion
-//
 if ($delete == 1) {
     if ($confirm != 1) {
-        require_capability('block/course_template:edit', $cxt);
+        require_capability('block/course_template:edit', $context);
         // confirm ('delete' code at top of script due to redirect() needing to be called before page output begins)
         $confirmurl = new moodle_url($PAGE->url, array('delete' => 1, 'confirm' => 1, 'template' => $templateid));
         $cancelurl = new moodle_url($PAGE->url);
@@ -130,13 +121,8 @@ if ($delete == 1) {
     }
 } else {
 
-    //
-    // Generate table
-    //
-    // render the form
     $mform->display();
 
-    // display table
     $table = new flexible_table('block_course_templates');
     $table->set_attribute('width', '100%');
     $table->set_attribute('cellspacing', '0');
@@ -197,7 +183,7 @@ if ($delete == 1) {
 
                 $fs = get_file_storage();
                 $file = $fs->get_file(
-                    $cxt->id,
+                    $context->id,
                     'block_course_template',
                     'screenshot',
                     $temp->id,
@@ -206,7 +192,7 @@ if ($delete == 1) {
                 );
 
                 $filename = $file->get_filename();
-                $path  = '/' . $cxt->id . '/block_course_template/screenshot/';
+                $path  = '/' . $context->id . '/block_course_template/screenshot/';
                 $path .= $temp->id . '/' . $filename;
                 $file = $fs->get_file_by_hash(sha1($path));
                 $imageurl = file_encode_url($CFG->wwwroot . '/pluginfile.php', $path, false);
@@ -240,7 +226,7 @@ if ($delete == 1) {
             // Actions column
             //
             $actions = '';
-            $canedit = has_capability('block/course_template:edit', $cxt);
+            $canedit = has_capability('block/course_template:edit', $context);
 
             // edit icon
             if ($canedit) {

@@ -16,9 +16,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Course template
+ * <one-line description>
  *
- * @package      plugin
+ * <longer description [optional]>
+ *
+ * @package      blocks
+ * @subpackage   course_template
  * @copyright    2012 Catalyst-IT Europe
  * @author       Joby Harding <joby.harding@catalyst-eu.net>
  * @license      http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

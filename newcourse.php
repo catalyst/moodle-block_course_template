@@ -20,14 +20,14 @@
  *
  * <longer description [optional]>
  *
- * @package      <package name>
- * @subpackage   <subpackage name>
+ * @package      blocks
+ * @subpackage   course_template
  * @copyright    2012 Catalyst-IT Europe
  * @author       Joby Harding <joby.harding@catalyst-eu.net>
  * @license      http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once('../../config.php');
+require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once('new_course_form.php');
 require_once('lib.php');
 require_once($CFG->dirroot . '/lib/moodlelib.php');

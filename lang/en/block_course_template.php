@@ -16,17 +16,22 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for component 'block_activity_modules', language 'en', branch 'MOODLE_20_STABLE'
+ * <one-line description>
  *
- * @package   block_course_templates
- * @copyright 1999 onwards Martin Dougiamas  {@link http://moodle.com}
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * <longer description [optional]>
+ *
+ * @package      blocks
+ * @subpackage   course_template
+ * @copyright    2012 Catalyst-IT Europe
+ * @author       Joby Harding <joby.harding@catalyst-eu.net>
+ * @license      http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 // no direct script access
 defined('MOODLE_INTERNAL') || die();
 
 $string['pluginname'] = 'Course Template';
+
  // capabilities strings
 $string['course_template:edit'] = 'Create and administer course templates';
 $string['course_template:createcourse'] = 'Create a new course from a course template';

@@ -16,14 +16,17 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Capabilities for Course Template module
+ * <one-line description>
  *
- * @package      modules
- * @subpackage   course template
+ * <longer description [optional]>
+ *
+ * @package      blocks
+ * @subpackage   course_template
  * @copyright    2012 Catalyst-IT Europe
  * @author       Joby Harding <joby.harding@catalyst-eu.net>
  * @license      http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 
 $capabilities = array(
     'block/course_template:edit' => array(

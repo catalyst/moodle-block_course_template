@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -19,7 +20,8 @@
  *
  * <longer description [optional]>
  *
- * @package      plugin
+ * @package      blocks
+ * @subpackage   course_template
  * @copyright    2012 Catalyst-IT Europe
  * @author       Joby Harding <joby.harding@catalyst-eu.net>
  * @license      http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

@@ -16,15 +16,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
-* For most people, just lists the course categories
-* Allows the admin to create, delete and rename course categories
-*
-* @copyright 1999 Martin Dougiamas  http://dougiamas.com
-* @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-* @package course
-*/
+ * <one-line description>
+ *
+ * <longer description [optional]>
+ *
+ * @package      blocks
+ * @subpackage   course_template
+ * @copyright    2012 Catalyst-IT Europe
+ * @author       Joby Harding <joby.harding@catalyst-eu.net>
+ * @license      http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
-require_once('../../config.php');
+require_once(dirname(dirname(dirname(__FILE))).'config.php');
 require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
 require_once('edit_form.php');
 require_once('lib.php');

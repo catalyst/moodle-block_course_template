@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -15,12 +16,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details
+ * <one-line description>
  *
- * @package    block
- * @subpackage block_course_templates
- * @copyright  1999 onwards Martin Dougiamas (http://dougiamas.com)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * <longer description [optional]>
+ *
+ * @package      blocks
+ * @subpackage   course_template
+ * @copyright    2012 Catalyst-IT Europe
+ * @author       Joby Harding <joby.harding@catalyst-eu.net>
+ * @license      http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
