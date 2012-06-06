@@ -39,7 +39,7 @@ class block_course_template_course_form extends moodleform {
         global $CFG, $DB;
 
         $mform =& $this->_form;
-        $template = $this->_customdata['template'];
+        $template = $this->_customdata['t'];
 
         // Prevent file attachments
         $editoroptions = array(
@@ -62,7 +62,7 @@ class block_course_template_course_form extends moodleform {
             $selecttemp = array_map(function($n){return $n->rawname;}, $selecttemp);
         }
         $mform->addelement('select', 'template', get_string('template', 'block_course_template'), $selecttemp);
-        if ($template != -1) {
+        if ($template != 0) {
             $mform->setDefault('template', $template);
         }
 

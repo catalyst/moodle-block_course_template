@@ -27,8 +27,9 @@
  * @license      http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+// No direct script access
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2012050801;        // The current plugin version (Date: YYYYMMDDXX)
-$plugin->requires  = 2011112900;        // Requires this Moodle version
-$plugin->component = 'block_course_template'; // Full name of the plugin (used for diagnostics)
+$plugin->version   = 2012050801;                // The current plugin version (Date: YYYYMMDDXX)
+$plugin->requires  = 2011112900;                // Requires this Moodle version
+$plugin->component = 'block_course_template';   // Full name of the plugin (used for diagnostics)

@@ -27,14 +27,12 @@
  * @license      http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// no direct script access thankyou
+// No direct script access thankyou
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/blocks/course_template/lib.php');
 
-//
 // Insert course templates actions into admin menu tree
-//
 // Course templates category (directory)
 $coursetmps = array(
     'key'    => 'coursetemplates',
@@ -77,21 +75,17 @@ $tmpsettings = array(
     )
 );
 
-//
 // Insert nav items into Site admin tree
-//
 $ADMIN->add('courses', new admin_category($coursetmps['key'], $coursetmps['title']));
 $ADMIN->add($coursetmps['key'], new admin_externalpage($coursefromtmp['key'], $coursefromtmp['title'], $coursefromtmp['url']));
 $ADMIN->add($coursetmps['key'], new admin_externalpage($mantmps['key'], $mantmps['title'], $mantmps['url']));
 
-//
 // Configuration settings page
-//
 if ($hassiteconfig) {
     $settings = new admin_settingpage($tmpsettings['key'], $tmpsettings['title']);
     $ADMIN->add($coursetmps['key'], $settings);
 
-    // course format settings
+    // Course format settings
     extract($tmpsettings['options']);
     $settings->add(new admin_setting_configmulticheckbox('block_course_template/' . $courseformats['name'], $courseformats['visiblename'], $courseformats['description'], $courseformats['defaults'], $courseformats['choices']));
 }

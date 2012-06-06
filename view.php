@@ -64,8 +64,16 @@ if ($delete == 1) {
 
 if ($data = $mform->get_data()) {
     if (!empty($data->tags)) {
-        // only keep tags with a value of 1
-        $activetags = array_filter($data->tags, function($n){if ($n == 1) return true; return false;});
+
+        // Only keep tags with a value of 1
+        $activetags = array_filter(
+            $data->tags,
+            function($n){
+                if ($n == 1) return true;
+                return false;
+            }
+        );
+
         $activetags = implode('\', \'', array_keys($activetags));
     }
 }
@@ -98,12 +106,14 @@ echo $OUTPUT->container_start(null, 'manage_coursetemplates');
 if ($delete == 1) {
     if ($confirm != 1) {
         require_capability('block/course_template:edit', $syscontext);
-        // confirm ('delete' code at top of script due to redirect() needing to be called before page output begins)
+
+        // Confirm ('delete' code at top of script due to redirect() needing to be called before page output begins)
         $confirmurl = new moodle_url($PAGE->url, array('d' => 1, 'c' => 1, 't' => $templateid));
         $cancelurl = new moodle_url($PAGE->url);
         if (!$templatename = $DB->get_field('block_course_template', 'name', array('id' => $templateid))) {
             print_error('error:notemplate', 'block_course_template', $templateid);
         }
+
         echo $OUTPUT->confirm(get_string('confirmdelete', 'block_course_template', $templatename), $confirmurl, $cancelurl);
     }
 } else {

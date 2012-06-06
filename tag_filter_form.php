@@ -27,7 +27,7 @@
  * @license      http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// no direct script access
+// No direct script access
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/formslib.php');
@@ -40,10 +40,8 @@ class block_course_template_tag_filter_form extends moodleform {
         $mform =& $this->_form;
         extract($this->_customdata);
 
-        // Active tags fieldset
         $mform->addElement('header', 'activetags', get_string('activetags', 'block_course_template'));
 
-        // Tags
         $tags =  $DB->get_records('block_course_template_tag');
         if (empty($tags)) {
             $mform->addElement('html', html_writer::tag('p', get_string('notags', 'block_course_template')));
@@ -51,22 +49,20 @@ class block_course_template_tag_filter_form extends moodleform {
             $groupelems  = array();
             foreach ($tags as $tag) {
                 $groupelems[] =& $mform->createElement('advcheckbox', $tag->name, $tag->name,  $tag->name, array('group' => 1));
-                // if a single tag filter has been passed through _customdata
+
+                // If a single tag filter has been passed through _customdata
                 if ($filtertag !== 0) {
                     if ($tag->id == $filtertag) {
                         $mform->setDefault('tags[' . $tag->name . ']', 1);
                     }
                 }
             }
-            // html description
+
             $mform->addElement('html', html_writer::tag('p', get_string('filtertext', 'block_course_template')));
 
             $mform->addGroup($groupelems, 'tags', array(''), false);
             $this->add_checkbox_controller(1);
 
-            //
-            // Action buttons
-            //
             $this->add_action_buttons(false, get_string('filtertemplates', 'block_course_template'));
         }
     }
