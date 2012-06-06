@@ -28,45 +28,7 @@
 // No direct script access thankyou
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/blocks/course_template/lib.php');
-
-// Navigation nodes
-$ADMIN->add(
-    'courses',
-    new admin_category(
-        'coursetemplate',
-        get_string('pluginname', 'block_course_template')
-    )
-);
-
-$ADMIN->add(
-    'coursetemplate',
-    new admin_externalpage(
-        'newcoursefromtemp',
-        get_string('newcoursefromtemp', 'block_course_template'),
-        $CFG->wwwroot . '/blocks/course_template/newcourse.php'
-    )
-);
-
-$ADMIN->add(
-    'coursetemplate',
-    new admin_externalpage(
-        'viewallcoursetemp',
-        get_string('alltemplates', 'block_course_template'),
-        $CFG->wwwroot . '/blocks/course_template/import.php'
-    )
-);
-
-$hassiteconfig = has_capability('moodle/site:config', get_context_instance(CONTEXT_SYSTEM));
-
-// Site config settings
-if ($hassiteconfig) {
-    $settings = new admin_settingpage(
-        'block_course_template',
-        get_string('pluginname', 'block_course_template') . ' ' . get_string('settings', 'block_course_template')
-    );
-
-    $ADMIN->add('coursetemplate', $settings);
+if ($ADMIN->fulltree) {
 
     $formats = get_plugin_list('format');
     if (!empty($formats)) {
@@ -83,13 +45,8 @@ if ($hassiteconfig) {
         }
     }
 
-    $settings->add(
-        new admin_setting_configmulticheckbox(
-            'block_course_template/' . 'allowcourseformats',
-            get_string('visiblename', 'block_course_template'),
-            get_string('configdescription', 'block_course_template'),
-            $configdefaults,
-            $formats
-        )
-    );
+    // Teamwork Owner can assign from roles.
+    $settings->add(new admin_setting_configmultiselect('block_course_template_allowedformats',
+        get_string('visiblename', 'block_course_template'), get_string('configdescription', 'block_course_template'),
+        $defaultformats, $formats));
 }

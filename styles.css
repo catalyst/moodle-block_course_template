@@ -43,7 +43,7 @@
 
 /* view.php -------------------------------------------*/
 
-table#block_course_template td.preview {
+table#block-course-template td.preview {
     width: 206px;
     height: 150px;
     text-align: center;

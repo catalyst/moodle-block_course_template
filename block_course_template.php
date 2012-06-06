@@ -54,9 +54,9 @@ class block_course_template extends block_base {
         }
 
         // Make sure that the block only displays if the current view is of an allowed course format
-        if ($allowedformats = get_config('block_course_template', 'allowcourseformats')) {
-            $allowedformats = explode(',', $allowedformats);
-            if(!in_array($this->page->course->format, $allowedformats)) {
+        if (isset($CFG->block_course_template_allowedformats)) {
+            $allowedformats = explode(',', $CFG->block_course_template_allowedformats);
+            if (!in_array($this->page->course->format, $allowedformats)) {
                 return null;
             }
         }
