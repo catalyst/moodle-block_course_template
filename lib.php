@@ -30,6 +30,8 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
 
+define('COURSE_TEMPLATES_PAGESIZE', 4);
+
 /**
  * Return an associative array containing course formats for settings checkboxes
  *

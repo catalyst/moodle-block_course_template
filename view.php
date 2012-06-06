@@ -32,208 +32,113 @@ require_once("{$CFG->libdir}/tablelib.php");
 
 require_login();
 
-$tagid      = optional_param('tag', 0, PARAM_INT);
-$delete     = optional_param('d', 0, PARAM_INT);
-$confirm    = optional_param('c', 0, PARAM_INT);
-$templateid = optional_param('t', 0, PARAM_INT);
+$tag    = optional_param('tag', 0, PARAM_INT);
+$page   = optional_param('page', 0, PARAM_INT);
 
-$syscontext = get_context_instance(CONTEXT_SYSTEM);
+$systemcontext = get_context_instance(CONTEXT_SYSTEM);
+require_capability('block/course_template:createcourse', $systemcontext);
 
-require_capability('block/course_template:createcourse', $syscontext);
-
-$PAGE->set_url('/blocks/course_template/view.php');
+$url = new moodle_url('/blocks/course_template/view.php', array('page' => $page, 'tag' => $tag));
+$PAGE->set_url($url);
 $PAGE->set_context(get_context_instance(CONTEXT_COURSE, $PAGE->course->id));
 $PAGE->set_pagelayout('course');
 $PAGE->set_title(get_string('pluginname', 'block_course_template'));
 $PAGE->set_heading(get_string('pluginname', 'block_course_template'));
 
-$redirecturl = new moodle_url('/block_course_template/');
-
-$mform = new block_course_template_tag_filter_form(null, array('filtertag' => $tagid));
-
-// Confirmed deletion?
-if ($delete == 1) {
-    if ($confirm == 1) {
-        require_capability('block/course_template:edit', $syscontext);
-        block_course_template_delete_template($templateid);
-        redirect($PAGE->url, get_string('templatedeleted', 'block_course_template'));
-    }
-}
-
-if ($data = $mform->get_data()) {
-    if (!empty($data->tags)) {
-
-        // Only keep tags with a value of 1
-        $activetags = array_filter(
-            $data->tags,
-            function($n){
-                if ($n == 1) return true;
-                return false;
-            }
-        );
-
-        $activetags = implode('\', \'', array_keys($activetags));
-    }
-}
-
-// Filter if we were a passed tag param
-if ($tagid !== 0) {
-    if (!$tagname = $DB->get_field('block_course_template_tag', 'name', array('id' => $tagid))) {
-        redirect(get_string('error:couldntgettag', 'block_course_template', $tagid));
-    } else {
-        $activetags = $tagname;
-    }
-}
-
-// Construct templates query
-$sql  = "FROM {$CFG->prefix}block_course_template tmp";
-
-if (isset($activetags)) {
-    $sql .= " JOIN {$CFG->prefix}block_course_template_tag_instance ins ON tmp.id = ins.template
-              JOIN {$CFG->prefix}block_course_template_tag tag ON ins.tag = tag.id
-         WHERE tag.name IN ('{$activetags}')";
-}
-
-$templates = $DB->get_records_sql('SELECT DISTINCT tmp.id, tmp.* ' . $sql . ' ORDER BY tmp.timemodified DESC');
-$numtemps = $templates ? count($templates) : 0;
-
+$renderer = $PAGE->get_renderer('block_course_template');
 echo $OUTPUT->header();
-echo $OUTPUT->container_start(null, 'manage_coursetemplates');
 
-// Handle any deletion
-if ($delete == 1) {
-    if ($confirm != 1) {
-        require_capability('block/course_template:edit', $syscontext);
+// Tags form.
+$tagsql = '';
+$tagparams = array();
+$tags =  $DB->get_records('block_course_template_tag');
+$mform = new block_course_template_tag_filter_form(null, array('tags' => $tags, 'filtertag' => $tag));
+if ($data = $mform->get_data()) {
+    if ($data->tags && is_array($data->tags)) {
 
-        // Confirm ('delete' code at top of script due to redirect() needing to be called before page output begins)
-        $confirmurl = new moodle_url($PAGE->url, array('d' => 1, 'c' => 1, 't' => $templateid));
-        $cancelurl = new moodle_url($PAGE->url);
-        if (!$templatename = $DB->get_field('block_course_template', 'name', array('id' => $templateid))) {
-            print_error('error:notemplate', 'block_course_template', $templateid);
-        }
-
-        echo $OUTPUT->confirm(get_string('confirmdelete', 'block_course_template', $templatename), $confirmurl, $cancelurl);
-    }
-} else {
-
-    $mform->display();
-
-    $table = new flexible_table('block-course-template-table-' . $PAGE->course->id);
-    $table->set_attribute('width', '100%');
-    $table->set_attribute('cellspacing', '0');
-    $table->set_attribute('cellpadding', '3');
-    $table->set_attribute('id', 'block_course_template');
-    $table->set_attribute('class', 'generaltable generalbox');
-    $table->define_columns(array('preview', 'details', 'tags', 'actions'));
-    $table->define_headers(array(get_string('preview', 'block_course_template'), get_string('details', 'block_course_template'), get_string('tags', 'block_course_template'), get_string('actions', 'block_course_template')));
-    $table->define_baseurl("{$CFG->wwwroot}/blocks/course_template/view.php");
-    $table->column_class('preview', 'screenshot');
-    $table->column_class('tags', 'tags');
-    $table->column_class('actions', 'actions');
-
-    $table->setup();
-    $table->pagesize(1, $numtemps);
-    $startpage = $table->get_page_start();
-    $pagecount = $table->get_page_size();
-
-    // Generate entries
-    if (!empty($templates)) {
-        foreach ($templates as $temp) {
-            $details  = html_writer::start_tag('ul');
-
-            $details .= html_writer::start_tag('li');
-            $details .= html_writer::tag('b', format_string($temp->name));
-            $details .= html_writer::end_tag('li');
-
-            $course   = format_string($DB->get_field('course', 'fullname', array('id' => $temp->course)));
-            $details .= html_writer::start_tag('li');
-            $details .= get_string('basedoncourse', 'block_course_template') . ': ';
-            $details .= html_writer::tag('a', $course, array('href' => "{$CFG->wwwroot}/course/view.php?id={$temp->course}", 'title' => get_string('goto', 'block_course_template') . ' ' . $course));
-
-            $details .= html_writer::start_tag('li');
-            $details .= get_string('lastmodified', 'block_course_template') . ': ';
-            $details .= userdate($temp->timemodified, '%A, %d %B %Y');
-            $details .= html_writer::end_tag('li');
-
-            $details .= html_writer::start_tag('li');
-            $details .= format_text(get_string('description') . ': ' . $temp->description);
-            $details .= html_writer::end_tag('li');
-
-            $details .= html_writer::end_tag('ul');
-
-            $imageurl = '';
-
-            if (!empty($temp->screenshot)) {
-
-                $fs = get_file_storage();
-                $file = $fs->get_file(
-                    $syscontext->id,
-                    'block_course_template',
-                    'screenshot',
-                    $temp->id,
-                    '/',
-                    $temp->screenshot
-                );
-
-                $filename = $file->get_filename();
-                $path  = '/' . $syscontext->id . '/block_course_template/screenshot/';
-                $path .= $temp->id . '/' . $filename;
-                $file = $fs->get_file_by_hash(sha1($path));
-                $imageurl = file_encode_url($CFG->wwwroot . '/pluginfile.php', $path, false);
-            }
-
-            $preview = html_writer::tag('img', null, array('src' => $imageurl, 'class' => 'preview', 'alt' => get_string('screenshotof', 'block_course_template') . ' ' . $temp->name));
-
-            // Tags column
-            $tags = '';
-
-            // Get tags associated with this template
-            $tagsql = "SELECT tag.* FROM {$CFG->prefix}block_course_template_tag_instance ins
-                                    JOIN {$CFG->prefix}block_course_template_tag tag ON ins.tag = tag.id
-                                    WHERE ins.template = {$temp->id}
-                                    ORDER BY tag.name";
-
-            $tagrecs = $DB->get_records_sql($tagsql);
-
-            if (!empty($tagrecs)) {
-                $tagslist = implode(', ', array_map(function($n){
-                        $link = html_writer::link(new moodle_url(me(), array('tag' => $n->id)), format_string($n->name));
-                        return $link;
-                    },
-                    $tagrecs
-                ));
-                $tags = $tagslist;
-            }
-
-            // Actions column
-            $actions = '';
-            $canedit = has_capability('block/course_template:edit', $syscontext);
-
-            // Edit icon
-            if ($canedit) {
-                $actions  .= $OUTPUT->action_icon(new moodle_url('/blocks/course_template/edit.php',
-                                    array('t' => $temp->id)),
-                                    new pix_icon('t/edit', get_string('edittempdata', 'block_course_template')));
-
-                // Delete icon
-                $actions .= $OUTPUT->action_icon(new moodle_url('/blocks/course_template/view.php',
-                                    array('t' => $temp->id, 'd' => 1)),
-                                    new pix_icon('t/delete', get_string('delete')));
-            }
-
-            // New course from template
-            $actions .= $OUTPUT->action_icon(new moodle_url('/blocks/course_template/newcourse.php',
-                                array('t' => $temp->id)),
-                                new pix_icon('t/restore', get_string('newcourse', 'block_course_template')));
-
-            $table->add_data(array($preview, $details, $tags, $actions));
+        // Only keep tags with a value of 1.
+        $activetags = array_keys($data->tags, 1);
+        if (!empty($activetags)) {
+            list($tagsql, $tagparams) = $DB->get_in_or_equal(array_values($activetags), SQL_PARAMS_NAMED, 'tag_');
         }
     }
-
-    // Output the table
-    $table->print_html();
+} else if ($tag) {
+    $tagsql = " = {$tag}";
+    $tagparams['filtertag'] = $tag;
 }
 
-echo $OUTPUT->container_end();
+// Templates listing.
+if (!empty($tagsql) && !empty($tagparams)) {
+    $totalcount = $DB->count_records_sql("SELECT COUNT(ct.id)
+        FROM {block_course_template} ct
+        JOIN {block_course_template_tag_instance} ti ON ti.template = ct.id
+        WHERE ti.tag {$tagsql}
+        GROUP BY ct.id", $tagparams);
+    $templatesql = "SELECT ct.*, c.fullname AS coursename
+        FROM {block_course_template} ct
+        JOIN {block_course_template_tag_instance} ti ON ti.template = ct.id
+        JOIN {course} c ON c.id = ct.course
+        WHERE ti.tag {$tagsql}
+        GROUP BY ct.id
+        ORDER BY ct.timemodified DESC";
+} else {
+    $totalcount = $DB->count_records_sql("SELECT COUNT(*) FROM {block_course_template}");
+    $templatesql = "SELECT ct.*, c.fullname AS coursename
+        FROM {block_course_template} ct
+        JOIN {course} c ON c.id = ct.course
+        GROUP BY ct.id
+        ORDER BY ct.timemodified DESC";
+}
+
+// Display tags form.
+if ($tags) {
+    $mform->display();
+}
+
+// Display the listings table.
+$table = new flexible_table('block-course-templates');
+$table->set_attribute('id', 'block-course-templates');
+$table->set_attribute('class', 'generaltable generalbox');
+
+$table->define_columns(array('preview', 'details', 'tags', 'actions'));
+$table->define_headers(array(
+    get_string('preview'),
+    get_string('details', 'block_course_template'),
+    get_string('tags'),
+    get_string('actions'),
+));
+$table->define_baseurl($url);
+
+$table->column_class('preview', 'preview');
+$table->column_class('details', 'details');
+$table->column_class('tags', 'tags');
+$table->column_class('actions', 'actions');
+
+$table->setup();
+
+$table->pagesize(COURSE_TEMPLATES_PAGESIZE, $totalcount);
+
+$templates = $DB->get_records_sql($templatesql, $tagparams, $table->get_page_start(), $table->get_page_size());
+if ($templates) {
+    foreach ($templates as $template) {
+        $tags = $DB->get_records_sql("SELECT id, name
+            FROM {block_course_template_tag}
+            WHERE id IN (
+                SELECT tag
+                FROM {block_course_template_tag_instance}
+                WHERE template = ?
+            )", array($template->id));
+
+        $row = array();
+        $row[] = $renderer->display_template_screenshot($template);
+        $row[] = $renderer->display_template_details($template);
+        $row[] = $renderer->display_template_tags($tags);
+        $row[] = $renderer->display_template_actions($template, has_capability('block/course_template:edit', get_context_instance(CONTEXT_SYSTEM)));
+
+        $table->add_data($row);
+    }
+}
+
+$table->print_html();
 
 echo $OUTPUT->footer();

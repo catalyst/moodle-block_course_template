@@ -57,7 +57,7 @@ $string['norecords'] = 'There are no templates to display';
 $string['preview'] = 'Preview';
 $string['tags'] = 'Tags';
 $string['actions'] = 'Actions';
-$string['lastmodified'] = 'Last modified';
+$string['lastmodifiedon'] = 'Last modified: {$a}';
 $string['goto'] = 'Go to';
 $string['edittempdata'] = 'Edit template data';
 $string['newcourse'] = 'New course';
@@ -67,7 +67,7 @@ $string['updatetemplate'] = 'Update template';
 $string['existingtags'] = 'Existing tags';
 $string['tagshelp'] = 'using tags';
 $string['tagshelp_help'] = 'You can add multiple tags by separating each with a comma e.g. tag one, mytag, tag three etc.';
-$string['basedoncourse'] = 'Based on course';
+$string['basedoncourse'] = 'Based on course: {$a}';
 $string['screenshot'] = 'Screenshot';
 $string['createcourse'] = 'New course from template';
 $string['basedontemplate'] = 'Based on template \'{$a}\'';
@@ -77,6 +77,8 @@ $string['confirmdelete'] = 'Are you sure you want to delete template \'{$a}\'?';
 $string['templatedeleted'] = 'The template was deleted successfully';
 $string['screenshotof'] = 'Screenshot of';
 $string['createdsuccessfully'] = 'Your course was created successfully';
+$string['noimage'] = 'No image';
+$string['deletetemplate'] = 'Delete template';
 
 // Errors
 $string['error:notemplate'] = 'No template record for id {$a}';

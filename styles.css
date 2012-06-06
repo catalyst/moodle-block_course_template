@@ -43,15 +43,22 @@
 
 /* view.php -------------------------------------------*/
 
-table#block_course_template .screenshot {
-   width: 206px;
-   text-align: center;
+table#block_course_template td.preview {
+    width: 206px;
+    height: 150px;
+    text-align: center;
 }
 
-table#block_course_template .tags {
+table#block-course-templates img.preview {
+    padding: 0px;
+    margin: 0px;
+    text-align: center;
+}
+
+table#block-course-templates .tags {
     max-width: 14em;
 }
 
-table#block_course_template .actions {
+table#block-course-templates .actions {
     width: 5em;
 }

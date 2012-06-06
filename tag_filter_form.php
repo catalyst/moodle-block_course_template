@@ -36,32 +36,24 @@ class block_course_template_tag_filter_form extends moodleform {
         global $CFG, $DB;
 
         $mform =& $this->_form;
-        extract($this->_customdata);
+        $tags = $this->_customdata['tags'];
+        $filtertag = $this->_customdata['filtertag'];
 
         $mform->addElement('header', 'activetags', get_string('activetags', 'block_course_template'));
 
-        $tags =  $DB->get_records('block_course_template_tag');
-        if (empty($tags)) {
-            $mform->addElement('html', html_writer::tag('p', get_string('notags', 'block_course_template')));
-        } else {
-            $groupelems  = array();
-            foreach ($tags as $tag) {
-                $groupelems[] =& $mform->createElement('advcheckbox', $tag->name, $tag->name,  $tag->name, array('group' => 1));
+        $mform->addElement('html', html_writer::tag('p', get_string('filtertext', 'block_course_template')));
 
-                // If a single tag filter has been passed through _customdata
-                if ($filtertag !== 0) {
-                    if ($tag->id == $filtertag) {
-                        $mform->setDefault('tags[' . $tag->name . ']', 1);
-                    }
-                }
+        $group = array();
+        foreach ($tags as $tag) {
+            $group[] =& $mform->createElement('advcheckbox', $tag->id, '', "{$tag->name} ", array('group' => 1));
+            if ($filtertag) {
+                $mform->setDefault('tags[' . $filtertag . ']', 1);
             }
-
-            $mform->addElement('html', html_writer::tag('p', get_string('filtertext', 'block_course_template')));
-
-            $mform->addGroup($groupelems, 'tags', array(''), false);
-            $this->add_checkbox_controller(1);
-
-            $this->add_action_buttons(false, get_string('filtertemplates', 'block_course_template'));
         }
+
+        $mform->addGroup($group, 'tags', array(' '), false);
+        $this->add_checkbox_controller(1);
+
+        $this->add_action_buttons(false, get_string('filtertemplates', 'block_course_template'));
     }
 }
