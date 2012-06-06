@@ -16,9 +16,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * <one-line description>
- *
- * <longer description [optional]>
+ * Library functions for Course Template block.
  *
  * @package      blocks
  * @subpackage   course_template
@@ -27,7 +25,7 @@
  * @license      http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// no direct script access
+// No direct script access
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');

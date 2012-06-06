@@ -16,9 +16,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * <one-line description>
- *
- * <longer description [optional]>
+ * Show all course templates in tabular format.
  *
  * @package      blocks
  * @subpackage   course_template

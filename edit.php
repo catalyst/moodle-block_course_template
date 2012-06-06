@@ -16,9 +16,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * <one-line description>
- *
- * <longer description [optional]>
+ * Create and edit course templates.
  *
  * @package      blocks
  * @subpackage   course_template

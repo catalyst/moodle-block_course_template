@@ -16,9 +16,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * <one-line description>
- *
- * <longer description [optional]>
+ * Form for filtering course templates by tag.
  *
  * @package      blocks
  * @subpackage   course_template
