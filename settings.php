@@ -30,60 +30,66 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/blocks/course_template/lib.php');
 
-// Insert course templates actions into admin menu tree
-// Course templates category (directory)
-$coursetmps = array(
-    'key'    => 'coursetemplates',
-    'title' => get_string('pluginname', 'block_course_template')
-);
-
-// Import template into course
-$coursefromtmp = array(
-    'key'    => 'newcoursefromtemp',
-    'title' => get_string('newcoursefromtemp', 'block_course_template'),
-    'url'    => $CFG->wwwroot . '/blocks/course_template/newcourse.php'
-);
-
-// Import template into course
-$importtmp = array(
-    'key'    => 'importcoursetemp',
-    'title' => get_string('importintocourse', 'block_course_template'),
-    'url'    => $CFG->wwwroot . '/blocks/course_template/import.php'
-);
-
-// View all templates
-$mantmps = array(
-    'key'    => 'viewallcoursetemp',
-    'title' => get_string('alltemplates', 'block_course_template'),
-    'url'    => $CFG->wwwroot . '/blocks/course_template/view.php'
-);
-
-// Settings
-$tmpsettings = array(
-    'key'    => 'block_course_template',
-    'title' => get_string('pluginname', 'block_course_template') . ' ' . get_string('settings', 'block_course_template'),
-    'options' => array(
-        'courseformats' => array (
-            'name'        => 'allowcourseformats',
-            'visiblename' => get_string('cseformat:visiblename', 'block_course_template'),
-            'description' => get_string('cseformat:description', 'block_course_template'),
-            'defaults'    => array_map('block_course_template_get_formatsdefaults', block_course_template_get_courseformats()),
-            'choices'     => block_course_template_get_courseformats()
-        )
+// Navigation nodes
+$ADMIN->add(
+    'courses',
+    new admin_category(
+        'coursetemplate',
+        get_string('pluginname', 'block_course_template')
     )
 );
 
-// Insert nav items into Site admin tree
-$ADMIN->add('courses', new admin_category($coursetmps['key'], $coursetmps['title']));
-$ADMIN->add($coursetmps['key'], new admin_externalpage($coursefromtmp['key'], $coursefromtmp['title'], $coursefromtmp['url']));
-$ADMIN->add($coursetmps['key'], new admin_externalpage($mantmps['key'], $mantmps['title'], $mantmps['url']));
+$ADMIN->add(
+    'coursetemplate',
+    new admin_externalpage(
+        'newcoursefromtemp',
+        get_string('newcoursefromtemp', 'block_course_template'),
+        $CFG->wwwroot . '/blocks/course_template/newcourse.php'
+    )
+);
 
-// Configuration settings page
+$ADMIN->add(
+    'coursetemplate',
+    new admin_externalpage(
+        'viewallcoursetemp',
+        get_string('alltemplates', 'block_course_template'),
+        $CFG->wwwroot . '/blocks/course_template/import.php'
+    )
+);
+
+$hassiteconfig = has_capability('moodle/site:config', get_context_instance(CONTEXT_SYSTEM));
+
+// Site config settings
 if ($hassiteconfig) {
-    $settings = new admin_settingpage($tmpsettings['key'], $tmpsettings['title']);
-    $ADMIN->add($coursetmps['key'], $settings);
+    $settings = new admin_settingpage(
+        'block_course_template',
+        get_string('pluginname', 'block_course_template') . ' ' . get_string('settings', 'block_course_template')
+    );
 
-    // Course format settings
-    extract($tmpsettings['options']);
-    $settings->add(new admin_setting_configmulticheckbox('block_course_template/' . $courseformats['name'], $courseformats['visiblename'], $courseformats['description'], $courseformats['defaults'], $courseformats['choices']));
+    $ADMIN->add('coursetemplate', $settings);
+
+    $formats = get_plugin_list('format');
+    if (!empty($formats)) {
+        foreach ($formats as $key => $value) {
+            $formats[$key] = ucfirst($key);
+        }
+    }
+
+    $defaultformats = array('scorm', 'social', 'topics', 'weeks');
+    $configdefaults = array();
+    if (!empty($defaultformats)) {
+        foreach ($formats as $key => $value) {
+            $configdefaults[$key] = in_array($key, $defaultformats) ? 1 : 0;
+        }
+    }
+
+    $settings->add(
+        new admin_setting_configmulticheckbox(
+            'block_course_template/' . 'allowcourseformats',
+            get_string('visiblename', 'block_course_template'),
+            get_string('configdescription', 'block_course_template'),
+            $configdefaults,
+            $formats
+        )
+    );
 }
