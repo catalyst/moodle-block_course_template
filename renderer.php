@@ -127,13 +127,13 @@ class block_course_template_renderer extends plugin_renderer_base {
         $html = '';
         if ($canedit) {
             $html .= $OUTPUT->action_icon(new moodle_url('/blocks/course_template/edit.php',
-                                array('template' => $template->id)), new pix_icon('t/edit', get_string('edit')));
+                                array('t' => $template->id)), new pix_icon('t/edit', get_string('edit')));
 
             $html .= $OUTPUT->action_icon(new moodle_url('/blocks/course_template/delete.php',
                                 array('id' => $template->id)), new pix_icon('t/delete', get_string('delete')));
         }
         $html .= $OUTPUT->action_icon(new moodle_url('/blocks/course_template/newcourse.php',
-            array('template' => $template->id)), new pix_icon('t/restore', get_string('new')));
+            array('t' => $template->id)), new pix_icon('t/restore', get_string('new')));
 
         return $html;
     }

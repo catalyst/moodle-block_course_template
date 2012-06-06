@@ -52,9 +52,9 @@ class course_template_edit_form extends moodleform {
 
         $mform->addElement('header', 'detailsheading', get_string('details', 'block_course_template'));
 
+        $courselink = html_writer::link("{$CFG->wwwroot}/course/view.php?id={$basecourse->id}", format_string($basecourse->fullname));
         $basedontxt  = html_writer::start_tag('p');
-        $basedontxt .= get_string('basedoncourse', 'block_course_template') . ' ';
-        $basedontxt .= html_writer::link("{$CFG->wwwroot}/course/view.php?id={$basecourse->id}", format_string($basecourse->fullname));
+        $basedontxt .= get_string('basedoncourse', 'block_course_template', $courselink);
         $basedontxt .= html_writer::end_tag('p');
         $mform->addElement('html', $basedontxt);
 
