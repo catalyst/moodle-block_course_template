@@ -32,7 +32,7 @@ require_once("{$CFG->libdir}/tablelib.php");
 
 require_login();
 
-$tag    = optional_param('tag', 0, PARAM_INT);
+$tag    = optional_param('t', 0, PARAM_INT);
 $page   = optional_param('page', 0, PARAM_INT);
 
 $systemcontext = get_context_instance(CONTEXT_SYSTEM);
@@ -74,6 +74,7 @@ if (!empty($tagsql) && !empty($tagparams)) {
         JOIN {block_course_template_tag_instance} ti ON ti.template = ct.id
         WHERE ti.tag {$tagsql}
         GROUP BY ct.id", $tagparams);
+
     $templatesql = "SELECT ct.*, c.fullname AS coursename
         FROM {block_course_template} ct
         JOIN {block_course_template_tag_instance} ti ON ti.template = ct.id
@@ -96,8 +97,8 @@ if ($tags) {
 }
 
 // Display the listings table.
-$table = new flexible_table('block-course-templates');
-$table->set_attribute('id', 'block-course-templates');
+$table = new flexible_table('block-course-template');
+$table->set_attribute('id', 'block_course_template');
 $table->set_attribute('class', 'generaltable generalbox');
 
 $table->define_columns(array('preview', 'details', 'tags', 'actions'));

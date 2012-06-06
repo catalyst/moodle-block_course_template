@@ -43,22 +43,28 @@
 
 /* view.php -------------------------------------------*/
 
-table#block-course-template td.preview {
-    width: 206px;
-    height: 150px;
+table#block_course_template th.preview {
     text-align: center;
+    width: 206px;
 }
 
-table#block-course-templates img.preview {
+table#block_course_template td.preview {
+    text-align: center;
+    width: 206px;
+}
+
+table#block_course_template img.preview {
+    width: 206px;
+    height: 150px;
     padding: 0px;
     margin: 0px;
     text-align: center;
 }
 
-table#block-course-templates .tags {
+table#block-course-template .tags {
     max-width: 14em;
 }
 
-table#block-course-templates .actions {
+table#block-course-template .actions {
     width: 5em;
 }
