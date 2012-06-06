@@ -98,7 +98,7 @@ function block_course_template_get_tag_list() {
         // sort alphabetically
         usort($tags, function($a, $b){return strcmp($a->name, $b->name);});
         // convert array into CSV string
-        return format_string(implode(array_map(function($n){return $n->rawname;}, $tags), ', '));
+        return format_string(implode(array_map(function($n){return $n->name;}, $tags), ', '));
     }
 
     return get_string('notags', 'block_course_template');
@@ -112,7 +112,7 @@ function block_course_template_get_tag_list() {
 function block_course_template_delete_template($templateid) {
     global $DB;
 
-    // delete tags first
+    // Delete tags first
     $tagids = $DB->get_records('block_course_template_tag_instance', array('template' => $templateid));
 
     if (!empty($tagids)) {
@@ -122,7 +122,7 @@ function block_course_template_delete_template($templateid) {
         }
     }
 
-    // remove template record
+    // Remove template record
     if (!$DB->delete_records('block_course_template', array('id' => $templateid))) {
         print_error(get_string('error:deletetemp', 'block_course_template', $templateid));
     }
@@ -138,7 +138,7 @@ function block_course_template_delete_template($templateid) {
 function block_course_template_delete_tag_instances($instids) {
     global $CFG, $DB;
 
-    // if we are deleting the last instance of a tag then delete the tag record also
+    // If we are deleting the last instance of a tag then delete the tag record also
     $countsql = "SELECT tag.id, COUNT(ins.id) FROM (SELECT t.* FROM {$CFG->prefix}block_course_template_tag t
                     JOIN {$CFG->prefix}block_course_template_tag_instance ti ON t.id = ti.tag
                     WHERE ti.id IN (" . implode(', ', $instids) . ")) tag
@@ -153,11 +153,11 @@ function block_course_template_delete_tag_instances($instids) {
         $deletetags = array_map(function($n){return $n->id;}, $deletetags);
     }
 
-    // delete any unneeded instance records
+    // Delete any unneeded instance records
     if (!$DB->delete_records_select('block_course_template_tag_instance', "id IN (" . implode(', ', $instids) . ")")) {
         return false;
     }
-    // delete any unneeded tag records
+    // Delete any unneeded tag records
     if (!empty($deletetags)) {
         if (!$DB->delete_records_select('block_course_template_tag', "id IN (" . implode(', ', $deletetags) . ")")) {
             return false;
@@ -175,7 +175,7 @@ function block_course_template_delete_tag_instances($instids) {
 function block_course_template_generate_file_location($itemname) {
     global $CFG, $DB;
 
-    // get the block context instance
+    // Get the block context instance
     $cxt = get_context_instance(CONTEXT_SYSTEM);
     $path = "{$CFG->dataroot}/{$cxt->id}/block_course_template/screenshot/";
 
@@ -215,7 +215,7 @@ function block_course_template_pluginfile($course, $birecord_or_cm, $context, $f
         return false;
     }
 
-    send_stored_file($file, 0, 0, true); // download MUST be forced - security!
+    send_stored_file($file, 0, 0, true);
 }
 
 
@@ -273,18 +273,17 @@ function course_template_create_archive($coursetemplate, $userid) {
         if (!file_exists($dir) || !is_dir($dir) || !is_writable($dir)) {
             $dir = null;
         }
+
         if (!empty($dir) && $storage !== 0) {
 
-            // create a template name in the form coursetemplate_<id>_<courseid>_<datestamp>.mbz
+            // Create a template name in the form coursetemplate_<id>_<courseid>_<datestamp>.mbz
             $filename  = 'coursetemplate_';
             $filename .= $coursetemplate->id . '_';
             $filename .= $course->id . '_';
-            $filename .= $coursetemplate->created;
+            $filename .= $coursetemplate->timecreated;
             $filename .= '.mbz';
 
-            //
             // File API copy to location
-            //
             $cxt = get_context_instance(CONTEXT_SYSTEM);
             $fs = get_file_storage();
 
@@ -297,11 +296,10 @@ function course_template_create_archive($coursetemplate, $userid) {
                 'filename' => $filename
             );
 
-            // create a copy of the file in the course_template location
+            // Create a copy of the file in the course_template location
             $templatefile = $fs->create_file_from_storedfile($fileinfo, $file);
 
             if ($templatefile && $storage === 1) {
-                // delete the file created by backup system
                 $file->delete();
             }
         }
@@ -318,16 +316,14 @@ function course_template_create_archive($coursetemplate, $userid) {
 }
 
 /**
- * Return the config settings for course_tempate backup
+ * Return the config settings for course_tempate backup used in place of system settings.
  *
  * @return object
  */
 function block_course_template_get_settings() {
     global $CFG;
 
-    //
     // General backup settings
-    //
     $config = new stdClass();
     $config->backup_general_users = 0;
     $config->backup_general_users_locked = 0;
@@ -350,14 +346,12 @@ function block_course_template_get_settings() {
     $config->backup_general_histories = 0;
     $config->backup_general_histories_locked = 0;
 
-    //
     // Automated backup settings
-    //
     $config->backup_auto_weekdays = 0000000;
     $config->backup_auto_hour = 0;
     $config->backup_auto_minute = 0;
-    $config->backup_auto_storage = 1;   // this vaule to specify directory
-    $config->backup_auto_keep = 1;      // only keep one backup
+    $config->backup_auto_storage = 1;   // This vaule to specify directory
+    $config->backup_auto_keep = 1;      // Only keep one backup
     $config->backup_auto_users = 0;
     $config->backup_auto_role_assignments = 0;
     $config->backup_auto_activities = 1;
@@ -367,7 +361,7 @@ function block_course_template_get_settings() {
     $config->backup_auto_userscompletion = 0;
     $config->backup_auto_logs = 0;
     $config->backup_auto_histories = 0;
-    $config->backup_auto_active = 2;    // this value for 'manual' backups
+    $config->backup_auto_active = 2;    // This value for 'manual' backups
     $config->backup_auto_destination = "{$CFG->dataroot}/temp/backup/";
 
     return $config;

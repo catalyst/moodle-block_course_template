@@ -27,7 +27,7 @@
  * @license      http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// no direct script access
+// No direct script access
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/formslib.php');
@@ -41,7 +41,7 @@ class course_template_edit_form extends moodleform {
 
         extract($this->_customdata);
 
-        // prevent file attachments
+        // Prevent file attachments
         $editoroptions = array(
             'maxfiles' => 0,
             'maxbytes' => 0,
@@ -52,51 +52,64 @@ class course_template_edit_form extends moodleform {
             'trusttext' => 0
         );
 
-        // Heading
         $mform->addElement('header', 'detailsheading', get_string('details', 'block_course_template'));
 
-        // Based on
         $basedontxt  = html_writer::start_tag('p');
         $basedontxt .= get_string('basedoncourse', 'block_course_template') . ' ';
         $basedontxt .= html_writer::link("{$CFG->wwwroot}/course/view.php?id={$basecourse->id}", format_string($basecourse->fullname));
         $basedontxt .= html_writer::end_tag('p');
         $mform->addElement('html', $basedontxt);
 
-        // Name
         $mform->addElement('text', 'name', get_string('name'));
         $mform->setType('name', PARAM_TEXT);
         $mform->addRule('name', get_string('required'), 'required', 'client');
 
-        // Description
         $mform->addElement('editor', 'description', get_string('description'), $editoroptions);
         $mform->setType('description', PARAM_TEXT);
 
-        // Screenshot
         $mform->addElement('filepicker', 'screenshot', get_string('screenshot', 'block_course_template'), null, array('maxbytes' => get_max_upload_file_size($CFG->maxbytes), 'accepted_types' => 'image'));
 
-        // Tags heading
         $mform->addElement('header', 'tagsheading', get_string('tags'));
 
-        // Existing tags
         $tagtxt = html_writer::tag('p', get_string('existingtags', 'block_course_template') . ': ' . block_course_template_get_tag_list());
         $mform->addElement('html', $tagtxt);
 
-        // Tags
         $mform->addElement('text', 'tags', get_string('tags'));
         $mform->setType('tags', PARAM_TEXT);
         $mform->addHelpButton('tags', 'tagshelp', 'block_course_template');
 
-        // Hidden fields
-        $mform->addElement('hidden', 'course', $basecourse->id);
-        $mform->addElement('hidden', 'template', $templateid);
+        $mform->addElement('hidden', 'c', $basecourse->id);
+        $mform->addElement('hidden', 't', $templateid);
 
-        // Action buttons
         $actiontxt = ($templateid !== -1) ? get_string('updatetemplate', 'block_course_template') : get_string('createtemplate', 'block_course_template');
         $this->add_action_buttons(true, $actiontxt);
     }
 
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
+
+        $templateid = $data['t'];
+
+        // Template name must be unique
+        $likefragment = $DB->sql_like('name', ':tagname', false);
+        $likeparams = array('tagname' => '%' . $data['name'] . '%');
+
+        if ($templateid == 0) {
+            $existingtag = $DB->get_field_select('block_course_template_tag', 'id', $likefragment, $likeparams);
+            if ($existingtag) {
+                $errors['name'] = get_string('error:nametaken', 'templated');
+            }
+        } else {
+            $templaterec = $DB->get_record('block_course_template', array('id' => $templateid));
+
+            // If template name has been altered also check
+            if (strtolower($templaterec->name) != strtolower($data['name'])) {
+                $existingtag = $DB->get_field_select('block_course_template_tag', 'id', $likefragment, $likeparams);
+                if ($existingtag) {
+                    $errors['name'] = get_string('error:nametaken', 'templated');
+                }
+            }
+        }
 
         return $errors;
     }

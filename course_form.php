@@ -27,20 +27,21 @@
  * @license      http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// no direct script access
+// No direct script access
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/formslib.php');
 require_once($CFG->dirroot . '/course/lib.php');
 
-class block_course_template_new_course_form extends moodleform {
+class block_course_template_course_form extends moodleform {
 
     public function definition() {
         global $CFG, $DB;
 
         $mform =& $this->_form;
         $template = $this->_customdata['template'];
-        // prevent file attachments
+
+        // Prevent file attachments
         $editoroptions = array(
             'maxfiles' => 0,
             'maxbytes' => 0,
@@ -51,9 +52,7 @@ class block_course_template_new_course_form extends moodleform {
             'trusttext' => 0
         );
 
-        //
         // Details fieldset
-        //
         $mform->addElement('header', 'detailsheading', get_string('details', 'block_course_template'));
 
         // Template
@@ -67,13 +66,11 @@ class block_course_template_new_course_form extends moodleform {
             $mform->setDefault('template', $template);
         }
 
-        // Category
         $selectcat = array();
-        $notused = array();     // make_categories_list requires this param but actually we don't need the result
+        $notused = array();     // Function make_categories_list requires this param but actually we don't need the result
         make_categories_list($selectcat, $notused);
         $mform->addElement('select', 'category', get_string('category'), $selectcat);
 
-        // Full name
         $mform->addElement('text','fullname', get_string('fullnamecourse'),'maxlength="254" size="50"');
         $mform->addHelpButton('fullname', 'fullnamecourse');
         $mform->addRule('fullname', get_string('missingfullname'), 'required', null, 'client');
@@ -83,7 +80,6 @@ class block_course_template_new_course_form extends moodleform {
             $mform->setConstant('fullname', $course->fullname);
         }
 
-        // Short name
         $mform->addElement('text', 'shortname', get_string('shortnamecourse'), 'maxlength="100" size="20"');
         $mform->addHelpButton('shortname', 'shortnamecourse');
         $mform->addRule('shortname', get_string('missingshortname'), 'required', null, 'client');
@@ -93,7 +89,6 @@ class block_course_template_new_course_form extends moodleform {
             $mform->setConstant('shortname', $course->shortname);
         }
 
-        // ID
         $mform->addElement('text','idnumber', get_string('idnumbercourse'),'maxlength="100"  size="10"');
         $mform->addHelpButton('idnumber', 'idnumbercourse');
         $mform->setType('idnumber', PARAM_RAW);
@@ -102,22 +97,16 @@ class block_course_template_new_course_form extends moodleform {
             $mform->setConstants('idnumber', $course->idnumber);
         }
 
-        // Summary
         $mform->addElement('editor','summary_editor', get_string('coursesummary'), null, $editoroptions);
         $mform->addHelpButton('summary_editor', 'coursesummary');
         $mform->setType('summary_editor', PARAM_RAW);
 
-        // Start date
         $mform->addElement('date_selector', 'startdate', get_string('startdate'));
 
-        //
         // Hidden fields
-        //
         $mform->addElement('hidden', 'referer', $this->_customdata['referer']);
 
-        //
         // Action buttons
-        //
         $this->add_action_buttons(true, get_string('createcourse', 'block_course_template'));
     }
 
@@ -126,7 +115,7 @@ class block_course_template_new_course_form extends moodleform {
 
         $errors = parent::validation($data, $files);
 
-        // does the course shortname already exist?
+        // Does the course shortname already exist?
         if ($foundcourses = $DB->get_records('course', array('shortname'=>$data['shortname']))) {
             if (!empty($foundcourses)) {
                 foreach ($foundcourses as $foundcourse) {

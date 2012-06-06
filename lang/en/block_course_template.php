@@ -27,16 +27,16 @@
  * @license      http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// no direct script access
+// No direct script access
 defined('MOODLE_INTERNAL') || die();
 
-$string['pluginname'] = 'Course Template';
+$string['pluginname'] = 'Course Templates';
 
- // capabilities strings
+ // Capabilities strings
 $string['course_template:edit'] = 'Create and administer course templates';
 $string['course_template:createcourse'] = 'Create a new course from a course template';
 
-// block strings
+// Block strings
 $string['template'] = 'Template';
 $string['addtemplate'] = 'Add course template';
 $string['newcoursefromtemp'] = 'New course from template';
@@ -80,7 +80,7 @@ $string['templatedeleted'] = 'The template was deleted successfully';
 $string['screenshotof'] = 'Screenshot of';
 $string['createdsuccessfully'] = 'Your course was created successfully';
 
-// errors
+// Errors
 $string['error:notemplate'] = 'No template record for id {$a}';
 $string['error:couldnotinserttag'] = 'Could not insert tag {$a}';
 $string['error:couldntupdate'] = 'Could not update course template {$a}';
@@ -95,3 +95,4 @@ $string['error:movearchive'] = 'Unable to copy restore archive';
 $string['error:extractarchive'] = 'Unable to extract archive';
 $string['error:nametaken'] = 'That template name is already in use. Please choose another.';
 $string['error:nodirectory'] = 'No backup template directory';
+$string['error:save'] = 'Unable to save template.';

@@ -40,3 +40,17 @@
 #manage_coursetemplates table .action-icon {
     padding: 3px;
 }
+
+/* view.php -------------------------------------------*/
+table#block_course_template .screenshot {
+   width: 206px;
+   text-align: center;
+}
+
+table#block_course_template .tags {
+    max-width: 14em;
+}
+
+table#block_course_template .actions {
+    width: 5em;
+}

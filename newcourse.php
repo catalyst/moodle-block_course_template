@@ -28,43 +28,37 @@
  */
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
-require_once('new_course_form.php');
+require_once('course_form.php');
 require_once('lib.php');
 require_once($CFG->dirroot . '/lib/moodlelib.php');
 require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
+
+require_login();
+
+$templateid = optional_param('template', -1, PARAM_INT);
+
+$context = get_context_instance(CONTEXT_SYSTEM);
+require_capability('block/course_template:createcourse', $context);
 
 $referer = optional_param('referer', null, PARAM_TEXT);
 if ($referer === null) {
    $referer = get_referer(false);
 }
 
-$cxt = get_context_instance(CONTEXT_SYSTEM);
-$templateid = optional_param('template', -1, PARAM_INT);
 
-require_login();
-require_capability('block/course_template:createcourse', $cxt);
-
-// if there aren't any templates then redirect
 $numtemps = $DB->count_records('block_course_template');
 if ($numtemps < 1) {
     redirect(get_referer(), get_string('notemplates', 'block_course_template'));
 }
 
-//
-// Page settings
-//
 $PAGE->set_url('/blocks/course_template/newcourse.php');
-$PAGE->set_context($cxt);
+$PAGE->set_context($context);
 $PAGE->set_pagelayout('admin');
 $PAGE->set_title(get_string('newcourse', 'block_course_template'));
 $PAGE->set_heading(get_string('newcoursefromtemp', 'block_course_template'));
 
-// mform instance
-$mform = new block_course_template_new_course_form(null, array('template' => $templateid, 'referer' => $referer));
+$mform = new block_course_template_course_form(null, array('template' => $templateid, 'referer' => $referer));
 
-//
-// Handle form input
-//
 if ($mform->is_submitted() && $mform->is_validated()) {
 
     if ($data = $mform->get_data()) {
@@ -78,7 +72,7 @@ if ($mform->is_submitted() && $mform->is_validated()) {
 
         // get the restore file
         $fs = get_file_storage();
-        $restorefile = $fs->get_file_by_hash(sha1("/$cxt->id/block_course_template/backupfile/$coursetemplate->id/$coursetemplate->file"));
+        $restorefile = $fs->get_file_by_hash(sha1("/$context->id/block_course_template/backupfile/$coursetemplate->id/$coursetemplate->file"));
 
         // copy file into the temp directory for extraction
         $tmpcopyname = md5($coursetemplate->file);
@@ -97,7 +91,7 @@ if ($mform->is_submitted() && $mform->is_validated()) {
         // set the start date
 
         $fb = get_file_packer();
-        $tmpdirnewname = restore_controller::get_tempdir_name($cxt->id, $USER->id);
+        $tmpdirnewname = restore_controller::get_tempdir_name($context->id, $USER->id);
         $tmpdirpath =  $CFG->tempdir . '/backup/' . $tmpdirnewname . '/';
         $outcome = $fb->extract_to_pathname($CFG->tempdir . '/backup/' . $tmpcopyname, $tmpdirpath);
 

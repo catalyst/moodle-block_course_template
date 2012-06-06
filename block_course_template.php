@@ -55,7 +55,7 @@ class block_course_template extends block_base {
             return $this->content;
         }
 
-        // make sure that the block only displays if the current view is of an allowed course format
+        // Make sure that the block only displays if the current view is of an allowed course format
         if ($allowedformats = get_config('block_course_template', 'allowcourseformats')) {
             $allowedformats = explode(',', $allowedformats);
             if(!in_array($this->page->course->format, $allowedformats)) {
@@ -76,7 +76,7 @@ class block_course_template extends block_base {
         $context = get_context_instance(CONTEXT_SYSTEM);
         $canedit = has_capability('block/course_template:edit', $context);
 
-        // new template
+        // New template
         if ($canedit) {
             $this->content->text .= html_writer::start_tag('li');
             $this->content->text .= html_writer::link($tempurl, get_string('newtemplate', 'block_course_template'));
@@ -87,7 +87,7 @@ class block_course_template extends block_base {
         $this->content->text .= html_writer::link($courseurl, get_string('newcourse', 'block_course_template'));
         $this->content->text .= html_writer::end_tag('li');
 
-        // view all
+        // View all
         $this->content->text .= html_writer::start_tag('li');
         $this->content->text .= html_writer::link($viewurl, get_string('alltemplates', 'block_course_template'));
         $this->content->text .= html_writer::end_tag('li');

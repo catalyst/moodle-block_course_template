@@ -38,25 +38,22 @@ class block_course_template_tag_filter_form extends moodleform {
         global $CFG, $DB;
 
         $mform =& $this->_form;
-        $showtag = $this->_customdata['tag'];
+        extract($this->_customdata);
 
-        //
         // Active tags fieldset
-        //
         $mform->addElement('header', 'activetags', get_string('activetags', 'block_course_template'));
 
-
-        // tags
+        // Tags
         $tags =  $DB->get_records('block_course_template_tag');
         if (empty($tags)) {
             $mform->addElement('html', html_writer::tag('p', get_string('notags', 'block_course_template')));
         } else {
             $groupelems  = array();
             foreach ($tags as $tag) {
-                $groupelems[] =& $mform->createElement('advcheckbox', $tag->name, $tag->name,  $tag->rawname, array('group' => 1));
+                $groupelems[] =& $mform->createElement('advcheckbox', $tag->name, $tag->name,  $tag->name, array('group' => 1));
                 // if a single tag filter has been passed through _customdata
-                if ($showtag !== -1) {
-                    if ($tag->id == $showtag) {
+                if ($filtertag !== 0) {
+                    if ($tag->id == $filtertag) {
                         $mform->setDefault('tags[' . $tag->name . ']', 1);
                     }
                 }

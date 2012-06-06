@@ -27,7 +27,7 @@
  * @license      http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(dirname(dirname(dirname(__FILE))).'config.php');
+require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
 require_once('edit_form.php');
 require_once('lib.php');
@@ -48,7 +48,7 @@ if ($basecourseid === 0  && $templateid === 0) {
 if ($basecourseid !== 0) {
     $redirecturl = new moodle_url('/course/view.php', array('id' => $basecourseid));
 } else {
-    $basecourseid = $DB->get_field('block_course_template', 'course', array('id' => 'templateid'));
+    $basecourseid = $DB->get_field('block_course_template', 'course', array('id' => $templateid));
     $redirecturl = new moodle_url('/block_course_template/view.php');
 }
 
@@ -66,22 +66,23 @@ if ($mform->is_cancelled()) {
     redirect($redirecturl);
 }
 
-// if editing an existing template
+// Get existing template data to repopulate form
 if ($templateid !== 0) {
+
     if (!$templaterec = $DB->get_record('block_course_template', array('id' => $templateid))) {
         redirect(get_string('error:notemplate', 'block_course_template', $templateid));
     } else {
-        // format data to populate form
+        // Format data to populate form
         $toform = clone $templaterec;
         $toform->description = array('text' => $toform->description);
-        // get tags for course and compress
-        $currenttags = $DB->get_records_sql("SELECT tag.rawname FROM {$CFG->prefix}block_course_template_tag_instance ins
+        // Get tags for course and compress
+        $currenttags = $DB->get_records_sql("SELECT tag.name FROM {$CFG->prefix}block_course_template_tag_instance ins
                                                                 JOIN {$CFG->prefix}block_course_template_tag tag ON ins.tag = tag.id
                                              WHERE ins.template = {$templaterec->id}");
         if (!empty($currenttags)) {
             $toform->tags = implode(
                 array_map(function($n){
-                            return $n->rawname;
+                            return $n->name;
                         },
                     $currenttags
                 ),
@@ -89,7 +90,7 @@ if ($templateid !== 0) {
             );
         }
 
-        unset($toform->created);
+        unset($toform->timecreated);
         unset($toform->timemodified);
         unset($toform->screenshot);
     }
@@ -112,24 +113,23 @@ if ($data = $mform->get_data()) {
 
     // New/updated template record
     $tempobj = new stdClass();
-    $tempobj->name = str_replace(' ', '_', strtolower($data->name));
-    $tempobj->rawname = $data->name;
+    $tempobj->name = $data->name;
     $tempobj->description = $data->description['text'];
-    $tempobj->course = $data->course;
+    $tempobj->course = $basecourseid;
     $tempobj->file = null;
     $tempobj->screenshot = null;
-    $tempobj->created = time();
+    $tempobj->timecreated = time();
     $tempobj->timemodified = time();
 
     if ($templateid !== 0) {
-        // update an existing record
+        // Update an existing record
         $tempobj->id = $templaterec->id;
-        $tempobj->created = $templaterec->created;
+        $tempobj->timecreated = $templaterec->timecreated;
         if (!$DB->update_record('block_course_template', $tempobj)) {
             redirect($redirecturl, get_string('error:couldntupdate', 'block_course_template'));
         }
     } else {
-        // insert new record
+        // Insert new record
         if (!$tempobj->id = $DB->insert_record('block_course_template', $tempobj)) {
             redirect($redirecturl, get_string('error:couldntinsert', 'block_course_template'));
         }
@@ -143,7 +143,7 @@ if ($data = $mform->get_data()) {
             redirect($redirecturl, get_string('error:createtemplatefile', 'block_course_template', $tempobj->id));
         }
 
-        // update the template db record to store filename
+        // Update the template db record to store filename
         $tempobj->file = $backupfile->get_filename();
         $DB->set_field(
             'block_course_template',
@@ -169,7 +169,7 @@ if ($data = $mform->get_data()) {
         )
     );
 
-    // update the course_template record to store filename
+    // Update the course_template record to store filename
     $DB->set_field(
         'block_course_template',
         'screenshot',
@@ -179,32 +179,37 @@ if ($data = $mform->get_data()) {
 
     // Tag and tag instance records
     $oldtags = $DB->get_records('block_course_template_tag_instance', array('template' => $tempobj->id));
-    // this to store the tag instances we'll create for values submitted in the form
+
+    // This to store the tag instances we'll create for values submitted in the form
     $currenttags = array();
 
-    // save tags
+    // Save tags
     if (!empty($data->tags)) {
         $tags = array_map(function($n){return trim($n);}, explode(',', $data->tags));
         foreach ($tags as $tag) {
-            // TODO robust filtering form malicious input
+            // TODO input filtering
             $tagfiltered = strtolower(preg_replace('/\s+/', ' ', $tag));
-            // does the tag contain something sensible?
+
             if (preg_match('/^\s+$/', $tagfiltered) === 0 && $tagfiltered != '') {
-                // insert tag into database if it doesn't already exist
+
+                // Insert tag into database if it doesn't already exist
                 $tagobj = new stdClass();
                 $tagobj->name = preg_replace('/\s/', '_', $tagfiltered);
-                $tagobj->rawname = ucfirst($tagfiltered);
+                $tagobj->name = ucfirst($tagfiltered);
                 $tagobj->timemodified = time();
 
-                // insert a tag record
-                if (!$tagobj->id = $DB->get_field('block_course_template_tag', 'id',  array('rawname' => $tagobj->rawname))) {
+                $likefragment = $DB->sql_like('name', ':tagname', false);
+                $likeparams = array('tagname' => '%' . $tagobj->name . '%');
+
+                $tagobj->id = $DB->get_field_select('block_course_template_tag', 'id', $likefragment, $likeparams);
+                if (!$tagobj->id) {
                     if (!$tagobj->id = $DB->insert_record('block_course_template_tag', $tagobj)) {
                         $success = false;
-                        $errormsg = get_string('error:couldnotinserttag', 'block_course_template', $tagobj->rawname);
+                        $errormsg = get_string('error:couldnotinserttag', 'block_course_template', $tagobj->name);
                     }
                 }
 
-                // create a tag instance record
+                // Create a tag instance record
                 $instobj = new stdClass();
                 $instobj->tag = $tagobj->id;
                 $instobj->template = $tempobj->id;
@@ -213,18 +218,18 @@ if ($data = $mform->get_data()) {
                 if (!$instobj->id = $DB->get_field('block_course_template_tag_instance', 'id', array('tag' => $instobj->tag, 'template' => $instobj->template))) {
                     if (!$instobj->id = $DB->insert_record('block_course_template_tag_instance', $instobj)) {
                         $success = false;
-                        $errormsg = get_string('error:couldnotinserttag', 'block_course_template', $tagobj->rawname);
+                        $errormsg = get_string('error:couldnotinserttag', 'block_course_template', $tagobj->name);
                     }
                 }
-                // keep hold of the tag instance id
+
                 $currenttags[] = $instobj->id;
             }
-        } // END $tags as $tag
+        }
     }
 
-    // Remove any instance records which are no longer required
     $oldtags = array_keys($oldtags);
-    // any old tag instances which are not in the current tags array need deleting
+
+    // Any old tag instances which are not in the current tags array need deleting
     $deleteins = array_diff($oldtags, $currenttags);
     if (!empty($deleteins)) {
         $success = $success && block_course_template_delete_tag_instances($deleteins);
@@ -232,21 +237,23 @@ if ($data = $mform->get_data()) {
     }
 
     if (!$success) {
-        print_error($error);
+        redirect($redirecturl, get_string('error:save', 'block_course_template'));
     } else {
         redirect($redirecturl, get_string('savesuccess', 'block_course_template'));
     }
 }
 
 echo $OUTPUT->header();
-// name of the course we are basing the template on
+
 $headingtxt = null;
 if ($templateid === 0) {
-    // new template
+
+    // New template
     $basecoursename = $DB->get_field('course', 'fullname', array('id' => $basecourseid));
     $headingtxt = get_string('newtemplatefrom', 'block_course_template', format_string($basecoursename));
 } else {
-    // edit existing tamplate
+
+    // Edit existing tamplate
     $templatename = $DB->get_field('block_course_template', 'name', array('id' => $templateid));
     $headingtxt = get_string('edittemplate', 'block_course_template', format_string($templatename));
 }
