@@ -95,3 +95,4 @@ $string['error:extractarchive'] = 'Unable to extract archive';
 $string['error:nametaken'] = 'That template name is already in use. Please choose another.';
 $string['error:nodirectory'] = 'No backup template directory';
 $string['error:save'] = 'Unable to save template.';
+$string['error:nameempty'] = 'Name field may not be empty.';

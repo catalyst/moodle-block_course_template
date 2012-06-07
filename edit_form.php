@@ -60,7 +60,7 @@ class course_template_edit_form extends moodleform {
 
         $mform->addElement('text', 'name', get_string('name'));
         $mform->setType('name', PARAM_TEXT);
-        $mform->addRule('name', get_string('required'), 'required', 'client');
+        $mform->addRule('name', get_string('required'), 'required', null, 'client');
 
         $mform->addElement('editor', 'description', get_string('description'), $editoroptions);
         $mform->setType('description', PARAM_TEXT);
@@ -69,7 +69,7 @@ class course_template_edit_form extends moodleform {
 
         $mform->addElement('header', 'tagsheading', get_string('tags'));
 
-        $tagtxt = html_writer::tag('p', get_string('existingtags', 'block_course_template') . ': ' . block_course_template_get_tag_list());
+        $tagtxt = html_writer::tag('p', get_string('existingtags', 'block_course_template') . ': ' . $taglist);
         $mform->addElement('html', $tagtxt);
 
         $mform->addElement('text', 'tags', get_string('tags'));
@@ -84,6 +84,8 @@ class course_template_edit_form extends moodleform {
     }
 
     public function validation($data, $files) {
+        global $DB;
+
         $errors = parent::validation($data, $files);
 
         $templateid = $data['t'];
@@ -107,6 +109,10 @@ class course_template_edit_form extends moodleform {
                     $errors['name'] = get_string('error:nametaken', 'templated');
                 }
             }
+        }
+
+        if (preg_match('/^\s+$/', $data['name']) > 0) {
+            $errors['name'] = get_string('error:nameempty', 'block_course_template');
         }
 
         return $errors;

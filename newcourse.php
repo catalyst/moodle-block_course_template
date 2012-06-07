@@ -63,18 +63,13 @@ if ($mform->is_cancelled()) {
 
 if ($data = $mform->get_data()) {
 
-    require_sesskey();
-
-    // Get course_template record
     if (!$coursetemplate = $DB->get_record('block_course_template', array('id' => $data->template))) {
         print_error(get_string('error:notemplate', 'block_course_template', $data->template));
     }
 
-    // Get the restore file
     $fs = get_file_storage();
     $restorefile = $fs->get_file_by_hash(sha1("/$context->id/block_course_template/backupfile/$coursetemplate->id/$coursetemplate->file"));
 
-    // Copy file into the temp directory for extraction
     $tmpcopyname = md5($coursetemplate->file);
     if (!$tmpcopy = $restorefile->copy_content_to($CFG->tempdir . '/backup/' . $tmpcopyname)) {
         print_error('error:movearchive', 'block_course_template');
@@ -83,7 +78,6 @@ if ($data = $mform->get_data()) {
     $courseid = restore_dbops::create_new_course($data->fullname, $data->shortname, $data->category);
     $newcourse = $DB->get_record('course', array('id' => $courseid));
 
-    // Set the start date
     $fb = get_file_packer();
     $tmpdirnewname = restore_controller::get_tempdir_name($context->id, $USER->id);
     $tmpdirpath =  $CFG->tempdir . '/backup/' . $tmpdirnewname . '/';
@@ -95,10 +89,9 @@ if ($data = $mform->get_data()) {
         print_error('error:extractarchive', 'block_course_template');
     }
 
-    // Sanity check - make sure extracted directory is there
     $tempdestination = $tmpdirpath;
     if (!file_exists($tempdestination) || !is_dir($tempdestination)) {
-        print_error('error:nodirectory'); // shouldn't happen ever
+        print_error('error:nodirectory');
     }
 
     $restoretarget = backup::TARGET_NEW_COURSE;
@@ -107,7 +100,6 @@ if ($data = $mform->get_data()) {
     $plan = $rc->get_plan();
     $tasks = $plan->get_tasks();
 
-    // Iterate through the tasks in order to change course details
     foreach ($tasks as &$task) {
         if (!($task instanceof restore_root_task)) {
             $settings = $task->get_settings();
@@ -128,40 +120,21 @@ if ($data = $mform->get_data()) {
         }
     }
 
-    // Convert the backup if required.... it should NEVER happed
     if ($rc->get_status() == backup::STATUS_REQUIRE_CONV) {
         $rc->convert();
     }
 
-    // Mark the UI finished.
     $rc->finish_ui();
 
-    // Execute prechecks
-    if (!$rc->execute_precheck()) {
-        $precheckresults = $rc->get_precheck_results();
-        if (is_array($precheckresults) && !empty($precheckresults['errors'])) {
-            // TODO remove this
-            fulldelete($tempdestination);
-
-            echo $OUTPUT->header();
-            echo $renderer->precheck_notices($precheckresults);
-            echo $OUTPUT->continue_button(new moodle_url('/course/view.php', array('id'=>$courseid)));
-            echo $OUTPUT->footer();
-            die();
-        }
-    } else {
-        if ($restoretarget == backup::TARGET_CURRENT_DELETING || $restoretarget == backup::TARGET_EXISTING_DELETING) {
-            restore_dbops::delete_course_content($courseid);
-        }
-
-        // Execute the restore
-        $rc->execute_plan();
+    $rc->execute_precheck();
+    if ($restoretarget == backup::TARGET_CURRENT_DELETING || $restoretarget == backup::TARGET_EXISTING_DELETING) {
+        restore_dbops::delete_course_content($courseid);
     }
 
-    // Delete the temp directory now
+    $rc->execute_plan();
+
     fulldelete($tempdestination);
 
-    // Forward to the shiny new course
     redirect(new moodle_url('/course/view.php', array('id' => $courseid)) , get_string('createdsuccessfully', 'block_course_template'));
 
 }

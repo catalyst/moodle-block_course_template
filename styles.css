@@ -60,6 +60,7 @@ table#block-course-templates .tags {
     max-width: 14em;
 }
 
-table#block-course-templates .actions {
-    width: 5em;
+table#block-course-templates .course-template-noimage {
+    width: 206px;
+    height: 150px;
 }

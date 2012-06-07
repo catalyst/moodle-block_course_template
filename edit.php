@@ -58,7 +58,13 @@ $PAGE->set_heading(get_string('edittmptitle', 'block_course_template'));
 
 $basecourse = $DB->get_record('course', array('id' => $basecourseid));
 
-$mform = new course_template_edit_form($PAGE->url, array('basecourse' => $basecourse, 'templateid' => $templateid));
+$taglist = $DB->get_records('block_course_template_tag');
+if (!empty($taglist)) {
+    usort($taglist, function($a, $b){return strcmp($a->name, $b->name);});
+    $taglist = format_string(implode(array_map(function($n){return $n->name;}, $taglist), ', '));
+}
+
+$mform = new course_template_edit_form($PAGE->url, array('basecourse' => $basecourse, 'templateid' => $templateid, 'taglist' => $taglist));
 
 if ($mform->is_cancelled()) {
     redirect($redirecturl);
