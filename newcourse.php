@@ -34,8 +34,9 @@ require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
 require_login();
 
 $templateid = optional_param('t', 0, PARAM_INT);
-
+$courseid = optional_param('c', 0, PARAM_INT);
 $context = get_context_instance(CONTEXT_SYSTEM);
+
 require_capability('block/course_template:createcourse', $context);
 
 $referer = optional_param('referer', null, PARAM_TEXT);
@@ -43,19 +44,36 @@ if ($referer === null) {
    $referer = get_referer(false);
 }
 
-
 $numtemps = $DB->count_records('block_course_template');
 if ($numtemps < 1) {
     redirect(get_referer(), get_string('notemplates', 'block_course_template'));
 }
 
+if ($courseid === 0) {
+    $insert = false;
+} else {
+    if ($courseid == 1) {
+        redirect($referer, get_string('error:sitecourse', 'block_course_template'));
+    }
+    $insert = true;
+}
+
+$headingstr = $insert != 1 ? get_string('newcoursefromtemp', 'block_course_template') : get_string('importintocourse', 'block_course_template');
+
 $PAGE->set_url('/blocks/course_template/newcourse.php');
 $PAGE->set_context($context);
 $PAGE->set_pagelayout('admin');
-$PAGE->set_title(get_string('newcourse', 'block_course_template'));
-$PAGE->set_heading(get_string('newcoursefromtemp', 'block_course_template'));
+$PAGE->set_title($headingstr);
+$PAGE->set_heading($headingstr);
 
-$mform = new block_course_template_course_form(null, array('template' => $templateid, 'referer' => $referer));
+$mform = new block_course_template_course_form(
+    null,
+    array(
+        'template' => $templateid,
+        'referer' => $referer,
+        'courseid' => $courseid
+    )
+);
 
 if ($mform->is_cancelled()) {
     redirect($referer);
@@ -75,8 +93,9 @@ if ($data = $mform->get_data()) {
         print_error('error:movearchive', 'block_course_template');
     }
 
-    $courseid = restore_dbops::create_new_course($data->fullname, $data->shortname, $data->category);
-    $newcourse = $DB->get_record('course', array('id' => $courseid));
+    if (!$insert) {
+        $courseid = restore_dbops::create_new_course($data->fullname, $data->shortname, $data->category);
+    }
 
     $fb = get_file_packer();
     $tmpdirnewname = restore_controller::get_tempdir_name($context->id, $USER->id);
@@ -94,27 +113,34 @@ if ($data = $mform->get_data()) {
         print_error('error:nodirectory');
     }
 
-    $restoretarget = backup::TARGET_NEW_COURSE;
+    $restoretarget = $insert != 1 ? backup::TARGET_NEW_COURSE : backup::TARGET_EXISTING_ADDING;
 
     $rc = new restore_controller($tmpdirnewname, $courseid, backup::INTERACTIVE_YES, backup::MODE_IMPORT, $USER->id, $restoretarget);
-    $plan = $rc->get_plan();
-    $tasks = $plan->get_tasks();
 
-    foreach ($tasks as &$task) {
-        if (!($task instanceof restore_root_task)) {
-            $settings = $task->get_settings();
-            foreach ($settings as &$setting) {
-                $name = $setting->get_ui_name();
-                switch ($name) {
-                    case 'setting_course_course_fullname' :
-                        $setting->set_value($data->fullname);
-                        break;
-                    case 'setting_course_course_shortname' :
-                        $setting->set_value($data->shortname);
-                        break;
-                    case 'setting_course_course_startdate' :
-                        $setting->set_value($data->startdate);
-                        break;
+    if (!$insert) {
+        $plan = $rc->get_plan();
+        $tasks = $plan->get_tasks();
+
+        foreach ($tasks as &$task) {
+            if (!($task instanceof restore_root_task)) {
+                $settings = $task->get_settings();
+                foreach ($settings as &$setting) {
+                    $name = $setting->get_ui_name();
+
+                    switch ($name) {
+                        case 'setting_course_course_fullname' :
+                            $setting->set_value($data->fullname);
+                            break;
+                        case 'setting_course_course_shortname' :
+                            $setting->set_value($data->shortname);
+                            break;
+                        case 'setting_course_course_id' :
+                            $setting->set_value($data->idnumber);
+                            break;
+                        case 'setting_course_course_startdate' :
+                            $setting->set_value($data->startdate);
+                            break;
+                    }
                 }
             }
         }
@@ -127,20 +153,29 @@ if ($data = $mform->get_data()) {
     $rc->finish_ui();
 
     $rc->execute_precheck();
-    if ($restoretarget == backup::TARGET_CURRENT_DELETING || $restoretarget == backup::TARGET_EXISTING_DELETING) {
-        restore_dbops::delete_course_content($courseid);
-    }
 
     $rc->execute_plan();
 
     fulldelete($tempdestination);
 
-    redirect(new moodle_url('/course/view.php', array('id' => $courseid)) , get_string('createdsuccessfully', 'block_course_template'));
+    if (!$insert) {
+        $updaterec = new stdClass();
+        $updaterec->id = $courseid;
+        $updaterec->idnumber = $data->idnumber;
+        $DB->update_record('course', $updaterec);
+    }
 
+    if ($insert) {
+        $message = get_string('importedsuccessfully', 'block_course_template');
+    } else {
+        $message = get_string('createdsuccessfully', 'block_course_template');
+    }
+
+    redirect(new moodle_url('/course/view.php', array('id' => $courseid)), $message);
 }
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('newcoursefromtemp', 'block_course_template'));
+echo $OUTPUT->heading($headingstr);
 
 $mform->display();
 

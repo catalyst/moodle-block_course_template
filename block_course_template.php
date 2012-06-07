@@ -25,7 +25,7 @@
  * @license      http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-class block_course_template extends block_base {
+class block_course_template extends block_list {
 
     public function init() {
 
@@ -47,7 +47,7 @@ class block_course_template extends block_base {
     }
 
     public function get_content() {
-        global $CFG, $DB, $OUTPUT;
+        global $CFG, $PAGE;
 
         if($this->content !== null) {
             return $this->content;
@@ -61,36 +61,12 @@ class block_course_template extends block_base {
             }
         }
 
+        $renderer = $PAGE->get_renderer('block_course_template');
+
         $this->content = new stdClass();
-        $this->content->text = '';
+        $this->content->icons = array();
+        $this->content->items = $renderer->output_block_links($PAGE->course->id);
         $this->content->footer = '';
-
-        $tempurl = new moodle_url('/blocks/course_template/edit.php', array('c' => $this->page->course->id));
-        $courseurl = new moodle_url('/blocks/course_template/newcourse.php');
-        $viewurl = new moodle_url('/blocks/course_template/view.php');
-
-        $this->content->text .= html_writer::start_tag('ul');
-
-        $context = get_context_instance(CONTEXT_SYSTEM);
-        $canedit = has_capability('block/course_template:edit', $context);
-
-        // New template
-        if ($canedit) {
-            $this->content->text .= html_writer::start_tag('li');
-            $this->content->text .= html_writer::link($tempurl, get_string('newtemplate', 'block_course_template'));
-            $this->content->text .= html_writer::end_tag('li');
-        }
-
-        $this->content->text .= html_writer::start_tag('li');
-        $this->content->text .= html_writer::link($courseurl, get_string('newcourse', 'block_course_template'));
-        $this->content->text .= html_writer::end_tag('li');
-
-        // View all
-        $this->content->text .= html_writer::start_tag('li');
-        $this->content->text .= html_writer::link($viewurl, get_string('alltemplates', 'block_course_template'));
-        $this->content->text .= html_writer::end_tag('li');
-
-        $this->content->text .= html_writer::end_tag('ul');
 
         return $this->content;
     }

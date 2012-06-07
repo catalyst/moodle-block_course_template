@@ -37,7 +37,7 @@ class block_course_template_course_form extends moodleform {
         global $CFG, $DB;
 
         $mform =& $this->_form;
-        $template = $this->_customdata['template'];
+        extract($this->_customdata);
 
         // Prevent file attachments
         $editoroptions = array(
@@ -50,10 +50,8 @@ class block_course_template_course_form extends moodleform {
             'trusttext' => 0
         );
 
-        // Details fieldset
-        $mform->addElement('header', 'detailsheading', get_string('details', 'block_course_template'));
+        $mform->addElement('header', 'detailsheading');
 
-        // Template
         $selecttemp = array();
         $selecttemp = $DB->get_records('block_course_template');
         if (!empty($selecttemp)) {
@@ -64,48 +62,52 @@ class block_course_template_course_form extends moodleform {
             $mform->setDefault('template', $template);
         }
 
-        $selectcat = array();
-        $notused = array();     // Function make_categories_list requires this param but actually we don't need the result
-        make_categories_list($selectcat, $notused);
-        $mform->addElement('select', 'category', get_string('category'), $selectcat);
+        if ($courseid == 0) {
+            $selectcat = array();
+            $notused = array();     // Function make_categories_list requires this param but actually we don't need the result
+            make_categories_list($selectcat, $notused);
+            $mform->addElement('select', 'category', get_string('category'), $selectcat);
 
-        $mform->addElement('text','fullname', get_string('fullnamecourse'),'maxlength="254" size="50"');
-        $mform->addHelpButton('fullname', 'fullnamecourse');
-        $mform->addRule('fullname', get_string('missingfullname'), 'required', null, 'client');
-        $mform->setType('fullname', PARAM_MULTILANG);
-        if (!empty($course->id) and !has_capability('moodle/course:changefullname', $coursecontext)) {
-            $mform->hardFreeze('fullname');
-            $mform->setConstant('fullname', $course->fullname);
+            $mform->addElement('text','fullname', get_string('fullnamecourse'),'maxlength="254" size="50"');
+            $mform->addHelpButton('fullname', 'fullnamecourse');
+            $mform->addRule('fullname', get_string('missingfullname'), 'required', null, 'client');
+            $mform->setType('fullname', PARAM_MULTILANG);
+            if (!empty($course->id) and !has_capability('moodle/course:changefullname', $coursecontext)) {
+                $mform->hardFreeze('fullname');
+                $mform->setConstant('fullname', $course->fullname);
+            }
+
+            $mform->addElement('text', 'shortname', get_string('shortnamecourse'), 'maxlength="100" size="20"');
+            $mform->addHelpButton('shortname', 'shortnamecourse');
+            $mform->addRule('shortname', get_string('missingshortname'), 'required', null, 'client');
+            $mform->setType('shortname', PARAM_MULTILANG);
+            if (!empty($course->id) and !has_capability('moodle/course:changeshortname', $coursecontext)) {
+                $mform->hardFreeze('shortname');
+                $mform->setConstant('shortname', $course->shortname);
+            }
+
+            $mform->addElement('text','idnumber', get_string('idnumbercourse'),'maxlength="100"  size="10"');
+            $mform->addHelpButton('idnumber', 'idnumbercourse');
+            $mform->setType('idnumber', PARAM_RAW);
+            if (!empty($course->id) and !has_capability('moodle/course:changeidnumber', $coursecontext)) {
+                $mform->hardFreeze('idnumber');
+                $mform->setConstants('idnumber', $course->idnumber);
+            }
+
+            $mform->addElement('editor','summary_editor', get_string('coursesummary'), null, $editoroptions);
+            $mform->addHelpButton('summary_editor', 'coursesummary');
+            $mform->setType('summary_editor', PARAM_RAW);
+
+            $mform->addElement('date_selector', 'startdate', get_string('startdate'));
+        } else {
+
+            $mform->addElement('hidden', 'c', $courseid);
         }
 
-        $mform->addElement('text', 'shortname', get_string('shortnamecourse'), 'maxlength="100" size="20"');
-        $mform->addHelpButton('shortname', 'shortnamecourse');
-        $mform->addRule('shortname', get_string('missingshortname'), 'required', null, 'client');
-        $mform->setType('shortname', PARAM_MULTILANG);
-        if (!empty($course->id) and !has_capability('moodle/course:changeshortname', $coursecontext)) {
-            $mform->hardFreeze('shortname');
-            $mform->setConstant('shortname', $course->shortname);
-        }
+        $mform->addElement('hidden', 'referer', $referer);
 
-        $mform->addElement('text','idnumber', get_string('idnumbercourse'),'maxlength="100"  size="10"');
-        $mform->addHelpButton('idnumber', 'idnumbercourse');
-        $mform->setType('idnumber', PARAM_RAW);
-        if (!empty($course->id) and !has_capability('moodle/course:changeidnumber', $coursecontext)) {
-            $mform->hardFreeze('idnumber');
-            $mform->setConstants('idnumber', $course->idnumber);
-        }
-
-        $mform->addElement('editor','summary_editor', get_string('coursesummary'), null, $editoroptions);
-        $mform->addHelpButton('summary_editor', 'coursesummary');
-        $mform->setType('summary_editor', PARAM_RAW);
-
-        $mform->addElement('date_selector', 'startdate', get_string('startdate'));
-
-        // Hidden fields
-        $mform->addElement('hidden', 'referer', $this->_customdata['referer']);
-
-        // Action buttons
-        $this->add_action_buttons(true, get_string('createcourse', 'block_course_template'));
+        $buttontitle = $courseid == 0 ? get_string('createcourse', 'block_course_template') : get_string('import');
+        $this->add_action_buttons(true, $buttontitle);
     }
 
     public function validation($data, $files) {
@@ -113,14 +115,15 @@ class block_course_template_course_form extends moodleform {
 
         $errors = parent::validation($data, $files);
 
-        // Does the course shortname already exist?
-        if ($foundcourses = $DB->get_records('course', array('shortname'=>$data['shortname']))) {
-            if (!empty($foundcourses)) {
-                foreach ($foundcourses as $foundcourse) {
-                    $foundcoursenames[] = $foundcourse->fullname;
+        if (isset($data['courseid'])) {
+            if ($foundcourses = $DB->get_records('course', array('shortname'=>$data['shortname']))) {
+                if (!empty($foundcourses)) {
+                    foreach ($foundcourses as $foundcourse) {
+                        $foundcoursenames[] = $foundcourse->fullname;
+                    }
+                    $foundcoursenamestring = implode(',', $foundcoursenames);
+                    $errors['shortname']= get_string('shortnametaken', '', $foundcoursenamestring);
                 }
-                $foundcoursenamestring = implode(',', $foundcoursenames);
-                $errors['shortname']= get_string('shortnametaken', '', $foundcoursenamestring);
             }
         }
 

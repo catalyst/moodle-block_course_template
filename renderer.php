@@ -137,4 +137,41 @@ class block_course_template_renderer extends plugin_renderer_base {
 
         return $html;
     }
+
+    /**
+     * Output links to be displayed inside block.
+     *
+     * @param integer $courseid id of the current course
+     * @return string HTML.
+     */
+    public function output_block_links($courseid) {
+        global $PAGE;
+
+        $allowedformats = explode(',', get_config('block_course_template')->allowcourseformats);
+        if (!in_array($PAGE->course->format, $allowedformats)) {
+            return null;
+        }
+
+        $context = get_context_instance(CONTEXT_SYSTEM);
+
+        $tempurl = new moodle_url('/blocks/course_template/edit.php', array('c' => $courseid));
+        $courseurl = new moodle_url('/blocks/course_template/newcourse.php');
+        $intocourseurl = new moodle_url('/blocks/course_template/newcourse.php', array('c' => $courseid));
+        $viewurl = new moodle_url('/blocks/course_template/view.php');
+
+        $html = html_writer::start_tag('ul');
+        $items = array();
+
+        if (has_capability('block/course_template:edit', $context)) {
+            $items[] = html_writer::link($tempurl, get_string('newtemplate', 'block_course_template'));
+        }
+
+        $items[] = html_writer::link($courseurl, get_string('newcoursefromtemp', 'block_course_template'));
+
+        $items[] = html_writer::link($intocourseurl, get_string('intocourse', 'block_course_template'));
+
+        $items[] = html_writer::link($viewurl, get_string('alltemplates', 'block_course_template'));
+
+        return $items;
+    }
 }

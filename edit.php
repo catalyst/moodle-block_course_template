@@ -39,6 +39,10 @@ require_capability('block/course_template:edit', $context);
 $basecourseid = optional_param('c', 0, PARAM_INT);
 $templateid = optional_param('t', 0, PARAM_INT);
 
+if ($basecourseid == 1) {
+    redirect($CFG->wwwroot, get_string('error:sitecourse', 'block_course_template'));
+}
+
 if ($basecourseid === 0  && $templateid === 0) {
     redirect($CFG->wwwroot, get_string('error:paramrequired', 'block_course_template'));
 }
