@@ -236,7 +236,7 @@ if ($data = $mform->get_data()) {
     // Any old tag instances which are not in the current tags array need deleting
     $deleteins = array_diff($oldtags, $currenttags);
     if (!empty($deleteins)) {
-        $success = $success && block_course_template_delete_tag_instances($deleteins);
+        $success = $success && course_template_delete_tag_instances($deleteins);
         $error = get_string('error:deleteinst', 'block_course_template');
     }
 

@@ -33,84 +33,6 @@ require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
 define('COURSE_TEMPLATES_PAGESIZE', 4);
 
 /**
- * Delete a course template and related tag instances
- *
- * @param integer $templateid the id of the template to delete
- */
-function block_course_template_delete_template($templateid) {
-    global $DB;
-
-    // Delete tags first
-    $tagids = $DB->get_records('block_course_template_tag_instance', array('template' => $templateid));
-
-    if (!empty($tagids)) {
-        $tagids = array_keys($tagids);
-        if (!block_course_template_delete_tag_instances($tagids)) {
-            print_error(get_string('error:deleteinst', 'block_course_template'));
-        }
-    }
-
-    // Remove template record
-    if (!$DB->delete_records('block_course_template', array('id' => $templateid))) {
-        print_error(get_string('error:deletetemp', 'block_course_template', $templateid));
-    }
-}
-
-/**
- * Delete tag instances. Checks whether the instance is the last instance of each tag
- * and if true also deletes the block_course_template_tag record
- *
- * @param array:integer $tagids an array of tag instance ids
- * @param transaction object
- */
-function block_course_template_delete_tag_instances($instids) {
-    global $CFG, $DB;
-
-    // If we are deleting the last instance of a tag then delete the tag record also
-    $countsql = "SELECT tag.id, COUNT(ins.id) FROM (SELECT t.* FROM {$CFG->prefix}block_course_template_tag t
-                    JOIN {$CFG->prefix}block_course_template_tag_instance ti ON t.id = ti.tag
-                    WHERE ti.id IN (" . implode(', ', $instids) . ")) tag
-                 JOIN {$CFG->prefix}block_course_template_tag_instance ins ON tag.id = ins.tag
-                 GROUP BY (tag.id)";
-
-    $tagscount = $DB->get_records_sql($countsql);
-    $deletetags = array();
-
-    if (!empty($tagscount)) {
-        $deletetags = array_filter($tagscount, function($n){if ($n->count == 1){return true;}else{return false;}});
-        $deletetags = array_map(function($n){return $n->id;}, $deletetags);
-    }
-
-    // Delete any unneeded instance records
-    if (!$DB->delete_records_select('block_course_template_tag_instance', "id IN (" . implode(', ', $instids) . ")")) {
-        return false;
-    }
-    // Delete any unneeded tag records
-    if (!empty($deletetags)) {
-        if (!$DB->delete_records_select('block_course_template_tag', "id IN (" . implode(', ', $deletetags) . ")")) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-/**
- * Generate a file location.
- *
- * @param string $itemname name of the file item
- */
-function block_course_template_generate_file_location($itemname) {
-    global $CFG, $DB;
-
-    // Get the block context instance
-    $cxt = get_context_instance(CONTEXT_SYSTEM);
-    $path = "{$CFG->dataroot}/{$cxt->id}/block_course_template/screenshot/";
-
-    return $path;
-}
-
-/**
  * Serves the course_template screenshot files
  *
  * @param object $course
@@ -146,7 +68,70 @@ function block_course_template_pluginfile($course, $birecord_or_cm, $context, $f
     send_stored_file($file, 0, 0, true);
 }
 
+/**
+ * Delete a course template and related tag instances
+ *
+ * @param integer $templateid the id of the template to delete
+ */
+function course_template_delete_template($templateid) {
+    global $DB;
 
+    // Delete tags first
+    $tagids = $DB->get_records('block_course_template_tag_instance', array('template' => $templateid));
+
+    if (!empty($tagids)) {
+        $tagids = array_keys($tagids);
+        if (!course_template_delete_tag_instances($tagids)) {
+            print_error(get_string('error:deleteinst', 'block_course_template'));
+        }
+    }
+
+    // Remove template record
+    if (!$DB->delete_records('block_course_template', array('id' => $templateid))) {
+        print_error(get_string('error:deletetemp', 'block_course_template', $templateid));
+    }
+}
+
+/**
+ * Delete tag instances. Checks whether the instance is the last instance of each tag
+ * and if true also deletes the block_course_template_tag record
+ *
+ * @param array:integer $tagids an array of tag instance ids
+ * @param transaction object
+ */
+function course_template_delete_tag_instances($instids) {
+    global $CFG, $DB;
+
+    // If we are deleting the last instance of a tag then delete the tag record also
+    $countsql = "SELECT tag.id, COUNT(ins.id) AS count FROM (SELECT t.* FROM {$CFG->prefix}block_course_template_tag t
+                    JOIN {$CFG->prefix}block_course_template_tag_instance ti ON t.id = ti.tag
+                    WHERE ti.id IN (" . implode(', ', $instids) . ")) tag
+                 JOIN {$CFG->prefix}block_course_template_tag_instance ins ON tag.id = ins.tag
+                 GROUP BY (tag.id)";
+
+    $tagscount = $DB->get_records_sql($countsql);
+
+    $deletetags = array();
+
+    if (!empty($tagscount)) {
+        $deletetags = array_filter($tagscount, function($n){if ($n->count == 1){return true;}else{return false;}});
+        $deletetags = array_map(function($n){return $n->id;}, $deletetags);
+    }
+
+    // Delete any unneeded instance records
+    if (!$DB->delete_records_select('block_course_template_tag_instance', "id IN (" . implode(', ', $instids) . ")")) {
+        return false;
+    }
+
+    // Delete any unneeded tag records
+    if (!empty($deletetags)) {
+        if (!$DB->delete_records_select('block_course_template_tag', "id IN (" . implode(', ', $deletetags) . ")")) {
+            return false;
+        }
+    }
+
+    return true;
+}
 
 /**
  * Launches an automated backup routine for the given course and associates with a given coursetemplate instance.
@@ -160,7 +145,7 @@ function course_template_create_archive($coursetemplate, $userid) {
     global $DB;
 
     $course = $DB->get_record('course', array('id' => $coursetemplate->course));
-    $config = block_course_template_get_settings();
+    $config = course_template_get_settings();
 
     $bc = new backup_controller(backup::TYPE_1COURSE, $course->id, backup::FORMAT_MOODLE, backup::INTERACTIVE_NO, backup::MODE_AUTOMATED, $userid);
 
@@ -248,7 +233,7 @@ function course_template_create_archive($coursetemplate, $userid) {
  *
  * @return object
  */
-function block_course_template_get_settings() {
+function course_template_get_settings() {
     global $CFG;
 
     // General backup settings

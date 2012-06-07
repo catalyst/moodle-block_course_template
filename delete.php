@@ -41,7 +41,7 @@ if (!$template = $DB->get_record('block_course_template', array('id' => $id))) {
 
 // Confirmed deletion.
 if ($confirm) {
-    block_course_template_delete_template($id);
+    course_template_delete_template($id);
     redirect('/blocks/course_template/view.php', get_string('templatedeleted', 'block_course_template'));
     exit;
 }
