@@ -25,16 +25,16 @@
  * @license      http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// No direct script access
+// No direct script access.
 defined('MOODLE_INTERNAL') || die();
 
 $string['pluginname'] = 'Course Templates';
 
- // Capabilities strings
+ // Capabilities strings.
 $string['course_template:edit'] = 'Create and administer course templates';
 $string['course_template:createcourse'] = 'Create a new course from a course template';
 
-// Block strings
+// Block strings.
 $string['template'] = 'Template';
 $string['addtemplate'] = 'Add course template';
 $string['newcoursefromtemp'] = 'New course from template';
@@ -80,7 +80,7 @@ $string['importedsuccessfully'] = 'Your course was imported successfully';
 $string['noimage'] = 'No image';
 $string['deletetemplate'] = 'Delete template';
 
-// Errors
+// Errors.
 $string['error:notemplate'] = 'No template record for id {$a}';
 $string['error:couldnotinserttag'] = 'Could not insert tag {$a}';
 $string['error:couldntupdate'] = 'Could not update course template {$a}';

@@ -25,7 +25,7 @@
  * @license      http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// No direct script access thankyou
+// No direct script access.
 defined('MOODLE_INTERNAL') || die();
 
 if ($ADMIN->fulltree) {

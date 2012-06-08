@@ -141,15 +141,15 @@ class block_course_template_renderer extends plugin_renderer_base {
     /**
      * Output links to be displayed inside block.
      *
-     * @param integer $courseid id of the current course
+     * @param integer $courseid id of the current course.
      * @return string HTML.
      */
-    public function output_block_links($courseid) {
+    public function display_block_links($courseid) {
         global $PAGE;
 
         $allowedformats = explode(',', get_config('block_course_template')->allowcourseformats);
         if (!in_array($PAGE->course->format, $allowedformats)) {
-            return null;
+            return array();
         }
 
         $context = get_context_instance(CONTEXT_SYSTEM);
@@ -173,5 +173,26 @@ class block_course_template_renderer extends plugin_renderer_base {
         $items[] = html_writer::link($viewurl, get_string('alltemplates', 'block_course_template'));
 
         return $items;
+    }
+
+    /**
+     * Output the based on text with link to course.
+     *
+     * @param integer $course the course template is based on.
+     * @return string HTML.
+     */
+
+    public function display_form_basedon_course($course) {
+        global $CFG;
+
+        $courselink  = html_writer::link(
+            "{$CFG->wwwroot}/course/view.php?id={$course->id}",
+            format_string($course->fullname)
+        );
+        $html  = html_writer::start_tag('p');
+        $html .= get_string('basedoncourse', 'block_course_template', $courselink);
+        $html .= html_writer::end_tag('p');
+
+        return $html;
     }
 }

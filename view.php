@@ -129,11 +129,13 @@ if ($templates) {
                 WHERE template = ?
             )", array($template->id));
 
+        $canedit = has_capability('block/course_template:edit', get_context_instance(CONTEXT_SYSTEM));
+
         $row = array();
         $row[] = $renderer->display_template_screenshot($template);
         $row[] = $renderer->display_template_details($template);
         $row[] = $renderer->display_template_tags($tags);
-        $row[] = $renderer->display_template_actions($template, has_capability('block/course_template:edit', get_context_instance(CONTEXT_SYSTEM)));
+        $row[] = $renderer->display_template_actions($template, $canedit);
 
         $table->add_data($row);
     }

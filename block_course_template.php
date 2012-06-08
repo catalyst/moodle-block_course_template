@@ -49,23 +49,15 @@ class block_course_template extends block_list {
     public function get_content() {
         global $CFG, $PAGE;
 
-        if($this->content !== null) {
+        if ($this->content !== null) {
             return $this->content;
-        }
-
-        // Make sure that the block only displays if the current view is of an allowed course format
-        if (isset($CFG->block_course_template_allowedformats)) {
-            $allowedformats = explode(',', $CFG->block_course_template_allowedformats);
-            if (!in_array($this->page->course->format, $allowedformats)) {
-                return null;
-            }
         }
 
         $renderer = $PAGE->get_renderer('block_course_template');
 
         $this->content = new stdClass();
         $this->content->icons = array();
-        $this->content->items = $renderer->output_block_links($PAGE->course->id);
+        $this->content->items = $renderer->display_block_links($PAGE->course->id);
         $this->content->footer = '';
 
         return $this->content;

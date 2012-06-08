@@ -25,7 +25,7 @@
  * @license      http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// No direct script access
+// No direct script access.
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/formslib.php');
@@ -39,7 +39,7 @@ class block_course_template_course_form extends moodleform {
         $mform =& $this->_form;
         extract($this->_customdata);
 
-        // Prevent file attachments
+        // Prevent file attachments.
         $editoroptions = array(
             'maxfiles' => 0,
             'maxbytes' => 0,
@@ -54,9 +54,15 @@ class block_course_template_course_form extends moodleform {
 
         $selecttemp = array();
         $selecttemp = $DB->get_records('block_course_template');
-        if (!empty($selecttemp)) {
-            $selecttemp = array_map(function($n){return $n->name;}, $selecttemp);
+        if ($selecttemp) {
+            $selecttemp = array_map(
+                function($n){
+                    return $n->name;
+                },
+                $selecttemp
+            );
         }
+
         $mform->addelement('select', 'template', get_string('template', 'block_course_template'), $selecttemp);
         if ($template != 0) {
             $mform->setDefault('template', $template);
@@ -64,11 +70,11 @@ class block_course_template_course_form extends moodleform {
 
         if ($courseid == 0) {
             $selectcat = array();
-            $notused = array();     // Function make_categories_list requires this param but actually we don't need the result
+            $notused = array();     // Function make_categories_list requires this param but actually we don't need the result.
             make_categories_list($selectcat, $notused);
             $mform->addElement('select', 'category', get_string('category'), $selectcat);
 
-            $mform->addElement('text','fullname', get_string('fullnamecourse'),'maxlength="254" size="50"');
+            $mform->addElement('text', 'fullname', get_string('fullnamecourse'), 'maxlength="254" size="50"');
             $mform->addHelpButton('fullname', 'fullnamecourse');
             $mform->addRule('fullname', get_string('missingfullname'), 'required', null, 'client');
             $mform->setType('fullname', PARAM_MULTILANG);
@@ -86,7 +92,7 @@ class block_course_template_course_form extends moodleform {
                 $mform->setConstant('shortname', $course->shortname);
             }
 
-            $mform->addElement('text','idnumber', get_string('idnumbercourse'),'maxlength="100"  size="10"');
+            $mform->addElement('text', 'idnumber', get_string('idnumbercourse'), 'maxlength="100"  size="10"');
             $mform->addHelpButton('idnumber', 'idnumbercourse');
             $mform->setType('idnumber', PARAM_RAW);
             if (!empty($course->id) and !has_capability('moodle/course:changeidnumber', $coursecontext)) {
@@ -94,7 +100,7 @@ class block_course_template_course_form extends moodleform {
                 $mform->setConstants('idnumber', $course->idnumber);
             }
 
-            $mform->addElement('editor','summary_editor', get_string('coursesummary'), null, $editoroptions);
+            $mform->addElement('editor', 'summary_editor', get_string('coursesummary'), null, $editoroptions);
             $mform->addHelpButton('summary_editor', 'coursesummary');
             $mform->setType('summary_editor', PARAM_RAW);
 

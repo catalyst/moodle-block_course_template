@@ -35,13 +35,24 @@ require_login();
 
 $templateid = optional_param('t', 0, PARAM_INT);
 $courseid = optional_param('c', 0, PARAM_INT);
-$context = get_context_instance(CONTEXT_SYSTEM);
 
-require_capability('block/course_template:createcourse', $context);
+
+if ($courseid === 0) {
+    $context = get_context_instance(CONTEXT_SYSTEM);
+    require_capability('block/course_template:createcourse', $context);
+    $insert = false;
+} else {
+    if ($courseid == 1) {
+        redirect($referer, get_string('error:sitecourse', 'block_course_template'));
+    }
+    $context = get_context_instance(CONTEXT_SYSTEM);
+    require_capability('block/course_template:createcourse', $context);
+    $insert = true;
+}
 
 $referer = optional_param('referer', null, PARAM_TEXT);
 if ($referer === null) {
-   $referer = get_referer(false);
+    $referer = get_referer(false);
 }
 
 $numtemps = $DB->count_records('block_course_template');
@@ -49,16 +60,11 @@ if ($numtemps < 1) {
     redirect(get_referer(), get_string('notemplates', 'block_course_template'));
 }
 
-if ($courseid === 0) {
-    $insert = false;
+if ($insert != 1) {
+    $headingstr = get_string('newcoursefromtemp', 'block_course_template');
 } else {
-    if ($courseid == 1) {
-        redirect($referer, get_string('error:sitecourse', 'block_course_template'));
-    }
-    $insert = true;
+    $headingstr = get_string('importintocourse', 'block_course_template');
 }
-
-$headingstr = $insert != 1 ? get_string('newcoursefromtemp', 'block_course_template') : get_string('importintocourse', 'block_course_template');
 
 $PAGE->set_url('/blocks/course_template/newcourse.php');
 $PAGE->set_context($context);
@@ -86,7 +92,9 @@ if ($data = $mform->get_data()) {
     }
 
     $fs = get_file_storage();
-    $restorefile = $fs->get_file_by_hash(sha1("/$context->id/block_course_template/backupfile/$coursetemplate->id/$coursetemplate->file"));
+    $restorefile = $fs->get_file_by_hash(
+        sha1("/$context->id/block_course_template/backupfile/$coursetemplate->id/$coursetemplate->file")
+    );
 
     $tmpcopyname = md5($coursetemplate->file);
     if (!$tmpcopy = $restorefile->copy_content_to($CFG->tempdir . '/backup/' . $tmpcopyname)) {
@@ -115,7 +123,14 @@ if ($data = $mform->get_data()) {
 
     $restoretarget = $insert != 1 ? backup::TARGET_NEW_COURSE : backup::TARGET_EXISTING_ADDING;
 
-    $rc = new restore_controller($tmpdirnewname, $courseid, backup::INTERACTIVE_YES, backup::MODE_IMPORT, $USER->id, $restoretarget);
+    $rc = new restore_controller(
+        $tmpdirnewname,
+        $courseid,
+        backup::INTERACTIVE_YES,
+        backup::MODE_IMPORT,
+        $USER->id,
+        $restoretarget
+    );
 
     if (!$insert) {
         $plan = $rc->get_plan();

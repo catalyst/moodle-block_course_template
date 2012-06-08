@@ -25,7 +25,7 @@
  * @license      http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// No direct script access
+// No direct script access.
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
@@ -33,7 +33,7 @@ require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
 define('COURSE_TEMPLATES_PAGESIZE', 4);
 
 /**
- * Serves the course_template screenshot files
+ * Serves the course_template screenshot files.
  *
  * @param object $course
  * @param object $birecord_or_cm
@@ -76,7 +76,7 @@ function block_course_template_pluginfile($course, $birecord_or_cm, $context, $f
 function course_template_delete_template($templateid) {
     global $DB;
 
-    // Delete tags first
+    // Delete tags first.
     $tagids = $DB->get_records('block_course_template_tag_instance', array('template' => $templateid));
 
     if (!empty($tagids)) {
@@ -86,7 +86,7 @@ function course_template_delete_template($templateid) {
         }
     }
 
-    // Remove template record
+    // Remove template record.
     if (!$DB->delete_records('block_course_template', array('id' => $templateid))) {
         print_error(get_string('error:deletetemp', 'block_course_template', $templateid));
     }
@@ -100,9 +100,10 @@ function course_template_delete_template($templateid) {
  * @param transaction object
  */
 function course_template_delete_tag_instances($instids) {
+
     global $CFG, $DB;
 
-    // If we are deleting the last instance of a tag then delete the tag record also
+    // If we are deleting the last instance of a tag then delete the tag record also.
     $countsql = "SELECT tag.id, COUNT(ins.id) AS count FROM (SELECT t.* FROM {$CFG->prefix}block_course_template_tag t
                     JOIN {$CFG->prefix}block_course_template_tag_instance ti ON t.id = ti.tag
                     WHERE ti.id IN (" . implode(', ', $instids) . ")) tag
@@ -113,18 +114,25 @@ function course_template_delete_tag_instances($instids) {
 
     $deletetags = array();
 
-    if (!empty($tagscount)) {
-        $deletetags = array_filter($tagscount, function($n){if ($n->count == 1){return true;}else{return false;}});
-        $deletetags = array_map(function($n){return $n->id;}, $deletetags);
+    if ($tagscount) {
+        $deletetags = array_filter(
+            $tagscount,
+            function($n) {
+                if ($n->count == 1) {
+                    return true;
+                }
+                return false;
+            }
+        );
     }
 
-    // Delete any unneeded instance records
+    // Delete any unneeded instance records.
     if (!$DB->delete_records_select('block_course_template_tag_instance', "id IN (" . implode(', ', $instids) . ")")) {
         return false;
     }
 
-    // Delete any unneeded tag records
-    if (!empty($deletetags)) {
+    // Delete any unneeded tag records.
+    if ($deletetags) {
         if (!$DB->delete_records_select('block_course_template_tag', "id IN (" . implode(', ', $deletetags) . ")")) {
             return false;
         }
@@ -147,7 +155,14 @@ function course_template_create_archive($coursetemplate, $userid) {
     $course = $DB->get_record('course', array('id' => $coursetemplate->course));
     $config = course_template_get_settings();
 
-    $bc = new backup_controller(backup::TYPE_1COURSE, $course->id, backup::FORMAT_MOODLE, backup::INTERACTIVE_NO, backup::MODE_AUTOMATED, $userid);
+    $bc = new backup_controller(
+        backup::TYPE_1COURSE,
+        $course->id,
+        backup::FORMAT_MOODLE,
+        backup::INTERACTIVE_NO,
+        backup::MODE_AUTOMATED,
+        $userid
+    );
 
     try {
 
@@ -168,13 +183,21 @@ function course_template_create_archive($coursetemplate, $userid) {
             }
         }
 
-        // Set the default filename
+        // Set the default filename.
         $format = $bc->get_format();
         $type = $bc->get_type();
         $id = $bc->get_id();
         $users = $bc->get_plan()->get_setting('users')->get_value();
         $anonymised = $bc->get_plan()->get_setting('anonymize')->get_value();
-        $bc->get_plan()->get_setting('filename')->set_value(backup_plan_dbops::get_default_backup_filename($format, $type, $id, $users, $anonymised));
+        $bc->get_plan()->get_setting('filename')->set_value(
+            backup_plan_dbops::get_default_backup_filename(
+                $format,
+                $type,
+                $id,
+                $users,
+                $anonymised
+            )
+        );
 
         $bc->set_status(backup::STATUS_AWAITING);
 
@@ -189,14 +212,14 @@ function course_template_create_archive($coursetemplate, $userid) {
 
         if (!empty($dir) && $storage !== 0) {
 
-            // Create a template name in the form coursetemplate_<id>_<courseid>_<datestamp>.mbz
+            // Create a template name in the form coursetemplate_<id>_<courseid>_<datestamp>.mbz.
             $filename  = 'coursetemplate_';
             $filename .= $coursetemplate->id . '_';
             $filename .= $course->id . '_';
             $filename .= $coursetemplate->timecreated;
             $filename .= '.mbz';
 
-            // File API copy to location
+            // File API copy to location.
             $cxt = get_context_instance(CONTEXT_SYSTEM);
             $fs = get_file_storage();
 
@@ -209,17 +232,23 @@ function course_template_create_archive($coursetemplate, $userid) {
                 'filename' => $filename
             );
 
-            // Create a copy of the file in the course_template location
+            // Create a copy of the file in the course_template location.
             $templatefile = $fs->create_file_from_storedfile($fileinfo, $file);
 
             if ($templatefile && $storage === 1) {
                 $file->delete();
             }
         }
-        $outcome = true;
+
     } catch (backup_exception $e) {
-        print_error(get_string('error:createbackupfile', 'block_course_template', $coursetemplate->id));
-        $outcome = false;
+        redirect(
+            $CFG->wwwroot,
+            get_string(
+                'error:createbackupfile',
+                'block_course_template',
+                $coursetemplate->id
+            )
+        );
     }
 
     $bc->destroy();
@@ -236,7 +265,7 @@ function course_template_create_archive($coursetemplate, $userid) {
 function course_template_get_settings() {
     global $CFG;
 
-    // General backup settings
+    // General backup settings.
     $config = new stdClass();
     $config->backup_general_users = 0;
     $config->backup_general_users_locked = 0;
@@ -259,12 +288,12 @@ function course_template_get_settings() {
     $config->backup_general_histories = 0;
     $config->backup_general_histories_locked = 0;
 
-    // Automated backup settings
+    // Automated backup settings.
     $config->backup_auto_weekdays = 0000000;
     $config->backup_auto_hour = 0;
     $config->backup_auto_minute = 0;
-    $config->backup_auto_storage = 1;   // This vaule to specify directory
-    $config->backup_auto_keep = 1;      // Only keep one backup
+    $config->backup_auto_storage = 1;   // This vaule to specify directory.
+    $config->backup_auto_keep = 1;      // Only keep one backup.
     $config->backup_auto_users = 0;
     $config->backup_auto_role_assignments = 0;
     $config->backup_auto_activities = 1;
@@ -274,7 +303,7 @@ function course_template_get_settings() {
     $config->backup_auto_userscompletion = 0;
     $config->backup_auto_logs = 0;
     $config->backup_auto_histories = 0;
-    $config->backup_auto_active = 2;    // This value for 'manual' backups
+    $config->backup_auto_active = 2;    // This value for 'manual' backups.
     $config->backup_auto_destination = "{$CFG->dataroot}/temp/backup/";
 
     return $config;

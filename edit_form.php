@@ -25,7 +25,7 @@
  * @license      http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// No direct script access
+// No direct script access.
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/formslib.php');
@@ -39,7 +39,7 @@ class course_template_edit_form extends moodleform {
 
         extract($this->_customdata);
 
-        // Prevent file attachments
+        // Prevent file attachments.
         $editoroptions = array(
             'maxfiles' => 0,
             'maxbytes' => 0,
@@ -52,11 +52,7 @@ class course_template_edit_form extends moodleform {
 
         $mform->addElement('header', 'detailsheading', get_string('details', 'block_course_template'));
 
-        $courselink = html_writer::link("{$CFG->wwwroot}/course/view.php?id={$basecourse->id}", format_string($basecourse->fullname));
-        $basedontxt  = html_writer::start_tag('p');
-        $basedontxt .= get_string('basedoncourse', 'block_course_template', $courselink);
-        $basedontxt .= html_writer::end_tag('p');
-        $mform->addElement('html', $basedontxt);
+        $mform->addElement('html', $basedontext);
 
         $mform->addElement('text', 'name', get_string('name'));
         $mform->setType('name', PARAM_TEXT);
@@ -65,7 +61,16 @@ class course_template_edit_form extends moodleform {
         $mform->addElement('editor', 'description', get_string('description'), $editoroptions);
         $mform->setType('description', PARAM_TEXT);
 
-        $mform->addElement('filepicker', 'screenshot', get_string('screenshot', 'block_course_template'), null, array('maxbytes' => get_max_upload_file_size($CFG->maxbytes), 'accepted_types' => 'image'));
+        $mform->addElement(
+            'filepicker',
+            'screenshot',
+            get_string('screenshot', 'block_course_template'),
+            null,
+            array(
+                'maxbytes' => get_max_upload_file_size($CFG->maxbytes),
+                'accepted_types' => 'image'
+            )
+        );
 
         $mform->addElement('header', 'tagsheading', get_string('tags'));
 
@@ -79,7 +84,12 @@ class course_template_edit_form extends moodleform {
         $mform->addElement('hidden', 'c', $basecourse->id);
         $mform->addElement('hidden', 't', $templateid);
 
-        $actiontxt = ($templateid !== -1) ? get_string('updatetemplate', 'block_course_template') : get_string('createtemplate', 'block_course_template');
+        if ($templateid !== -1) {
+            $actiontxt = get_string('updatetemplate', 'block_course_template');
+        } else {
+            $actiontxt = get_string('createtemplate', 'block_course_template');
+        }
+
         $this->add_action_buttons(true, $actiontxt);
     }
 
@@ -90,7 +100,7 @@ class course_template_edit_form extends moodleform {
 
         $templateid = $data['t'];
 
-        // Template name must be unique
+        // Template name must be unique.
         $likefragment = $DB->sql_like('name', ':tagname', false);
         $likeparams = array('tagname' => '%' . $data['name'] . '%');
 
@@ -102,7 +112,7 @@ class course_template_edit_form extends moodleform {
         } else {
             $templaterec = $DB->get_record('block_course_template', array('id' => $templateid));
 
-            // If template name has been altered also check
+            // If template name has been altered also check.
             if (strtolower($templaterec->name) != strtolower($data['name'])) {
                 $existingtag = $DB->get_field_select('block_course_template_tag', 'id', $likefragment, $likeparams);
                 if ($existingtag) {
