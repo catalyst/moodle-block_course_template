@@ -45,8 +45,9 @@ if ($courseid === 0) {
     if ($courseid == 1) {
         redirect($referer, get_string('error:sitecourse', 'block_course_template'));
     }
-    $context = get_context_instance(CONTEXT_SYSTEM);
+    $context = get_context_instance(CONTEXT_COURSE, $courseid);
     require_capability('block/course_template:createcourse', $context);
+    $course = $DB->get_record('course', array('id' => $courseid));
     $insert = true;
 }
 
@@ -55,8 +56,7 @@ if ($referer === null) {
     $referer = get_referer(false);
 }
 
-$numtemps = $DB->count_records('block_course_template');
-if ($numtemps < 1) {
+if (!$DB->record_exists('block_course_template', array())) {
     redirect(get_referer(), get_string('notemplates', 'block_course_template'));
 }
 
@@ -71,6 +71,13 @@ $PAGE->set_context($context);
 $PAGE->set_pagelayout('admin');
 $PAGE->set_title($headingstr);
 $PAGE->set_heading($headingstr);
+if ($courseid !== 0) {
+    $PAGE->navbar->add(
+        format_string($course->fullname),
+        new moodle_url('/course/view.php', array('id' => $courseid))
+    );
+}
+$PAGE->navbar->add($headingstr);
 
 $mform = new block_course_template_course_form(
     null,

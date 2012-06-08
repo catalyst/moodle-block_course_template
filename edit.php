@@ -54,11 +54,27 @@ if ($basecourseid !== 0) {
     $redirecturl = new moodle_url('/block_course_template/view.php');
 }
 
+if ($templateid === 0) {
+    $basecoursename = $DB->get_field('course', 'fullname', array('id' => $basecourseid));
+    $titletxt = get_string('newcoursetemplate', 'block_course_template');
+    $headingtxt = $titletxt . ' '  . get_string('basedon', 'block_course_template', $basecoursename);
+} else {
+    $templatename = $DB->get_field('block_course_template', 'name', array('id' => $templateid));
+    $titletxt = get_string('edittemplate', 'block_course_template');
+    $headingtxt = $headingtxt . ' \'' . $templatename . '\'';
+}
+
 $PAGE->set_url('/blocks/course_template/edit.php', array('c' => $basecourseid, 't' => $templateid));
 $PAGE->set_context(get_context_instance(CONTEXT_COURSE, $PAGE->course->id));
 $PAGE->set_pagelayout('course');
-$PAGE->set_title(get_string('edittmptitle', 'block_course_template'));
-$PAGE->set_heading(get_string('edittmptitle', 'block_course_template'));
+
+// Must call format_string() after set_context()
+$titletxt = format_string($titletxt);
+$headingtxt = format_string($headingtxt);
+
+$PAGE->set_title($titletxt);
+$PAGE->set_heading($titletxt);
+$PAGE->navbar->add($titletxt);
 
 $basecourse = $DB->get_record('course', array('id' => $basecourseid));
 
@@ -301,18 +317,6 @@ if ($data = $mform->get_data()) {
 
 echo $OUTPUT->header();
 
-$headingtxt = null;
-if ($templateid === 0) {
-
-    // New template.
-    $basecoursename = $DB->get_field('course', 'fullname', array('id' => $basecourseid));
-    $headingtxt = get_string('newtemplatefrom', 'block_course_template', format_string($basecoursename));
-} else {
-
-    // Edit existing tamplate.
-    $templatename = $DB->get_field('block_course_template', 'name', array('id' => $templateid));
-    $headingtxt = get_string('edittemplate', 'block_course_template', format_string($templatename));
-}
 echo $OUTPUT->heading($headingtxt);
 
 $mform->display();

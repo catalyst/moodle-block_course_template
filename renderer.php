@@ -15,11 +15,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Renderer for Course Templates
+ * Renderer for Course Template block.
  *
  * @package    block
- * @subpackage course_templates
+ * @subpackage course_template
  * @author     Stacey Walker <stacey@catalyst-eu.net>
+ * @author     Joby Harding <joby.harding@catalyst-eu.net>
  * @copyright  2012 Robert Gordon University <http://rgu.ac.uk>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL
  */

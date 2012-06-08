@@ -44,6 +44,7 @@ $PAGE->set_context(get_context_instance(CONTEXT_COURSE, $PAGE->course->id));
 $PAGE->set_pagelayout('course');
 $PAGE->set_title(get_string('pluginname', 'block_course_template'));
 $PAGE->set_heading(get_string('pluginname', 'block_course_template'));
+$PAGE->navbar->add(get_string('alltemplates', 'block_course_template'));
 
 $renderer = $PAGE->get_renderer('block_course_template');
 echo $OUTPUT->header();
@@ -54,7 +55,7 @@ $tagparams = array();
 $tags =  $DB->get_records('block_course_template_tag');
 $mform = new block_course_template_tag_filter_form(null, array('tags' => $tags, 'filtertag' => $tag));
 if ($data = $mform->get_data()) {
-    if ($data->tags && is_array($data->tags)) {
+    if (isset($data->tags) && is_array($data->tags)) {
 
         // Only keep tags with a value of 1.
         $activetags = array_keys($data->tags, 1);
