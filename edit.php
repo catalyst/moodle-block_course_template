@@ -68,7 +68,7 @@ $PAGE->set_url('/blocks/course_template/edit.php', array('c' => $basecourseid, '
 $PAGE->set_context(get_context_instance(CONTEXT_COURSE, $PAGE->course->id));
 $PAGE->set_pagelayout('course');
 
-// Must call format_string() after set_context()
+// Must call format_string() after set_context().
 $titletxt = format_string($titletxt);
 $headingtxt = format_string($headingtxt);
 
