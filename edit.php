@@ -27,8 +27,8 @@
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
-require_once('edit_form.php');
-require_once('lib.php');
+require_once($CFG->dirroot . '/blocks/course_template/edit_form.php');
+require_once($CFG->dirroot . '/blocks/course_template/locallib.php');
 
 require_login();
 
@@ -61,7 +61,7 @@ if ($templateid === 0) {
 } else {
     $templatename = $DB->get_field('block_course_template', 'name', array('id' => $templateid));
     $titletxt = get_string('edittemplate', 'block_course_template');
-    $headingtxt = $headingtxt . ' \'' . $templatename . '\'';
+    $headingtxt = $titletxt . ' \'' . $templatename . '\'';
 }
 
 $PAGE->set_url('/blocks/course_template/edit.php', array('c' => $basecourseid, 't' => $templateid));
@@ -101,9 +101,9 @@ $basedontext = $renderer->display_form_basedon_course($basecourse);
 $mform = new course_template_edit_form(
     $PAGE->url,
     array(
-        'basecourse' => $basecourse,
-        'templateid' => $templateid,
-        'taglist' => $taglist,
+        'basecourse'  => $basecourse,
+        'templateid'  => $templateid,
+        'taglist'     => $taglist,
         'basedontext' => $basedontext
     )
 );
@@ -144,6 +144,7 @@ if ($templateid !== 0) {
 
 $itemid = (isset($toform)) ? $toform->id : null;
 $draftitemid = file_get_submitted_draft_itemid('screenshot');
+
 file_prepare_draft_area(
     $draftitemid,
     $context->id,
@@ -195,7 +196,7 @@ if ($data = $mform->get_data()) {
     // we need the template id for storage in the filesystem.
     if ($templateid === 0) {
         if (!$backupfile = course_template_create_archive($tempobj, $USER->id)) {
-            // TODO delete the course_template record.
+            $DB->delete_records('block_course_template', array('id' => $tempobj->id));
             redirect($redirecturl, get_string('error:createtemplatefile', 'block_course_template', $tempobj->id));
         }
 

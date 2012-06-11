@@ -26,9 +26,9 @@
  */
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
-require_once("{$CFG->dirroot}/blocks/course_template/tag_filter_form.php");
-require_once("{$CFG->dirroot}/blocks/course_template/lib.php");
-require_once("{$CFG->libdir}/tablelib.php");
+require_once($CFG->dirroot . '/blocks/course_template/tag_filter_form.php');
+require_once($CFG->dirroot . '/blocks/course_template/locallib.php');
+require_once($CFG->libdir . '/tablelib.php');
 
 require_login();
 

@@ -27,7 +27,7 @@
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once('course_form.php');
-require_once('lib.php');
+require_once($CFG->dirroot . '/blocks/course_template/locallib.php');
 require_once($CFG->dirroot . '/lib/moodlelib.php');
 require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
 

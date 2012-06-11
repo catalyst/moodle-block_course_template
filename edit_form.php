@@ -84,7 +84,7 @@ class course_template_edit_form extends moodleform {
         $mform->addElement('hidden', 'c', $basecourse->id);
         $mform->addElement('hidden', 't', $templateid);
 
-        if ($templateid !== -1) {
+        if ($templateid !== 0) {
             $actiontxt = get_string('updatetemplate', 'block_course_template');
         } else {
             $actiontxt = get_string('createtemplate', 'block_course_template');
