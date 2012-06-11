@@ -103,6 +103,10 @@ if ($data = $mform->get_data()) {
         sha1("/$context->id/block_course_template/backupfile/$coursetemplate->id/$coursetemplate->file")
     );
 
+    if (empty($restorefile)) {
+      redirect($referer, get_string('error:processerror', 'block_course_template'));
+    }
+
     $tmpcopyname = md5($coursetemplate->file);
     if (!$tmpcopy = $restorefile->copy_content_to($CFG->tempdir . '/backup/' . $tmpcopyname)) {
         print_error('error:movearchive', 'block_course_template');

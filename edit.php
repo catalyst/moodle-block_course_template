@@ -214,6 +214,20 @@ if ($data = $mform->get_data()) {
     $fs = get_file_storage();
     $draftid = file_get_submitted_draft_itemid('screenshot');
 
+    // delete any existing files
+    $existingfiles = $fs->get_area_files(
+        $context->id,
+        'block_course_template',
+        'screenshot',
+        $tempobj->id
+    );
+
+    if (!empty($existingfiles)) {
+        foreach ($existingfiles as $file) {
+            $file->delete();
+        }
+    }
+
     $tempobj->screenshot = $mform->get_new_filename('screenshot');
     file_save_draft_area_files($draftid,
         $context->id,
@@ -252,7 +266,7 @@ if ($data = $mform->get_data()) {
         );
 
         foreach ($tags as $tag) {
-            // TODO input filtering.
+
             $tagfiltered = strtolower(preg_replace('/\s+/', ' ', $tag));
 
             if (preg_match('/^\s+$/', $tagfiltered) === 0 && $tagfiltered != '') {

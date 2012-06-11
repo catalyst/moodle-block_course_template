@@ -30,7 +30,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $string['pluginname'] = 'Course Templates';
 
- // Capabilities strings.
+// Capabilities strings.
 $string['course_template:edit'] = 'Create and administer course templates';
 $string['course_template:createcourse'] = 'Create a new course from a course template';
 
@@ -99,3 +99,4 @@ $string['error:nodirectory'] = 'No backup template directory';
 $string['error:save'] = 'Unable to save template.';
 $string['error:nameempty'] = 'Name field may not be empty.';
 $string['error:sitecourse'] = 'Site context course may NOT be used.';
+$string['error:processerror'] = 'Unable to process archive file.';

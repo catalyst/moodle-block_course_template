@@ -49,18 +49,26 @@ table#block-course-template td.preview {
     text-align: center;
 }
 
-table#block-course-templates img.preview {
+table#block-course-template img.preview {
     padding: 0px;
-    margin: 0px;
+    margin: 4px 0 0 0;
     max-width: 206px;
     max-height: 150px;
 }
 
-table#block-course-templates .tags {
+table#block-course-template .tags {
     max-width: 14em;
 }
 
-table#block-course-templates .course-template-noimage {
+table#block-course-template .course-template-noimage {
     width: 206px;
     height: 150px;
+}
+
+table#block-course-template .actions {
+    width: 60px;
+}
+
+table#block-course-template .actions a {
+    padding: 0 3px;
 }

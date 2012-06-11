@@ -97,8 +97,8 @@ if ($tags) {
 }
 
 // Display the listings table.
-$table = new flexible_table('block-course-templates');
-$table->set_attribute('id', 'block-course-templates');
+$table = new flexible_table('block-course-template');
+$table->set_attribute('id', 'block-course-template');
 $table->set_attribute('class', 'generaltable generalbox');
 
 $table->define_columns(array('preview', 'details', 'tags', 'actions'));
