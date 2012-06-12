@@ -214,7 +214,7 @@ if ($data = $mform->get_data()) {
     $fs = get_file_storage();
     $draftid = file_get_submitted_draft_itemid('screenshot');
 
-    // delete any existing files
+    // Delete any existing files.
     $existingfiles = $fs->get_area_files(
         $context->id,
         'block_course_template',

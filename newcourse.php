@@ -104,7 +104,7 @@ if ($data = $mform->get_data()) {
     );
 
     if (empty($restorefile)) {
-      redirect($referer, get_string('error:processerror', 'block_course_template'));
+        redirect($referer, get_string('error:processerror', 'block_course_template'));
     }
 
     $tmpcopyname = md5($coursetemplate->file);
