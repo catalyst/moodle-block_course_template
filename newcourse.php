@@ -99,8 +99,9 @@ if ($data = $mform->get_data()) {
     }
 
     $fs = get_file_storage();
+    $systemcontext = get_context_instance(CONTEXT_SYSTEM);
     $restorefile = $fs->get_file_by_hash(
-        sha1("/$context->id/block_course_template/backupfile/$coursetemplate->id/$coursetemplate->file")
+        sha1("/$systemcontext->id/block_course_template/backupfile/$coursetemplate->id/$coursetemplate->file")
     );
 
     if (empty($restorefile)) {
