@@ -27,6 +27,15 @@
 
 
 $capabilities = array(
+    'block/course_template:view' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW,
+            'coursecreator' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW
+        )
+    ),
     'block/course_template:edit' => array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_SYSTEM,
@@ -40,6 +49,14 @@ $capabilities = array(
         'archetypes' => array(
             'manager' => CAP_ALLOW,
             'coursecreator' => CAP_ALLOW
+        )
+    ),
+    'block/course_template:import' => array(
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array(
+            'manager'   => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
         )
     )
 );

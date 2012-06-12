@@ -32,16 +32,28 @@ require_once($CFG->libdir . '/tablelib.php');
 
 require_login();
 
-$tag    = optional_param('tag', 0, PARAM_INT);
-$page   = optional_param('page', 0, PARAM_INT);
+$tag      = optional_param('tag', 0, PARAM_INT);
+$page     = optional_param('page', 0, PARAM_INT);
+$courseid = optional_param('c', 0, PARAM_INT);
 
-$systemcontext = get_context_instance(CONTEXT_SYSTEM);
-require_capability('block/course_template:createcourse', $systemcontext);
+$course = null;
+if (!$courseid || $courseid == SITEID) {
+    $context = get_context_instance(CONTEXT_SYSTEM);
+} else {
+    $course = $DB->get_record('course', array('id' => $courseid));
+    $context = get_context_instance(CONTEXT_COURSE, $courseid);
+}
+require_capability('block/course_template:view', $context);
 
-$url = new moodle_url('/blocks/course_template/view.php', array('page' => $page, 'tag' => $tag));
+$url = new moodle_url('/blocks/course_template/view.php', array('page' => $page, 'tag' => $tag, 'c' => $courseid));
 $PAGE->set_url($url);
-$PAGE->set_context(get_context_instance(CONTEXT_COURSE, $PAGE->course->id));
-$PAGE->set_pagelayout('course');
+$PAGE->set_context($context);
+if ($course) {
+    $PAGE->set_pagelayout('course');
+    $PAGE->set_course($course);
+} else {
+    $PAGE->set_pagelayout('admin');
+}
 $PAGE->set_title(get_string('pluginname', 'block_course_template'));
 $PAGE->set_heading(get_string('pluginname', 'block_course_template'));
 $PAGE->navbar->add(get_string('alltemplates', 'block_course_template'));
@@ -130,13 +142,11 @@ if ($templates) {
                 WHERE template = ?
             )", array($template->id));
 
-        $canedit = has_capability('block/course_template:edit', get_context_instance(CONTEXT_SYSTEM));
-
         $row = array();
         $row[] = $renderer->display_template_screenshot($template);
         $row[] = $renderer->display_template_details($template);
         $row[] = $renderer->display_template_tags($tags);
-        $row[] = $renderer->display_template_actions($template, $canedit);
+        $row[] = $renderer->display_template_actions($template, $context, $courseid);
 
         $table->add_data($row);
     }

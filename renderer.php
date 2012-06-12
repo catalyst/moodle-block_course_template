@@ -119,22 +119,29 @@ class block_course_template_renderer extends plugin_renderer_base {
      * Display associated actions with the given template
      *
      * @param object $template the current template
-     * @param boolean $canedit if the user has permissions to edit/delete
+     * @param object $context current page context based on course
+     * @param integer $courseid ID of the course we might be importing into
      * @return string HTML
      */
-    public function display_template_actions($template, $canedit=null) {
+    public function display_template_actions($template, $context, $courseid) {
         global $OUTPUT;
 
         $html = '';
-        if ($canedit) {
+        if (has_capability('block/course_template:edit', $context)) {
             $html .= $OUTPUT->action_icon(new moodle_url('/blocks/course_template/edit.php',
                                 array('t' => $template->id)), new pix_icon('t/edit', get_string('edit')));
 
             $html .= $OUTPUT->action_icon(new moodle_url('/blocks/course_template/delete.php',
                                 array('id' => $template->id)), new pix_icon('t/delete', get_string('delete')));
         }
-        $html .= $OUTPUT->action_icon(new moodle_url('/blocks/course_template/newcourse.php',
-            array('t' => $template->id)), new pix_icon('t/restore', get_string('new')));
+        if (has_capability('block/course_template:createcourse', $context)) {
+            $html .= $OUTPUT->action_icon(new moodle_url('/blocks/course_template/newcourse.php',
+                array('t' => $template->id)), new pix_icon('t/restore', get_string('new')));
+        }
+        if (has_capability('block/course_template:import', $context) && ($courseid && $courseid != SITEID)) {
+            $html .= $OUTPUT->action_icon(new moodle_url('/blocks/course_template/newcourse.php',
+                array('t' => $template->id, 'c' => $courseid)), new pix_icon('t/restore', get_string('import')));
+        }
 
         return $html;
     }
@@ -153,25 +160,31 @@ class block_course_template_renderer extends plugin_renderer_base {
             return array();
         }
 
-        $context = get_context_instance(CONTEXT_SYSTEM);
+        // Determine context.
+        if ($courseid == SITEID) {
+            $context = get_context_instance(CONTEXT_SYSTEM);
+        } else {
+            $context = get_context_instance(CONTEXT_COURSE, $courseid);
+        }
 
         $tempurl = new moodle_url('/blocks/course_template/edit.php', array('c' => $courseid));
         $courseurl = new moodle_url('/blocks/course_template/newcourse.php');
         $intocourseurl = new moodle_url('/blocks/course_template/newcourse.php', array('c' => $courseid));
-        $viewurl = new moodle_url('/blocks/course_template/view.php');
+        $viewurl = new moodle_url('/blocks/course_template/view.php', array('c' => $courseid));
 
-        $html = html_writer::start_tag('ul');
         $items = array();
-
         if (has_capability('block/course_template:edit', $context)) {
             $items[] = html_writer::link($tempurl, get_string('newtemplate', 'block_course_template'));
         }
-
-        $items[] = html_writer::link($courseurl, get_string('newcoursefromtemp', 'block_course_template'));
-
-        $items[] = html_writer::link($intocourseurl, get_string('intocourse', 'block_course_template'));
-
-        $items[] = html_writer::link($viewurl, get_string('alltemplates', 'block_course_template'));
+        if (has_capability('block/course_template:createcourse', $context)) {
+            $items[] = html_writer::link($courseurl, get_string('newcoursefromtemp', 'block_course_template'));
+        }
+        if (has_capability('block/course_template:import', $context)) {
+            $items[] = html_writer::link($intocourseurl, get_string('intocourse', 'block_course_template'));
+        }
+        if (has_capability('block/course_template:view', $context)) {
+            $items[] = html_writer::link($viewurl, get_string('alltemplates', 'block_course_template'));
+        }
 
         return $items;
     }
