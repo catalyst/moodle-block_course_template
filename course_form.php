@@ -63,7 +63,7 @@ class block_course_template_course_form extends moodleform {
             );
         }
 
-        $mform->addelement('select', 'template', get_string('template', 'block_course_template'), $selecttemp);
+        $mform->addelement('select', 'template', get_string('template', 'mod_feedback'), $selecttemp);
         if ($template != 0) {
             $mform->setDefault('template', $template);
         }

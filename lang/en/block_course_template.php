@@ -35,7 +35,6 @@ $string['course_template:edit'] = 'Create and administer course templates';
 $string['course_template:createcourse'] = 'Create a new course from a course template';
 
 // Block strings.
-$string['template'] = 'Template';
 $string['addtemplate'] = 'Add course template';
 $string['newcoursefromtemp'] = 'New course from template';
 $string['alltemplates'] = 'View all course templates';
