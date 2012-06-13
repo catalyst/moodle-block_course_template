@@ -36,7 +36,6 @@ require_login();
 $templateid = optional_param('t', 0, PARAM_INT);
 $courseid = optional_param('c', 0, PARAM_INT);
 
-
 if ($courseid === 0) {
     $context = get_context_instance(CONTEXT_SYSTEM);
     require_capability('block/course_template:createcourse', $context);
@@ -60,12 +59,6 @@ if (!$DB->record_exists('block_course_template', array())) {
     redirect(get_referer(), get_string('notemplates', 'block_course_template'));
 }
 
-if ($insert != 1) {
-    $headingstr = get_string('newcoursefromtemp', 'block_course_template');
-} else {
-    $headingstr = get_string('importintocourse', 'block_course_template');
-}
-
 $PAGE->set_url('/blocks/course_template/newcourse.php');
 $PAGE->set_context($context);
 if ($insert) {
@@ -73,6 +66,13 @@ if ($insert) {
     $PAGE->set_course($course);
 } else {
     $PAGE->set_pagelayout('course');
+}
+if ($insert != 1) {
+    $headingstr = get_string('newcoursefromtemp', 'block_course_template');
+} else {
+    $headingstr  = get_string('importintocourse', 'block_course_template');
+    // Using format_string() before page context set causes error.
+    $headingstr .= " '" . format_string($course->fullname) . "'";
 }
 $PAGE->set_title($headingstr);
 $PAGE->set_heading($headingstr);

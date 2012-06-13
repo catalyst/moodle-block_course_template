@@ -37,6 +37,7 @@ $context = get_context_instance(CONTEXT_SYSTEM);
 require_capability('block/course_template:edit', $context);
 
 $basecourseid = optional_param('c', 0, PARAM_INT);
+$currentcourse = optional_param('cc', 0, PARAM_INT);
 $templateid = optional_param('t', 0, PARAM_INT);
 
 if ($basecourseid == 1) {
@@ -48,10 +49,10 @@ if ($basecourseid === 0  && $templateid === 0) {
 }
 
 if ($basecourseid !== 0) {
-    $redirecturl = new moodle_url('/course/view.php', array('id' => $basecourseid));
+    $redirecturl = new moodle_url('/blocks/course_template/view.php', array('c' => $currentcourse));
 } else {
     $basecourseid = $DB->get_field('block_course_template', 'course', array('id' => $templateid));
-    $redirecturl = new moodle_url('/block_course_template/view.php');
+    $redirecturl = new moodle_url('/blocks/course_template/view.php');
 }
 
 if ($templateid === 0) {
@@ -101,10 +102,11 @@ $basedontext = $renderer->display_form_basedon_course($basecourse);
 $mform = new course_template_edit_form(
     $PAGE->url,
     array(
-        'basecourse'  => $basecourse,
-        'templateid'  => $templateid,
-        'taglist'     => $taglist,
-        'basedontext' => $basedontext
+        'basecourse'    => $basecourse,
+        'templateid'    => $templateid,
+        'taglist'       => $taglist,
+        'basedontext'   => $basedontext,
+        'currentcourse' => $currentcourse
     )
 );
 

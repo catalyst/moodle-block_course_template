@@ -129,7 +129,7 @@ class block_course_template_renderer extends plugin_renderer_base {
         $html = '';
         if (has_capability('block/course_template:edit', $context)) {
             $html .= $OUTPUT->action_icon(new moodle_url('/blocks/course_template/edit.php',
-                                array('t' => $template->id)), new pix_icon('t/edit', get_string('edit')));
+                                array('t' => $template->id, 'cc' => $courseid)), new pix_icon('t/edit', get_string('edit')));
 
             $html .= $OUTPUT->action_icon(new moodle_url('/blocks/course_template/delete.php',
                                 array('id' => $template->id)), new pix_icon('t/delete', get_string('delete')));
@@ -138,7 +138,7 @@ class block_course_template_renderer extends plugin_renderer_base {
             $html .= $OUTPUT->action_icon(new moodle_url('/blocks/course_template/newcourse.php',
                 array('t' => $template->id)), new pix_icon('t/restore', get_string('new')));
         }
-        if (has_capability('block/course_template:import', $context) && ($courseid && $courseid != SITEID)) {
+        if (has_capability('block/course_template:import', $context) && ($courseid && $courseid != SITEID) && $context->contextlevel == CONTEXT_COURSE) {
             $html .= $OUTPUT->action_icon(new moodle_url('/blocks/course_template/newcourse.php',
                 array('t' => $template->id, 'c' => $courseid)), new pix_icon('t/restore', get_string('import')));
         }
