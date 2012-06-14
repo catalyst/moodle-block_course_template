@@ -85,21 +85,18 @@ if (!empty($tagsql) && !empty($tagparams)) {
     $totalcount = $DB->count_records_sql("SELECT COUNT(ct.id)
         FROM {block_course_template} ct
         JOIN {block_course_template_tag_instance} ti ON ti.template = ct.id
-        WHERE ti.tag {$tagsql}
-        GROUP BY ct.id", $tagparams);
+        WHERE ti.tag {$tagsql}", $tagparams);
     $templatesql = "SELECT ct.*, c.fullname AS coursename
         FROM {block_course_template} ct
         JOIN {block_course_template_tag_instance} ti ON ti.template = ct.id
         JOIN {course} c ON c.id = ct.course
         WHERE ti.tag {$tagsql}
-        GROUP BY ct.id
         ORDER BY ct.timemodified DESC";
 } else {
     $totalcount = $DB->count_records_sql("SELECT COUNT(*) FROM {block_course_template}");
     $templatesql = "SELECT ct.*, c.fullname AS coursename
         FROM {block_course_template} ct
         JOIN {course} c ON c.id = ct.course
-        GROUP BY ct.id
         ORDER BY ct.timemodified DESC";
 }
 
