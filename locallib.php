@@ -66,9 +66,7 @@ function course_template_delete_tag_instances($instids) {
 
     global $CFG, $DB;
 
-    list($insql, $params) = $DB->get_in_or_equal(
-        implode(', ', $instids)
-    );
+    list($insql, $params) = $DB->get_in_or_equal($instids);
 
     // If we are deleting the last instance of a tag then delete the tag record also.
     $countsql = "SELECT tag.id, COUNT(ins.id) AS count FROM (SELECT t.* FROM {$CFG->prefix}block_course_template_tag t
@@ -99,9 +97,8 @@ function course_template_delete_tag_instances($instids) {
         return false;
     }
 
-    list($tagsinsql, $tagsparams) = $DB->get_in_or_equal(
-        implode(', ', $deletetags)
-    );
+    list($tagsinsql, $tagsparams) = $DB->get_in_or_equal($deletetags);
+
     // Delete any unneeded tag records.
     if ($deletetags) {
         if (!$DB->delete_records_select('block_course_template_tag', "id {$tagsinsql}", $tagsparams)) {
