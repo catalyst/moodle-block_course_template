@@ -57,10 +57,10 @@ function course_template_delete_template($templateid) {
 
 /**
  * Delete tag instances. Checks whether the instance is the last instance of each tag
- * and if true also deletes the block_course_template_tag record
+ * and if true also deletes the block_course_template_tag record.
  *
- * @param array:integer $tagids an array of tag instance ids
- * @param transaction object
+ * @param array:integer $tagids an array of tag instance ids.
+ * @param transaction object.
  */
 function course_template_delete_tag_instances($instids) {
 

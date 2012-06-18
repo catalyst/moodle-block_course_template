@@ -30,8 +30,9 @@ require_once($CFG->dirroot.'/blocks/course_template/locallib.php');
 
 require_login();
 
-$id      = required_param('id', PARAM_INT);
-$confirm = optional_param('confirm', 0, PARAM_INT);
+$id       = required_param('id', PARAM_INT);
+$courseid = optional_param('c', 0, PARAM_INT);
+$confirm  = optional_param('confirm', 0, PARAM_INT);
 
 require_capability('block/course_template:edit', get_context_instance(CONTEXT_SYSTEM));
 
@@ -42,7 +43,8 @@ if (!$template = $DB->get_record('block_course_template', array('id' => $id))) {
 // Confirmed deletion.
 if ($confirm) {
     course_template_delete_template($id);
-    redirect('/blocks/course_template/view.php', get_string('templatedeleted', 'block_course_template'));
+    $url = new moodle_url('/blocks/course_template/view.php', array('c' => $courseid));
+    redirect($url, get_string('templatedeleted', 'block_course_template'));
     exit;
 }
 
@@ -58,8 +60,8 @@ $PAGE->set_heading($heading);
 echo $OUTPUT->header();
 echo $OUTPUT->heading($heading, 2, 'main');
 
-$confirmurl = new moodle_url('/blocks/course_template/delete.php', array('id' => $id, 'confirm' => 1));
-$cancelurl  = new moodle_url('/blocks/course_template/view.php');
+$confirmurl = new moodle_url('/blocks/course_template/delete.php', array('id' => $id, 'confirm' => 1, 'c' => $courseid));
+$cancelurl  = new moodle_url('/blocks/course_template/view.php', array('c' => $courseid));
 
 echo $OUTPUT->confirm(get_string('confirmdelete', 'block_course_template', s($template->name)), $confirmurl, $cancelurl);
 

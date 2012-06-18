@@ -132,7 +132,7 @@ class block_course_template_renderer extends plugin_renderer_base {
                                 array('t' => $template->id, 'cc' => $courseid)), new pix_icon('t/edit', get_string('edit')));
 
             $html .= $OUTPUT->action_icon(new moodle_url('/blocks/course_template/delete.php',
-                                array('id' => $template->id)), new pix_icon('t/delete', get_string('delete')));
+                                array('id' => $template->id, 'c' => $courseid)), new pix_icon('t/delete', get_string('delete')));
         }
         if (has_capability('block/course_template:createcourse', $context)) {
             $html .= $OUTPUT->action_icon(new moodle_url('/blocks/course_template/newcourse.php',
