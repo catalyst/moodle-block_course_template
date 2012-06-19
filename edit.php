@@ -32,14 +32,9 @@ require_once($CFG->dirroot . '/blocks/course_template/locallib.php');
 
 require_login();
 
-$context = get_context_instance(CONTEXT_SYSTEM);
-
-require_capability('block/course_template:edit', $context);
-
 $basecourseid = optional_param('c', 0, PARAM_INT);
 $currentcourse = optional_param('cc', 0, PARAM_INT);
-$templateid = optional_param('t', 0, PARAM_INT);
-
+$templateid = optional_param('t', 0, PARAM_INT); 
 if ($basecourseid == 1) {
     redirect($CFG->wwwroot, get_string('error:sitecourse', 'block_course_template'));
 }
@@ -65,8 +60,13 @@ if ($templateid === 0) {
     $headingtxt = $titletxt . ' \'' . $templatename . '\'';
 }
 
+// Templates stored under system context but cap to create them is at course level.
+$syscontext = get_context_instance(CONTEXT_SYSTEM);
+$coursecontext = get_context_instance(CONTEXT_COURSE, $basecourseid);
+require_capability('block/course_template:edit', $coursecontext);
+
 $PAGE->set_url('/blocks/course_template/edit.php', array('c' => $basecourseid, 't' => $templateid));
-$PAGE->set_context(get_context_instance(CONTEXT_COURSE, $PAGE->course->id));
+$PAGE->set_context($coursecontext);
 $PAGE->set_pagelayout('course');
 
 // Must call format_string() after set_context().
@@ -149,7 +149,7 @@ $draftitemid = file_get_submitted_draft_itemid('screenshot');
 
 file_prepare_draft_area(
     $draftitemid,
-    $context->id,
+    $syscontext->id,
     'block_course_template',
     'screenshot',
     $itemid,
@@ -218,7 +218,7 @@ if ($data = $mform->get_data()) {
 
     // Delete any existing files.
     $existingfiles = $fs->get_area_files(
-        $context->id,
+        $syscontext->id,
         'block_course_template',
         'screenshot',
         $tempobj->id
@@ -232,7 +232,7 @@ if ($data = $mform->get_data()) {
 
     $tempobj->screenshot = $mform->get_new_filename('screenshot');
     file_save_draft_area_files($draftid,
-        $context->id,
+        $syscontext->id,
         'block_course_template',
         'screenshot',
         $tempobj->id,

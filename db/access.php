@@ -38,7 +38,7 @@ $capabilities = array(
     ),
     'block/course_template:edit' => array(
         'captype' => 'write',
-        'contextlevel' => CONTEXT_SYSTEM,
+        'contextlevel' => CONTEXT_COURSE,
         'archetypes' => array(
             'manager' => CAP_ALLOW
         )
