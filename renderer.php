@@ -97,12 +97,12 @@ class block_course_template_renderer extends plugin_renderer_base {
      * @param array $tags related tags for the given template
      * @return string HTML
      */
-    public function display_template_tags($tags) {
+    public function display_template_tags($tags, $courseid) {
         $html = '';
         if ($tags) {
             $i = 1;
             foreach ($tags as $tag) {
-                $tagurl = new moodle_url('/blocks/course_template/view.php', array('tag' => $tag->id));
+                $tagurl = new moodle_url('/blocks/course_template/view.php', array('tag' => $tag->id, 'c' => $courseid));
                 $html .= html_writer::link($tagurl, s($tag->name));
                 if ($i < count($tags)) {
                     $html .= ', ';

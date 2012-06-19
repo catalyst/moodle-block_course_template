@@ -43,6 +43,7 @@ if (!$courseid || $courseid == SITEID) {
     $course = $DB->get_record('course', array('id' => $courseid));
     $context = get_context_instance(CONTEXT_COURSE, $courseid);
 }
+
 require_capability('block/course_template:view', $context);
 
 $url = new moodle_url('/blocks/course_template/view.php', array('page' => $page, 'tag' => $tag, 'c' => $courseid));
@@ -65,7 +66,7 @@ echo $OUTPUT->header();
 $tagsql = '';
 $tagparams = array();
 $tags =  $DB->get_records('block_course_template_tag');
-$mform = new block_course_template_tag_filter_form(null, array('tags' => $tags, 'filtertag' => $tag));
+$mform = new block_course_template_tag_filter_form(null, array('tags' => $tags, 'filtertag' => $tag, 'course' => $courseid));
 if ($data = $mform->get_data()) {
     if (isset($data->tags) && is_array($data->tags)) {
 
@@ -142,7 +143,7 @@ if ($templates) {
         $row = array();
         $row[] = $renderer->display_template_screenshot($template);
         $row[] = $renderer->display_template_details($template);
-        $row[] = $renderer->display_template_tags($tags);
+        $row[] = $renderer->display_template_tags($tags, $courseid);
         $row[] = $renderer->display_template_actions($template, $context, $courseid);
 
         $table->add_data($row);

@@ -38,6 +38,7 @@ class block_course_template_tag_filter_form extends moodleform {
         $mform =& $this->_form;
         $tags = $this->_customdata['tags'];
         $filtertag = $this->_customdata['filtertag'];
+        $courseid = $this->_customdata['course'];
 
         $mform->addElement('header', 'activetags', get_string('activetags', 'block_course_template'));
 
@@ -53,6 +54,8 @@ class block_course_template_tag_filter_form extends moodleform {
 
         $mform->addGroup($group, 'tags', array(' '), false);
         $this->add_checkbox_controller(1);
+
+        $mform->addElement('hidden', 'c', $courseid);
 
         $this->add_action_buttons(false, get_string('filtertemplates', 'block_course_template'));
     }
