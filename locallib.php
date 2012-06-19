@@ -118,10 +118,14 @@ function course_template_delete_tag_instances($instids) {
  * @return bool
  */
 function course_template_create_archive($coursetemplate, $userid) {
-    global $DB;
+    global $CFG, $DB;
 
     $course = $DB->get_record('course', array('id' => $coursetemplate->course));
     $config = course_template_get_settings();
+    $admin = get_admin();
+    if (!$admin) {
+        return false;
+    }
 
     $bc = new backup_controller(
         backup::TYPE_1COURSE,
@@ -129,7 +133,7 @@ function course_template_create_archive($coursetemplate, $userid) {
         backup::FORMAT_MOODLE,
         backup::INTERACTIVE_NO,
         backup::MODE_AUTOMATED,
-        $userid
+        $admin->id
     );
 
     try {
@@ -145,9 +149,10 @@ function course_template_create_archive($coursetemplate, $userid) {
             'logs' => 'backup_auto_logs',
             'histories' => 'backup_auto_histories'
         );
+
         foreach ($settings as $setting => $configsetting) {
             if ($bc->get_plan()->setting_exists($setting)) {
-                $bc->get_plan()->get_setting($setting)->set_value($config->{$configsetting});
+               $bc->get_plan()->get_setting($setting)->set_value($config->{$configsetting});
             }
         }
 
@@ -207,16 +212,8 @@ function course_template_create_archive($coursetemplate, $userid) {
                 $file->delete();
             }
         }
-
     } catch (backup_exception $e) {
-        redirect(
-            $CFG->wwwroot,
-            get_string(
-                'error:createbackupfile',
-                'block_course_template',
-                $coursetemplate->id
-            )
-        );
+        return false;
     }
 
     $bc->destroy();
