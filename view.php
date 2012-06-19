@@ -113,7 +113,7 @@ $table->set_attribute('class', 'generaltable generalbox');
 
 $table->define_columns(array('preview', 'details', 'tags', 'actions'));
 $table->define_headers(array(
-    get_string('preview'),
+    get_string('screenshot'),
     get_string('details', 'block_course_template'),
     get_string('tags'),
     get_string('actions'),
