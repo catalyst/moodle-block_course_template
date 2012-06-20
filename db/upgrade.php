@@ -84,4 +84,14 @@ function xmldb_block_course_template_upgrade($oldversion) {
         // Bump for capabilities.
         upgrade_block_savepoint(true, 2012061802, 'course_template');
     }
+
+    if ($oldversion < 2012061806) {
+        // Bump for capabilities.
+        upgrade_block_savepoint(true, 2012061806, 'course_template');
+    }
+
+    if ($oldversion < 2012062000) {
+        // Bump for capabilities.
+        upgrade_block_savepoint(true, 2012062000, 'course_template');
+    }
 }
