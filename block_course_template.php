@@ -33,7 +33,6 @@ class block_course_template extends block_list {
 
     // Only Site Admins can edit/remove this block.
     public function user_can_edit() {
-        print_object(has_capability('moodle/site:config', get_context_instance(CONTEXT_SYSTEM)));
         return has_capability('moodle/site:config', get_context_instance(CONTEXT_SYSTEM));
     }
 
