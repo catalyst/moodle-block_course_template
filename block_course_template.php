@@ -31,16 +31,6 @@ class block_course_template extends block_list {
         $this->title = get_string('pluginname', 'block_course_template');
     }
 
-    // Only Site Admins can edit/remove this block.
-    public function user_can_edit() {
-        return has_capability('moodle/site:config', get_context_instance(CONTEXT_SYSTEM));
-    }
-
-    // Only Site Admins can add this block.
-    public function user_can_addto($page) {
-        return has_capability('moodle/site:config', get_context_instance(CONTEXT_SYSTEM));
-    }
-
     public function instance_allow_multiple() {
         return false;
     }
@@ -48,8 +38,8 @@ class block_course_template extends block_list {
     public function applicable_formats() {
         return array(
             'site-index' => true,
+            'course' => true,
             'mod' => false,
-            'course' => false
         );
     }
 
@@ -70,5 +60,3 @@ class block_course_template extends block_list {
         return $this->content;
     }
 }
-
-
