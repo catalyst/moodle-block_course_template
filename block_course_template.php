@@ -35,6 +35,10 @@ class block_course_template extends block_list {
         return false;
     }
 
+    public function has_config() {
+        return true;
+    }
+
     public function applicable_formats() {
         return array(
             'site-index' => true,
