@@ -69,9 +69,7 @@ class block_course_template_course_form extends moodleform {
         }
 
         if ($courseid == 0) {
-            $selectcat = array();
-            $notused = array();     // Function make_categories_list requires this param but actually we don't need the result.
-            make_categories_list($selectcat, $notused);
+            $selectcat = coursecat::make_categories_list();
             $mform->addElement('select', 'category', get_string('category'), $selectcat);
 
             $mform->addElement('text', 'fullname', get_string('fullnamecourse'), 'maxlength="254" size="50"');
@@ -108,9 +106,11 @@ class block_course_template_course_form extends moodleform {
         } else {
 
             $mform->addElement('hidden', 'c', $courseid);
+            $mform->setType('c', PARAM_INT);
         }
 
         $mform->addElement('hidden', 'referer', $referer);
+        $mform->setType('referer', PARAM_URL);
 
         $buttontitle = $courseid == 0 ? get_string('createcourse', 'block_course_template') : get_string('import');
         $this->add_action_buttons(true, $buttontitle);
