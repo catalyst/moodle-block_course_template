@@ -74,8 +74,10 @@ class course_template_edit_form extends moodleform {
 
         $mform->addElement('header', 'tagsheading', get_string('tags'));
 
-        $tagtxt = html_writer::tag('p', get_string('existingtags', 'block_course_template') . ': ' . $taglist);
-        $mform->addElement('html', $tagtxt);
+        if ($taglist) {
+            $tagtxt = html_writer::tag('p', get_string('existingtags', 'block_course_template') . ': ' . $taglist);
+            $mform->addElement('html', $tagtxt);
+        }
 
         $mform->addElement('text', 'tags', get_string('tags'));
         $mform->setType('tags', PARAM_TEXT);
