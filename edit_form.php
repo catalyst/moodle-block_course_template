@@ -82,8 +82,11 @@ class course_template_edit_form extends moodleform {
         $mform->addHelpButton('tags', 'tagshelp', 'block_course_template');
 
         $mform->addElement('hidden', 'c', $basecourse->id);
+        $mform->setType('c', PARAM_INT);
         $mform->addElement('hidden', 't', $templateid);
+        $mform->setType('t', PARAM_INT);
         $mform->addElement('hidden', 'cc', $currentcourse);
+        $mform->setType('cc', PARAM_INT);
 
         if ($templateid !== 0) {
             $actiontxt = get_string('updatetemplate', 'block_course_template');

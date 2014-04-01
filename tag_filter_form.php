@@ -56,6 +56,7 @@ class block_course_template_tag_filter_form extends moodleform {
         $this->add_checkbox_controller(1);
 
         $mform->addElement('hidden', 'c', $courseid);
+        $mform->setType('c', PARAM_INT);
 
         $this->add_action_buttons(false, get_string('filtertemplates', 'block_course_template'));
     }
