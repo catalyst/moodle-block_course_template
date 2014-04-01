@@ -96,7 +96,13 @@ function xmldb_block_course_template_upgrade($oldversion) {
     }
 
     if ($oldversion < 2014040100) {
-        // Bump for capabilities.
+        // Change DB table name
+        $table = new xmldb_table('block_course_template_tag_instance');
+        if ($dbman->table_exists($table)) {
+            $sql = "ALTER TABLE {block_course_template_tag_instance}
+                      RENAME TO {block_course_template_tag_in}";
+            $DB->execute_sql($sql);
+        }
         upgrade_block_savepoint(true, 2014040100, 'course_template');
     }
 }
