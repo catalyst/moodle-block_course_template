@@ -141,27 +141,27 @@ if ($templateid !== 0) {
         unset($toform->timecreated);
         unset($toform->timemodified);
         unset($toform->screenshot);
+
+        $itemid = (isset($toform)) ? $toform->id : null;
+        $draftitemid = file_get_submitted_draft_itemid('screenshot');
+
+        file_prepare_draft_area(
+            $draftitemid,
+            $syscontext->id,
+            'block_course_template',
+            'screenshot',
+            $itemid,
+            array(
+                'subdirs' => 0,
+                'maxfiles' => 1
+            )
+        );
+
+        $toform->screenshot = $draftitemid;
+
+        $mform->set_data($toform);
     }
 }
-
-$itemid = (isset($toform)) ? $toform->id : null;
-$draftitemid = file_get_submitted_draft_itemid('screenshot');
-
-file_prepare_draft_area(
-    $draftitemid,
-    $syscontext->id,
-    'block_course_template',
-    'screenshot',
-    $itemid,
-    array(
-        'subdirs' => 0,
-        'maxfiles' => 1
-    )
-);
-
-$toform->screenshot = $draftitemid;
-
-$mform->set_data($toform);
 
 if ($data = $mform->get_data()) {
 
