@@ -59,5 +59,14 @@ $capabilities = array(
             'coursecreator' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
         )
+    ),
+    'block/course_template:addinstance' => array(
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_BLOCK,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW,
+            'coursecreator' => CAP_ALLOW
+        ),
+        'clonepermissionsfrom' => 'moodle/site:manageblocks'
     )
 );
