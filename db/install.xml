@@ -20,7 +20,7 @@
         <KEY NAME="course" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id" PREVIOUS="primary" />
       </KEYS>
     </TABLE>
-    <TABLE NAME="block_course_template_tag" COMMENT="Table for course template module" PREVIOUS="block_course_template" NEXT="block_course_template_tag_instance">
+    <TABLE NAME="block_course_template_tag" COMMENT="Table for course template module" PREVIOUS="block_course_template" NEXT="block_course_template_tag_in">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="name"/>
         <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="timemodified"/>
@@ -30,7 +30,7 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id" />
       </KEYS>
     </TABLE>
-    <TABLE NAME="block_course_template_tag_instance" COMMENT="Table for course template module" PREVIOUS="block_course_template_tag">
+    <TABLE NAME="block_course_template_tag_in" COMMENT="Table for course template module" PREVIOUS="block_course_template_tag">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="tag"/>
         <FIELD NAME="tag" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" PREVIOUS="id" NEXT="template" />

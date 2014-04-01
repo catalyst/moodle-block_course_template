@@ -124,7 +124,7 @@ if ($templateid !== 0) {
         $toform = clone $templaterec;
         $toform->description = array('text' => $toform->description);
         // Get tags for course and compress.
-        $currenttags = $DB->get_records_sql("SELECT tag.name FROM {$CFG->prefix}block_course_template_tag_instance ins
+        $currenttags = $DB->get_records_sql("SELECT tag.name FROM {$CFG->prefix}block_course_template_tag_in ins
                                                                 JOIN {$CFG->prefix}block_course_template_tag tag ON ins.tag = tag.id
                                              WHERE ins.template = {$templaterec->id}");
         if ($currenttags) {
@@ -251,7 +251,7 @@ if ($data = $mform->get_data()) {
     );
 
     // Tag and tag instance records.
-    $oldtags = $DB->get_records('block_course_template_tag_instance', array('template' => $tempobj->id));
+    $oldtags = $DB->get_records('block_course_template_tag_in', array('template' => $tempobj->id));
 
     // This to store the tag instances we'll create for values submitted in the form.
     $currenttags = array();
@@ -296,7 +296,7 @@ if ($data = $mform->get_data()) {
                 $instobj->template = $tempobj->id;
                 $instobj->timemodified = time();
                 $instobj->id = $DB->get_field(
-                    'block_course_template_tag_instance',
+                    'block_course_template_tag_in',
                     'id',
                     array(
                         'tag' => $instobj->tag,
@@ -305,7 +305,7 @@ if ($data = $mform->get_data()) {
                 );
 
                 if (!$instobj->id) {
-                    if (!$instobj->id = $DB->insert_record('block_course_template_tag_instance', $instobj)) {
+                    if (!$instobj->id = $DB->insert_record('block_course_template_tag_in', $instobj)) {
                         $success = false;
                         $errormsg = get_string('error:couldnotinserttag', 'block_course_template', $tagobj->name);
                     }

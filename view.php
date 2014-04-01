@@ -85,11 +85,11 @@ if ($data = $mform->get_data()) {
 if (!empty($tagsql) && !empty($tagparams)) {
     $totalcount = $DB->count_records_sql("SELECT COUNT(ct.id)
         FROM {block_course_template} ct
-        JOIN {block_course_template_tag_instance} ti ON ti.template = ct.id
+        JOIN {block_course_template_tag_in} ti ON ti.template = ct.id
         WHERE ti.tag {$tagsql}", $tagparams);
     $templatesql = "SELECT ct.*, c.fullname AS coursename
         FROM {block_course_template} ct
-        JOIN {block_course_template_tag_instance} ti ON ti.template = ct.id
+        JOIN {block_course_template_tag_in} ti ON ti.template = ct.id
         JOIN {course} c ON c.id = ct.course
         WHERE ti.tag {$tagsql}
         ORDER BY ct.timemodified DESC";
@@ -136,7 +136,7 @@ if ($templates) {
             FROM {block_course_template_tag}
             WHERE id IN (
                 SELECT tag
-                FROM {block_course_template_tag_instance}
+                FROM {block_course_template_tag_in}
                 WHERE template = ?
             )", array($template->id));
 
