@@ -105,4 +105,6 @@ function xmldb_block_course_template_upgrade($oldversion) {
         }
         upgrade_block_savepoint(true, 2014040100, 'course_template');
     }
+
+    return true;
 }
