@@ -197,6 +197,17 @@ if ($data = $mform->get_data()) {
         $message = get_string('createdsuccessfully', 'block_course_template');
     }
 
+    /** Set enrolment methods */
+    $instances = enrol_get_instances($coursetemplate->course, false);
+    foreach ($instances as $instance) {
+        $fields = (array)$instance;
+        $plugin = enrol_get_plugin($fields['enrol']);
+        unset($fields['id']);
+        $course = new stdClass();
+        $course->id = $courseid;
+        $plugin->add_instance($course, $fields);
+    }
+
     redirect(new moodle_url('/course/view.php', array('id' => $courseid)), $message);
 }
 
