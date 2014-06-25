@@ -97,10 +97,9 @@ function course_template_delete_tag_instances($instids) {
         return false;
     }
 
-    list($tagsinsql, $tagsparams) = $DB->get_in_or_equal($deletetags);
-
     // Delete any unneeded tag records.
-    if ($deletetags) {
+    if (!empty($deletetags)) {
+        list($tagsinsql, $tagsparams) = $DB->get_in_or_equal($deletetags);
         if (!$DB->delete_records_select('block_course_template_tag', "id {$tagsinsql}", $tagsparams)) {
             return false;
         }
