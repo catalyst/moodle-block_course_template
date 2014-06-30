@@ -204,6 +204,19 @@ function course_template_create_archive($coursetemplate, $userid) {
                 'filename' => $filename
             );
 
+            // Delete any current template
+            $oldfile = $fs->get_file(
+                $fileinfo['contextid'],
+                $fileinfo['component'],
+                $fileinfo['filearea'],
+                $fileinfo['itemid'],
+                $fileinfo['filepath'],
+                $fileinfo['filename']
+            );
+            if ($oldfile) {
+                $oldfile->delete();
+            };
+
             // Create a copy of the file in the course_template location.
             $templatefile = $fs->create_file_from_storedfile($fileinfo, $file);
 

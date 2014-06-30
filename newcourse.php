@@ -97,6 +97,20 @@ if ($data = $mform->get_data()) {
         print_error(get_string('error:notemplate', 'block_course_template', $data->template));
     }
 
+    // If the template file is missing, create it now
+    if (empty($coursetemplate->file)) {
+        require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
+
+        $backupfile = course_template_create_archive($coursetemplate, $USER->id);
+        $coursetemplate->file = $backupfile->get_filename();
+        $DB->set_field(
+            'block_course_template',
+            'file',
+            $coursetemplate->file,
+            array('id' => $coursetemplate->id)
+        );
+    }
+
     $fs = get_file_storage();
     $systemcontext = get_context_instance(CONTEXT_SYSTEM);
     $restorefile = $fs->get_file_by_hash(
@@ -104,6 +118,7 @@ if ($data = $mform->get_data()) {
     );
 
     if (empty($restorefile)) {
+        error_log(get_string('error:processerror', 'block_course_template'));
         redirect($referer, get_string('error:processerror', 'block_course_template'));
     }
 
