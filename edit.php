@@ -165,6 +165,7 @@ if ($templateid !== 0) {
 
 if ($data = $mform->get_data()) {
 
+    $transaction = $DB->start_delegated_transaction();
     $success = true;
     $errormsg = '';
 
@@ -326,6 +327,7 @@ if ($data = $mform->get_data()) {
     }
 
     if (!$success) {
+        $transaction->allow_commit();
         redirect($redirecturl, get_string('error:save', 'block_course_template'));
     } else {
         redirect($redirecturl, get_string('savesuccess', 'block_course_template'));
