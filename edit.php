@@ -327,9 +327,9 @@ if ($data = $mform->get_data()) {
     }
 
     if (!$success) {
-        $transaction->allow_commit();
         redirect($redirecturl, get_string('error:save', 'block_course_template'));
     } else {
+        $transaction->allow_commit();
         redirect($redirecturl, get_string('savesuccess', 'block_course_template'));
     }
 }
