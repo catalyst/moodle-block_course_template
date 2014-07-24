@@ -280,10 +280,7 @@ if ($data = $mform->get_data()) {
                 $tagobj->name = ucfirst($tagfiltered);
                 $tagobj->timemodified = time();
 
-                $likefragment = $DB->sql_like('name', ':tagname', false);
-                $likeparams = array('tagname' => '%' . $tagobj->name . '%');
-
-                $tagobj->id = $DB->get_field_select('block_course_template_tag', 'id', $likefragment, $likeparams);
+                $tagobj->id = $DB->get_field('block_course_template_tag', 'id', array('name' => $tagobj->name));
                 if (!$tagobj->id) {
                     if (!$tagobj->id = $DB->insert_record('block_course_template_tag', $tagobj)) {
                         $success = false;
