@@ -161,15 +161,15 @@ function course_template_create_archive($coursetemplate, $userid) {
         $id = $bc->get_id();
         $users = $bc->get_plan()->get_setting('users')->get_value();
         $anonymised = $bc->get_plan()->get_setting('anonymize')->get_value();
-        $bc->get_plan()->get_setting('filename')->set_value(
-            backup_plan_dbops::get_default_backup_filename(
-                $format,
-                $type,
-                $id,
-                $users,
-                $anonymised
-            )
+        $backupfile = backup_plan_dbops::get_default_backup_filename(
+            $format,
+            $type,
+            $id,
+            $users,
+            $anonymised,
+            true
         );
+        $bc->get_plan()->get_setting('filename')->set_value($backupfile);
 
         $bc->set_status(backup::STATUS_AWAITING);
 
@@ -218,10 +218,10 @@ function course_template_create_archive($coursetemplate, $userid) {
             };
 
             // Create a copy of the file in the course_template location.
-            $templatefile = $fs->create_file_from_storedfile($fileinfo, $file);
+            $templatefile = $fs->create_file_from_pathname($fileinfo, "{$CFG->dataroot}/backups/{$backupfile}");
 
             if ($templatefile && $storage === 1) {
-                $file->delete();
+                //$file->delete();
             }
         }
     } catch (backup_exception $e) {
