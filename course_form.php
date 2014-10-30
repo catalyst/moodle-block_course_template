@@ -53,7 +53,11 @@ class block_course_template_course_form extends moodleform {
         $mform->addElement('header', 'detailsheading');
 
         $selecttemp = array();
-        $selecttemp = $DB->get_records('block_course_template');
+        $selecttempsql = 'SELECT ct.*
+                            FROM {block_course_template} ct
+                            JOIN {course} c ON c.id = ct.course
+                        ORDER BY ct.name';
+        $selecttemp = $DB->get_records_sql($selecttempsql);
         if ($selecttemp) {
             $selecttemp = array_map(
                 function($n){

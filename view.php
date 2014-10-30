@@ -94,11 +94,13 @@ if (!empty($tagsql) && !empty($tagparams)) {
         WHERE ti.tag {$tagsql}
         ORDER BY ct.timemodified DESC";
 } else {
-    $totalcount = $DB->count_records_sql("SELECT COUNT(*) FROM {block_course_template}");
+    $totalcount = $DB->count_records_sql("SELECT COUNT(ct.id)
+        FROM {block_course_template} ct
+        JOIN {course} c ON c.id = ct.course");
     $templatesql = "SELECT ct.*, c.fullname AS coursename
         FROM {block_course_template} ct
         JOIN {course} c ON c.id = ct.course
-        ORDER BY ct.timemodified DESC";
+        ORDER BY ct.name";
 }
 
 // Display tags form.
