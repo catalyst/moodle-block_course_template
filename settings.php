@@ -46,7 +46,7 @@ if ($ADMIN->fulltree) {
     }
 
     // Teamwork Owner can assign from roles.
-    $settings->add(new admin_setting_configmultiselect('block_course_template_allowedformats',
+    $settings->add(new admin_setting_configmultiselect('block_course_template/allowedformats',
         get_string('visiblename', 'block_course_template'), get_string('configdescription', 'block_course_template'),
         $defaultformats, $formats));
 }

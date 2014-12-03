@@ -218,7 +218,9 @@ function course_template_create_archive($coursetemplate, $userid) {
             };
 
             // Create a copy of the file in the course_template location.
-            $templatefile = $fs->create_file_from_pathname($fileinfo, "{$CFG->dataroot}/backups/{$backupfile}");
+            $backupautodestination = get_config('backup', 'backup_auto_destination');
+            $backupdir = isset($backupautodestination) ? $backupautodestination : "{$CFG->dataroot}/backups";
+            $templatefile = $fs->create_file_from_pathname($fileinfo, "{$backupdir}/{$backupfile}");
 
             if ($templatefile && $storage === 1) {
                 //$file->delete();

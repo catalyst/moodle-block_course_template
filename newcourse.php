@@ -35,6 +35,7 @@ require_login();
 
 $templateid = optional_param('t', 0, PARAM_INT);
 $courseid = optional_param('c', 0, PARAM_INT);
+$referer = optional_param('referer', get_referer(false), PARAM_URL);
 
 if ($courseid === 0) {
     $context = get_context_instance(CONTEXT_SYSTEM);
@@ -42,7 +43,7 @@ if ($courseid === 0) {
     $insert = false;
 } else {
     if ($courseid == 1) {
-        redirect($referer, get_string('error:sitecourse', 'block_course_template'));
+        totara_set_notification(get_string('error:sitecourse', 'block_course_template'), $referer);
     }
     $context = get_context_instance(CONTEXT_COURSE, $courseid);
     require_capability('block/course_template:import', $context);
@@ -50,13 +51,8 @@ if ($courseid === 0) {
     $insert = true;
 }
 
-$referer = optional_param('referer', null, PARAM_TEXT);
-if ($referer === null) {
-    $referer = get_referer(false);
-}
-
 if (!$DB->record_exists('block_course_template', array())) {
-    redirect(get_referer(), get_string('notemplates', 'block_course_template'));
+    totara_set_notification(get_string('error:notemplates', 'block_course_template'), $referer);
 }
 
 $PAGE->set_url('/blocks/course_template/newcourse.php');
@@ -119,12 +115,17 @@ if ($data = $mform->get_data()) {
 
     if (empty($restorefile)) {
         error_log(get_string('error:processerror', 'block_course_template'));
-        redirect($referer, get_string('error:processerror', 'block_course_template'));
+        totara_set_notification(get_string('error:processerror', 'block_course_template'), $referer);
     }
 
     $tmpcopyname = md5($coursetemplate->file);
     if (!$tmpcopy = $restorefile->copy_content_to($CFG->tempdir . '/backup/' . $tmpcopyname)) {
         print_error('error:movearchive', 'block_course_template');
+    }
+
+    if ($data->setchannel) {
+        // Set the course category for learning channel type courses.
+        $data->category = get_config('local_agora', 'learningchannel_category');
     }
 
     if (!$insert) {
@@ -223,7 +224,25 @@ if ($data = $mform->get_data()) {
         $plugin->add_instance($course, $fields);
     }
 
-    redirect(new moodle_url('/course/view.php', array('id' => $courseid)), $message);
+    if ($data->setchannel) {
+        // Set course custom field for Learning Channel course.
+        require_once($CFG->dirroot . '/totara/customfield/fieldlib.php');
+        $customfielddata = new stdClass();
+        $customfielddata->fieldid = get_config('local_agora', 'courseischannel');
+        $customfielddata->data = '1';
+        $customfielddata->courseid = $courseid;
+        customfield_save_data($customfielddata, 'course', 'course');
+
+        // Set classification for catalogue search.
+        require_once($CFG->dirroot . '/local/search/lib.php');
+        $formatid = $DB->get_field('local_search_contentformats', 'id', array('format' => 'learningchannel'));
+        local_search_save_course_contentformats($courseid, array($formatid));
+
+        // Enrol user into course with channel manager role TODO
+        //
+    }
+
+    totara_set_notification($message, new moodle_url('/course/view.php', array('id' => $courseid)), array('class' => 'notifysuccess'));
 }
 
 echo $OUTPUT->header();

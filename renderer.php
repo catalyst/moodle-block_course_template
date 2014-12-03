@@ -153,10 +153,11 @@ class block_course_template_renderer extends plugin_renderer_base {
      * @return string HTML.
      */
     public function display_block_links($courseid) {
-        global $PAGE, $CFG;
+        global $PAGE;
 
-        if (isset($CFG->block_course_template_allowedformats) && !empty($CFG->block_course_template_allowedformats)) {
-            $allowedformats = explode(',', $CFG->block_course_template_allowedformats);
+        $allowedformats = get_config('block_course_template', 'allowedformats');
+        if (isset($allowedformats) && !empty($allowedformats)) {
+            $allowedformats = explode(',', $allowedformats);
             if (!in_array($PAGE->course->format, $allowedformats)) {
                 return array();
             }

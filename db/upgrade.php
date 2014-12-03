@@ -106,5 +106,23 @@ function xmldb_block_course_template_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2014040100, 'course_template');
     }
 
+    if ($oldversion < 2015020500) {
+        // Move config settings from global to local
+        set_config('allowedformats', $CFG->block_course_template_allowedformats, 'block_course_template');
+        unset_config('block_course_template_allowedformats');
+
+        // Add learning channel tag
+        $todb = new stdClass();
+        $todb->name = 'Learning channel';
+        $todb->timemodified = time();
+
+        if (!$DB->record_exists('block_course_template_tag', array('name' => $todb->name))) {
+            $DB->insert_record('block_course_template_tag', $todb, false);
+        }
+
+        // Blocks savepoint reached.
+        upgrade_block_savepoint(true, 2015011500, 'course_template');
+    }
+
     return true;
 }

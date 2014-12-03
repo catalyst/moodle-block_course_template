@@ -44,8 +44,7 @@ if (!$template = $DB->get_record('block_course_template', array('id' => $id))) {
 if ($confirm) {
     course_template_delete_template($id);
     $url = new moodle_url('/blocks/course_template/view.php', array('c' => $courseid));
-    redirect($url, get_string('templatedeleted', 'block_course_template'));
-    exit;
+    totara_set_notification(get_string('templatedeleted', 'block_course_template'), $url, array('class' => 'notifysuccess'));
 }
 
 $heading = get_string('deletetemplate', 'block_course_template');

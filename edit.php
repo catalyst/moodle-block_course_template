@@ -34,13 +34,13 @@ require_login();
 
 $basecourseid = optional_param('c', 0, PARAM_INT);
 $currentcourse = optional_param('cc', 0, PARAM_INT);
-$templateid = optional_param('t', 0, PARAM_INT); 
+$templateid = optional_param('t', 0, PARAM_INT);
 if ($basecourseid == 1) {
-    redirect($CFG->wwwroot, get_string('error:sitecourse', 'block_course_template'));
+    totara_set_notification(get_string('error:sitecourse', 'block_course_template'), $CFG->wwwroot);
 }
 
 if ($basecourseid === 0  && $templateid === 0) {
-    redirect($CFG->wwwroot, get_string('error:paramrequired', 'block_course_template'));
+    totara_set_notification(get_string('error:paramrequired', 'block_course_template'), $CFG->wwwroot);
 }
 
 if ($basecourseid !== 0) {
@@ -118,15 +118,15 @@ if ($mform->is_cancelled()) {
 if ($templateid !== 0) {
 
     if (!$templaterec = $DB->get_record('block_course_template', array('id' => $templateid))) {
-        redirect(get_string('error:notemplate', 'block_course_template', $templateid));
+        totara_set_notification(get_string('error:notemplate', 'block_course_template', $templateid), $redirecturl);
     } else {
         // Format data to populate form.
         $toform = clone $templaterec;
         $toform->description = array('text' => $toform->description);
         // Get tags for course and compress.
-        $currenttags = $DB->get_records_sql("SELECT tag.name FROM {$CFG->prefix}block_course_template_tag_in ins
-                                                                JOIN {$CFG->prefix}block_course_template_tag tag ON ins.tag = tag.id
-                                             WHERE ins.template = {$templaterec->id}");
+        $currenttags = $DB->get_records_sql("SELECT tag.name FROM {block_course_template_tag_in} ins
+                                                                JOIN {block_course_template_tag} tag ON ins.tag = tag.id
+                                             WHERE ins.template = ?", array($templaterec->id));
         if ($currenttags) {
             $toform->tags = array_map(
                 function($n) {
@@ -186,12 +186,12 @@ if ($data = $mform->get_data()) {
         $tempobj->id = $templaterec->id;
         $tempobj->timecreated = $templaterec->timecreated;
         if (!$DB->update_record('block_course_template', $tempobj)) {
-            redirect($redirecturl, get_string('error:couldntupdate', 'block_course_template'));
+            totara_set_notification(get_string('error:couldntupdate', 'block_course_template'), $redirecturl);
         }
     } else {
         // Insert new record.
         if (!$tempobj->id = $DB->insert_record('block_course_template', $tempobj)) {
-            redirect($redirecturl, get_string('error:couldntinsert', 'block_course_template'));
+            totara_set_notification(get_string('error:couldntinsert', 'block_course_template'), $redirecturl);
         }
     }
 
@@ -200,7 +200,7 @@ if ($data = $mform->get_data()) {
     if ($templateid === 0) {
         if (!$backupfile = course_template_create_archive($tempobj, $USER->id)) {
             $DB->delete_records('block_course_template', array('id' => $tempobj->id));
-            redirect($redirecturl, get_string('error:createtemplatefile', 'block_course_template', $tempobj->id));
+            totara_set_notification(get_string('error:createtemplatefile', 'block_course_template', $tempobj->id), $redirecturl);
         }
 
         // Update the template db record to store filename.
@@ -324,10 +324,10 @@ if ($data = $mform->get_data()) {
     }
 
     if (!$success) {
-        redirect($redirecturl, get_string('error:save', 'block_course_template'));
+        totara_set_notification(get_string('error:save', 'block_course_template'), $redirecturl);
     } else {
         $transaction->allow_commit();
-        redirect($redirecturl, get_string('savesuccess', 'block_course_template'));
+        totara_set_notification(get_string('savesuccess', 'block_course_template'), $redirecturl, array('class' => 'notifysuccess'));
     }
 }
 
