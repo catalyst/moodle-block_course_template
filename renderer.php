@@ -102,7 +102,7 @@ class block_course_template_renderer extends plugin_renderer_base {
         if ($tags) {
             $i = 1;
             foreach ($tags as $tag) {
-                $tagurl = new moodle_url('/blocks/course_template/view.php', array('tag' => $tag->id, 'c' => $courseid));
+                $tagurl = new moodle_url('/blocks/course_template/view.php', array('selected' => $tag->id, 'course' => $courseid));
                 $html .= html_writer::link($tagurl, s($tag->name));
                 if ($i < count($tags)) {
                     $html .= ', ';
@@ -172,7 +172,7 @@ class block_course_template_renderer extends plugin_renderer_base {
         $tempurl = new moodle_url('/blocks/course_template/edit.php', array('c' => $courseid));
         $courseurl = new moodle_url('/blocks/course_template/newcourse.php');
         $intocourseurl = new moodle_url('/blocks/course_template/newcourse.php', array('c' => $courseid));
-        $viewurl = new moodle_url('/blocks/course_template/view.php', array('c' => $courseid));
+        $viewurl = new moodle_url('/blocks/course_template/view.php', array('course' => $courseid));
 
         $items = array();
         if (has_capability('block/course_template:edit', $context)) {

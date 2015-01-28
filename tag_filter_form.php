@@ -37,8 +37,9 @@ class block_course_template_tag_filter_form extends moodleform {
 
         $mform =& $this->_form;
         $tags = $this->_customdata['tags'];
-        $filtertag = $this->_customdata['filtertag'];
+        $selected = explode(',', $this->_customdata['selected']);
         $courseid = $this->_customdata['course'];
+        $page = $this->_customdata['page'];
 
         $mform->addElement('header', 'activetags', get_string('activetags', 'block_course_template'));
 
@@ -47,16 +48,22 @@ class block_course_template_tag_filter_form extends moodleform {
         $group = array();
         foreach ($tags as $tag) {
             $group[] =& $mform->createElement('advcheckbox', $tag->id, '', "{$tag->name} ", array('group' => 1));
-            if ($filtertag) {
-                $mform->setDefault('tags[' . $filtertag . ']', 1);
-            }
+        }
+        foreach ($selected as $key => $select) {
+            $mform->setDefault('tags[' . $select . ']', 1);
         }
 
         $mform->addGroup($group, 'tags', array(' '), false);
         $this->add_checkbox_controller(1);
 
-        $mform->addElement('hidden', 'c', $courseid);
-        $mform->setType('c', PARAM_INT);
+        $mform->addElement('hidden', 'selected', implode(',', $selected));
+        $mform->setType('selected', PARAM_SEQUENCE);
+
+        $mform->addElement('hidden', 'page', $page);
+        $mform->setType('page', PARAM_INT);
+
+        $mform->addElement('hidden', 'course', $courseid);
+        $mform->setType('course', PARAM_INT);
 
         $this->add_action_buttons(false, get_string('filtertemplates', 'block_course_template'));
     }

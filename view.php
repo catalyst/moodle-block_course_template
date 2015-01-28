@@ -32,21 +32,21 @@ require_once($CFG->libdir . '/tablelib.php');
 
 require_login();
 
-$tag      = optional_param('tag', 0, PARAM_INT);
+$selected = optional_param('selected', 0, PARAM_SEQUENCE);
 $page     = optional_param('page', 0, PARAM_INT);
-$courseid = optional_param('c', 0, PARAM_INT);
+$courseid = optional_param('course', 0, PARAM_INT);
 
 $course = null;
 if (!$courseid || $courseid == SITEID) {
-    $context = get_context_instance(CONTEXT_SYSTEM);
+    $context = context_system::instance();
 } else {
-    $course = $DB->get_record('course', array('id' => $courseid));
-    $context = get_context_instance(CONTEXT_COURSE, $courseid);
+    $course = get_course($courseid);
+    $context = context_course::instance($courseid);
 }
 
 require_capability('block/course_template:view', $context);
 
-$url = new moodle_url('/blocks/course_template/view.php', array('page' => $page, 'tag' => $tag, 'c' => $courseid));
+$url = new moodle_url('/blocks/course_template/view.php', array('page' => $page, 'selected' => $selected, 'course' => $courseid));
 $PAGE->set_url($url);
 $PAGE->set_context($context);
 if ($course) {
@@ -59,14 +59,11 @@ $PAGE->set_title(get_string('pluginname', 'block_course_template'));
 $PAGE->set_heading(get_string('pluginname', 'block_course_template'));
 $PAGE->navbar->add(get_string('alltemplates', 'block_course_template'));
 
-$renderer = $PAGE->get_renderer('block_course_template');
-echo $OUTPUT->header();
-
 // Tags form.
 $tagsql = '';
 $tagparams = array();
 $tags =  $DB->get_records('block_course_template_tag');
-$mform = new block_course_template_tag_filter_form(null, array('tags' => $tags, 'filtertag' => $tag, 'course' => $courseid));
+$mform = new block_course_template_tag_filter_form(null, array('tags' => $tags, 'selected' => $selected, 'course' => $courseid, 'page' => $page));
 if ($data = $mform->get_data()) {
     if (isset($data->tags) && is_array($data->tags)) {
 
@@ -75,10 +72,12 @@ if ($data = $mform->get_data()) {
         if (!empty($activetags)) {
             list($tagsql, $tagparams) = $DB->get_in_or_equal(array_values($activetags), SQL_PARAMS_NAMED, 'tag_');
         }
+        $selected = implode(',', $activetags);
+        $url = new moodle_url('/blocks/course_template/view.php', array('page' => $page, 'selected' => $selected, 'course' => $courseid));
+        $PAGE->set_url($url);
     }
-} else if ($tag) {
-    $tagsql = " = {$tag}";
-    $tagparams['filtertag'] = $tag;
+} else if ($selected) {
+    list($tagsql, $tagparams) = $DB->get_in_or_equal(explode(',', $selected), SQL_PARAMS_NAMED, 'tag_');
 }
 
 // Templates listing.
@@ -92,6 +91,7 @@ if (!empty($tagsql) && !empty($tagparams)) {
         JOIN {block_course_template_tag_in} ti ON ti.template = ct.id
         JOIN {course} c ON c.id = ct.course
         WHERE ti.tag {$tagsql}
+        GROUP BY ct.id, coursename
         ORDER BY ct.timemodified DESC";
 } else {
     $totalcount = $DB->count_records_sql("SELECT COUNT(ct.id)
@@ -102,6 +102,10 @@ if (!empty($tagsql) && !empty($tagparams)) {
         JOIN {course} c ON c.id = ct.course
         ORDER BY ct.name";
 }
+
+$renderer = $PAGE->get_renderer('block_course_template');
+
+echo $OUTPUT->header();
 
 // Display tags form.
 if ($tags) {
