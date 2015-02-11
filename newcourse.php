@@ -125,7 +125,7 @@ if ($data = $mform->get_data()) {
 
     if ($data->setchannel) {
         // Set the course category for learning channel type courses.
-        $data->category = get_config('local_agora', 'learningchannel_category');
+        $data->category = get_config('local_agora', 'channelcategory');
     }
 
     if (!$insert) {

@@ -44,7 +44,7 @@ if ($basecourseid === 0  && $templateid === 0) {
 }
 
 if ($basecourseid !== 0) {
-    $redirecturl = new moodle_url('/blocks/course_template/view.php', array('c' => $basecourseid));
+    $redirecturl = new moodle_url('/blocks/course_template/view.php', array('course' => $basecourseid));
 } else {
     $basecourseid = $DB->get_field('block_course_template', 'course', array('id' => $templateid));
     $redirecturl = new moodle_url('/blocks/course_template/view.php');

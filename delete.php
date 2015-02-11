@@ -43,7 +43,7 @@ if (!$template = $DB->get_record('block_course_template', array('id' => $id))) {
 // Confirmed deletion.
 if ($confirm) {
     course_template_delete_template($id);
-    $url = new moodle_url('/blocks/course_template/view.php', array('c' => $courseid));
+    $url = new moodle_url('/blocks/course_template/view.php', array('course' => $courseid));
     totara_set_notification(get_string('templatedeleted', 'block_course_template'), $url, array('class' => 'notifysuccess'));
 }
 
@@ -60,7 +60,7 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading($heading, 2, 'main');
 
 $confirmurl = new moodle_url('/blocks/course_template/delete.php', array('id' => $id, 'confirm' => 1, 'c' => $courseid));
-$cancelurl  = new moodle_url('/blocks/course_template/view.php', array('c' => $courseid));
+$cancelurl  = new moodle_url('/blocks/course_template/view.php', array('course' => $courseid));
 
 echo $OUTPUT->confirm(get_string('confirmdelete', 'block_course_template', s($template->name)), $confirmurl, $cancelurl);
 

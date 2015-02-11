@@ -201,7 +201,8 @@ function course_template_create_archive($coursetemplate, $userid) {
                 'filearea' => 'backupfile',
                 'itemid' => $coursetemplate->id,
                 'filepath' => '/',
-                'filename' => $filename
+                'filename' => $filename,
+                'timecreated' => $coursetemplate->timecreated,
             );
 
             // Delete any current template
@@ -218,9 +219,7 @@ function course_template_create_archive($coursetemplate, $userid) {
             };
 
             // Create a copy of the file in the course_template location.
-            $backupautodestination = get_config('backup', 'backup_auto_destination');
-            $backupdir = isset($backupautodestination) ? $backupautodestination : "{$CFG->dataroot}/backups";
-            $templatefile = $fs->create_file_from_pathname($fileinfo, "{$backupdir}/{$backupfile}");
+            $templatefile = $fs->create_file_from_pathname($fileinfo, "{$dir}/{$backupfile}");
 
             if ($templatefile && $storage === 1) {
                 //$file->delete();
@@ -283,7 +282,8 @@ function course_template_get_settings() {
     $config->backup_auto_logs = 0;
     $config->backup_auto_histories = 0;
     $config->backup_auto_active = 2;    // This value for 'manual' backups.
-    $config->backup_auto_destination = "{$CFG->dataroot}/temp/backup/";
+    $backupdir = get_config('backup', 'backup_auto_destination');
+    $config->backup_auto_destination = isset($backupdir) ? $backupdir : "{$CFG->dataroot}/temp/backup/";
 
     return $config;
 }
