@@ -29,8 +29,6 @@
 // No direct script access.
 defined('MOODLE_INTERNAL') || die();
 
-define('COURSE_TEMPLATES_PAGESIZE', 4);
-
 /**
  * Delete a course template and related tag instances
  *

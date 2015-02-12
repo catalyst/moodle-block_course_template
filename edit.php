@@ -75,6 +75,7 @@ $headingtxt = format_string($headingtxt);
 
 $PAGE->set_title($titletxt);
 $PAGE->set_heading($titletxt);
+$PAGE->navbar->add(get_string('coursetemplates', 'block_course_template'));
 $PAGE->navbar->add($titletxt);
 
 $basecourse = $DB->get_record('course', array('id' => $basecourseid));
@@ -164,12 +165,11 @@ if ($templateid !== 0) {
 }
 
 if ($data = $mform->get_data()) {
+    require_sesskey();
 
     $transaction = $DB->start_delegated_transaction();
     $success = true;
     $errormsg = '';
-
-    require_sesskey();
 
     // New/updated template record.
     $tempobj = new stdClass();

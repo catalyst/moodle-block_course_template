@@ -42,6 +42,8 @@ if (!$template = $DB->get_record('block_course_template', array('id' => $id))) {
 
 // Confirmed deletion.
 if ($confirm) {
+    require_sesskey();
+
     course_template_delete_template($id);
     $url = new moodle_url('/blocks/course_template/view.php', array('course' => $courseid));
     totara_set_notification(get_string('templatedeleted', 'block_course_template'), $url, array('class' => 'notifysuccess'));
@@ -55,6 +57,8 @@ $PAGE->set_context(get_context_instance(CONTEXT_SYSTEM));
 $PAGE->set_pagelayout('course');
 $PAGE->set_title($heading);
 $PAGE->set_heading($heading);
+$PAGE->navbar->add(get_string('coursetemplates', 'block_course_template'));
+$PAGE->navbar->add($heading);
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading($heading, 2, 'main');

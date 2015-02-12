@@ -72,6 +72,7 @@ if ($insert != 1) {
 }
 $PAGE->set_title($headingstr);
 $PAGE->set_heading($headingstr);
+$PAGE->navbar->add(get_string('coursetemplates', 'block_course_template'));
 $PAGE->navbar->add($headingstr);
 
 $mform = new block_course_template_course_form(
@@ -88,6 +89,7 @@ if ($mform->is_cancelled()) {
 }
 
 if ($data = $mform->get_data()) {
+    require_sesskey();
 
     if (!$coursetemplate = $DB->get_record('block_course_template', array('id' => $data->template))) {
         print_error(get_string('error:notemplate', 'block_course_template', $data->template));

@@ -46,6 +46,9 @@ if (!$courseid || $courseid == SITEID) {
 
 require_capability('block/course_template:view', $context);
 
+// Set page size for the template listing.
+$pagesize = empty(get_config('block_course_template', 'pagesize')) ? '4' : get_config('block_course_template', 'pagesize');
+
 $url = new moodle_url('/blocks/course_template/view.php', array('page' => $page, 'selected' => $selected, 'course' => $courseid));
 $PAGE->set_url($url);
 $PAGE->set_context($context);
@@ -57,6 +60,7 @@ if ($course) {
 }
 $PAGE->set_title(get_string('coursetemplates', 'block_course_template'));
 $PAGE->set_heading(get_string('coursetemplates', 'block_course_template'));
+$PAGE->navbar->add(get_string('coursetemplates', 'block_course_template'));
 $PAGE->navbar->add(get_string('alltemplates', 'block_course_template'));
 
 // Tags form.
@@ -133,7 +137,7 @@ $table->column_class('actions', 'actions');
 
 $table->setup();
 
-$table->pagesize(COURSE_TEMPLATES_PAGESIZE, $totalcount);
+$table->pagesize($pagesize, $totalcount);
 
 $templates = $DB->get_records_sql($templatesql, $tagparams, $table->get_page_start(), $table->get_page_size());
 if ($templates) {

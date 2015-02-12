@@ -49,4 +49,9 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configmultiselect('block_course_template/allowedformats',
         get_string('visiblename', 'block_course_template'), get_string('configdescription', 'block_course_template'),
         $defaultformats, $formats));
+
+    // Set how many templates are shown per page.
+    $settings->add(new admin_setting_configtext('block_course_template/pagesize',
+        get_string('pagesize', 'block_course_template'), get_string('pagesize_desc', 'block_course_template'),
+        '4', PARAM_INT, 2));
 }
