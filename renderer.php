@@ -121,9 +121,10 @@ class block_course_template_renderer extends plugin_renderer_base {
      * @param object $template the current template
      * @param object $context current page context based on course
      * @param integer $courseid ID of the course we might be importing into
+     * @param bool $setchannel true if the course should be a learning channel
      * @return string HTML
      */
-    public function display_template_actions($template, $context, $courseid) {
+    public function display_template_actions($template, $context, $courseid, $setchannel) {
         global $OUTPUT;
 
         $html = '';
@@ -136,7 +137,7 @@ class block_course_template_renderer extends plugin_renderer_base {
         }
         if (has_capability('block/course_template:createcourse', $context)) {
             $html .= $OUTPUT->action_icon(new moodle_url('/blocks/course_template/newcourse.php',
-                array('t' => $template->id)), new pix_icon('t/restore', get_string('new')));
+                array('t' => $template->id, 'setchannel' => $setchannel)), new pix_icon('t/restore', get_string('new')));
         }
         if (has_capability('block/course_template:import', $context) && ($courseid && $courseid != SITEID) && $context->contextlevel == CONTEXT_COURSE) {
             $html .= $OUTPUT->action_icon(new moodle_url('/blocks/course_template/newcourse.php',

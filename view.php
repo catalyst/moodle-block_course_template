@@ -35,6 +35,7 @@ require_login();
 $selected = optional_param('selected', 0, PARAM_SEQUENCE);
 $page     = optional_param('page', 0, PARAM_INT);
 $courseid = optional_param('course', 0, PARAM_INT);
+$hidefilter = optional_param('hidefilter', 0, PARAM_BOOL); // Hide the filter form for Learning Channels.
 
 $course = null;
 if (!$courseid || $courseid == SITEID) {
@@ -49,7 +50,13 @@ require_capability('block/course_template:view', $context);
 // Set page size for the template listing.
 $pagesize = empty(get_config('block_course_template', 'pagesize')) ? '4' : get_config('block_course_template', 'pagesize');
 
-$url = new moodle_url('/blocks/course_template/view.php', array('page' => $page, 'selected' => $selected, 'course' => $courseid));
+$urlparams = array(
+    'page' => $page,
+    'selected' => $selected,
+    'course' => $courseid,
+    'hidefilter' => $hidefilter,
+);
+$url = new moodle_url('/blocks/course_template/view.php', $urlparams);
 $PAGE->set_url($url);
 $PAGE->set_context($context);
 if ($course) {
@@ -67,7 +74,13 @@ $PAGE->navbar->add(get_string('alltemplates', 'block_course_template'));
 $tagsql = '';
 $tagparams = array();
 $tags =  $DB->get_records('block_course_template_tag');
-$mform = new block_course_template_tag_filter_form(null, array('tags' => $tags, 'selected' => $selected, 'course' => $courseid, 'page' => $page));
+$params = array(
+    'tags' => $tags,
+    'selected' => $selected,
+    'course' => $courseid,
+    'page' => $page,
+);
+$mform = new block_course_template_tag_filter_form(null, $params);
 if ($data = $mform->get_data()) {
     if (isset($data->tags) && is_array($data->tags)) {
 
@@ -86,10 +99,13 @@ if ($data = $mform->get_data()) {
 
 // Templates listing.
 if (!empty($tagsql) && !empty($tagparams)) {
-    $totalcount = $DB->count_records_sql("SELECT COUNT(ct.id)
-        FROM {block_course_template} ct
+    $totalcount = $DB->count_records_sql("
+        SELECT COUNT(*)
+        FROM (
+        SELECT DISTINCT ct.id FROM {block_course_template} ct
         JOIN {block_course_template_tag_in} ti ON ti.template = ct.id
-        WHERE ti.tag {$tagsql}", $tagparams);
+        WHERE ti.tag {$tagsql}
+        ) AS temp", $tagparams);
     $templatesql = "SELECT ct.*, c.fullname AS coursename
         FROM {block_course_template} ct
         JOIN {block_course_template_tag_in} ti ON ti.template = ct.id
@@ -112,7 +128,7 @@ $renderer = $PAGE->get_renderer('block_course_template');
 echo $OUTPUT->header();
 
 // Display tags form.
-if ($tags) {
+if ($tags && !$hidefilter) {
     $mform->display();
 }
 
@@ -154,7 +170,7 @@ if ($templates) {
         $row[] = $renderer->display_template_screenshot($template);
         $row[] = $renderer->display_template_details($template);
         $row[] = $renderer->display_template_tags($tags, $courseid);
-        $row[] = $renderer->display_template_actions($template, $context, $courseid);
+        $row[] = $renderer->display_template_actions($template, $context, $courseid, $hidefilter);
 
         $table->add_data($row);
     }

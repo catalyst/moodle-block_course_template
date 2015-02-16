@@ -75,10 +75,10 @@ class block_course_template_course_form extends moodleform {
         if ($courseid == 0) {
             $mform->addElement('checkbox', 'setchannel', get_string('setchannel', 'block_course_template'), get_string('setchannel_desc', 'block_course_template'));
             $mform->addHelpButton('setchannel', 'setchannel', 'block_course_template');
+            $mform->setDefault('setchannel', $setchannel);
 
             $selectcat = coursecat::make_categories_list();
             $mform->addElement('select', 'category', get_string('category'), $selectcat);
-            $mform->disabledIf('category', 'setchannel', 'checked');
             $mform->addElement('text', 'fullname', get_string('fullnamecourse'), 'maxlength="254" size="50"');
             $mform->addHelpButton('fullname', 'fullnamecourse');
             $mform->addRule('fullname', get_string('missingfullname'), 'required', null, 'client');

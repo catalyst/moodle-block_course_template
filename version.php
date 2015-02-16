@@ -33,6 +33,6 @@ $plugin->requires  = 2011112900;                // Requires this Moodle version.
 $plugin->component = 'block_course_template';   // Full name of the plugin (used for diagnostics).
 $plugin->dependencies = array(
     'local_content' => 2014111100,
-    'local_agora' => 2015011500,
+    'local_agora' => 2015021600,
     'local_courseprovider' => 2014121700,
 );

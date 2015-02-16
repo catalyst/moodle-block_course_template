@@ -36,6 +36,7 @@ require_login();
 $templateid = optional_param('t', 0, PARAM_INT);
 $courseid = optional_param('c', 0, PARAM_INT);
 $referer = optional_param('referer', get_referer(false), PARAM_URL);
+$setchannel = optional_param('setchannel', 0, PARAM_BOOL); // New course should be a learning channel.
 
 if ($courseid === 0) {
     $context = get_context_instance(CONTEXT_SYSTEM);
@@ -80,7 +81,8 @@ $mform = new block_course_template_course_form(
     array(
         'template' => $templateid,
         'referer' => $referer,
-        'courseid' => $courseid
+        'courseid' => $courseid,
+        'setchannel' => $setchannel,
     )
 );
 
@@ -123,11 +125,6 @@ if ($data = $mform->get_data()) {
     $tmpcopyname = md5($coursetemplate->file);
     if (!$tmpcopy = $restorefile->copy_content_to($CFG->tempdir . '/backup/' . $tmpcopyname)) {
         print_error('error:movearchive', 'block_course_template');
-    }
-
-    if ($data->setchannel) {
-        // Set the course category for learning channel type courses.
-        $data->category = get_config('local_agora', 'channelcategory');
     }
 
     if (!$insert) {
