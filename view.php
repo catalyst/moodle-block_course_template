@@ -60,11 +60,9 @@ $url = new moodle_url('/blocks/course_template/view.php', $urlparams);
 $PAGE->set_url($url);
 $PAGE->set_context($context);
 if ($course) {
-    $PAGE->set_pagelayout('course');
     $PAGE->set_course($course);
-} else {
-    $PAGE->set_pagelayout('admin');
 }
+$PAGE->set_pagelayout('admin');
 $PAGE->set_title(get_string('coursetemplates', 'block_course_template'));
 $PAGE->set_heading(get_string('coursetemplates', 'block_course_template'));
 $PAGE->navbar->add(get_string('coursetemplates', 'block_course_template'));

@@ -223,22 +223,35 @@ if ($data = $mform->get_data()) {
         $plugin->add_instance($course, $fields);
     }
 
-    if ($data->setchannel) {
-        // Set course custom field for Learning Channel course.
-        require_once($CFG->dirroot . '/totara/customfield/fieldlib.php');
-        $customfielddata = new stdClass();
-        $customfielddata->fieldid = get_config('local_agora', 'courseischannel');
-        $customfielddata->data = '1';
-        $customfielddata->courseid = $courseid;
-        customfield_save_data($customfielddata, 'course', 'course');
+    // Update course summary.
+    if (!empty($data->summary_editor['text'])) {
+        $DB->set_field('course', 'summary', $data->summary_editor['text'], array('id' => $courseid));
+    }
+
+    // Save course custom field data.
+    if (isset($data->setchannel)) {
+        // Just insert into db directly rather than using the clunky API.
+        // First clear the data copied from the template.
+        $DB->delete_records('course_info_data', array('courseid' => $courseid));
+
+        // Then set course custom field for Learning Channel course.
+        $todb = new stdClass();
+        $todb->courseid = $courseid;
+        $todb->fieldid = get_config('local_agora', 'courseischannel');
+        $todb->data = $data->courseischannel;
+        $DB->insert_record('course_info_data', $todb);
+
+        // Set course custom field for course heading.
+        $todb = new stdClass();
+        $todb->courseid = $courseid;
+        $todb->fieldid = get_config('local_agora', 'customcourseheading');
+        $todb->data = $data->customcourseheading['text'];
+        $DB->insert_record('course_info_data', $todb);
 
         // Set classification for catalogue search.
         require_once($CFG->dirroot . '/local/search/lib.php');
         $formatid = $DB->get_field('local_search_contentformats', 'id', array('format' => 'learningchannel'));
         local_search_save_course_contentformats($courseid, array($formatid));
-
-        // Enrol user into course with channel manager role TODO
-        //
     }
 
     totara_set_notification($message, new moodle_url('/course/view.php', array('id' => $courseid)), array('class' => 'notifysuccess'));

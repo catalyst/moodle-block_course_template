@@ -73,9 +73,21 @@ class block_course_template_course_form extends moodleform {
         }
 
         if ($courseid == 0) {
-            $mform->addElement('checkbox', 'setchannel', get_string('setchannel', 'block_course_template'), get_string('setchannel_desc', 'block_course_template'));
-            $mform->addHelpButton('setchannel', 'setchannel', 'block_course_template');
-            $mform->setDefault('setchannel', $setchannel);
+            if ($setchannel) {
+                $mform->addElement('checkbox', 'courseischannel', get_string('setchannel', 'block_course_template'), get_string('setchannel_desc', 'block_course_template'));
+                $mform->addHelpButton('courseischannel', 'setchannel', 'block_course_template');
+                $mform->setDefault('courseischannel', $setchannel);
+                $mform->setType('courseischannel', PARAM_INT);
+
+                // Learning Channels can have special header.
+                $mform->addElement('editor', 'customcourseheading', get_string('customcourseheading', 'block_course_template'), null, $editoroptions);
+                $mform->addHelpButton('customcourseheading', 'customcourseheading', 'block_course_template');
+                $mform->disabledIf('customcourseheading', 'courseischannel');
+                $mform->setType('customcourseheading', PARAM_RAW);
+
+                $mform->addElement('hidden', 'setchannel', $setchannel);
+                $mform->setType('setchannel', PARAM_BOOL);
+            }
 
             $selectcat = coursecat::make_categories_list();
             $mform->addElement('select', 'category', get_string('category'), $selectcat);

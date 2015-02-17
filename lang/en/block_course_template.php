@@ -98,6 +98,8 @@ $string['templatedeleted'] = 'The template was deleted successfully';
 $string['title'] = '{$a} Templates';
 $string['updatetemplate'] = 'Update template';
 $string['visiblename'] = 'Course formats';
+$string['customcourseheading'] = 'Learning Channel heading';
+$string['customcourseheading_help'] = 'Learning Channels can have custom stylised heading. If nothing is added here, the Course full name will be used.';
 
 // Errors.
 $string['error:couldnotinserttag'] = 'Could not insert tag {$a}';
