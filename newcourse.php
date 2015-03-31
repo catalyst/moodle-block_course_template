@@ -234,13 +234,6 @@ if ($data = $mform->get_data()) {
         // First clear the data copied from the template.
         $DB->delete_records('course_info_data', array('courseid' => $courseid));
 
-        // Then set course custom field for Learning Channel course.
-        $todb = new stdClass();
-        $todb->courseid = $courseid;
-        $todb->fieldid = get_config('local_agora', 'courseischannel');
-        $todb->data = $data->courseischannel;
-        $DB->insert_record('course_info_data', $todb);
-
         // Set course custom field for course heading.
         $todb = new stdClass();
         $todb->courseid = $courseid;
