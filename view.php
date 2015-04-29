@@ -71,7 +71,7 @@ $PAGE->navbar->add(get_string('alltemplates', 'block_course_template'));
 // Tags form.
 $tagsql = '';
 $tagparams = array();
-$tags =  $DB->get_records('block_course_template_tag');
+$tags =  $DB->get_records('block_course_template_tag', null, 'name ASC');
 $params = array(
     'tags' => $tags,
     'selected' => $selected,
