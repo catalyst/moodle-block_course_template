@@ -129,6 +129,10 @@ if ($data = $mform->get_data()) {
 
     if (!$insert) {
         $courseid = restore_dbops::create_new_course($data->fullname, $data->shortname, $data->category);
+        if ($course = $DB->get_record('course', array('id' => $courseid))) {
+            // Update solr search
+            events_trigger('course_created', $course);
+        }
     }
 
     $fb = get_file_packer();
@@ -204,6 +208,9 @@ if ($data = $mform->get_data()) {
         $updaterec->id = $courseid;
         $updaterec->idnumber = $data->idnumber;
         $DB->update_record('course', $updaterec);
+        // Update solr search
+        $course = get_course($courseid);
+        events_trigger('course_updated', $course);
     }
 
     if ($insert) {
@@ -226,6 +233,9 @@ if ($data = $mform->get_data()) {
     // Update course summary.
     if (!empty($data->summary_editor['text'])) {
         $DB->set_field('course', 'summary', $data->summary_editor['text'], array('id' => $courseid));
+        // Update solr search
+        $course = get_course($courseid);
+        events_trigger('course_updated', $course);
     }
 
     // Save course custom field data.
