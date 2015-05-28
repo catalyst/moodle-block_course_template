@@ -61,8 +61,8 @@ if ($templateid === 0) {
 }
 
 // Templates stored under system context but cap to create them is at course level.
-$syscontext = get_context_instance(CONTEXT_SYSTEM);
-$coursecontext = get_context_instance(CONTEXT_COURSE, $basecourseid);
+$syscontext = context_system::instance();
+$coursecontext = context_course::instance($basecourseid);
 require_capability('block/course_template:edit', $coursecontext);
 
 $PAGE->set_url('/blocks/course_template/edit.php', array('c' => $basecourseid, 't' => $templateid));

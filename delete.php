@@ -33,8 +33,9 @@ require_login();
 $id       = required_param('id', PARAM_INT);
 $courseid = optional_param('c', 0, PARAM_INT);
 $confirm  = optional_param('confirm', 0, PARAM_INT);
+$context  = context_system::instance();
 
-require_capability('block/course_template:edit', get_context_instance(CONTEXT_SYSTEM));
+require_capability('block/course_template:edit', $context);
 
 if (!$template = $DB->get_record('block_course_template', array('id' => $id))) {
     print_error('error:notemplate', 'block_course_template', $id);
@@ -53,7 +54,7 @@ $heading = get_string('deletetemplate', 'block_course_template');
 
 $url = new moodle_url('/blocks/course_template/delete.php', array('id' => $id, 'confirm' => $confirm));
 $PAGE->set_url($url);
-$PAGE->set_context(get_context_instance(CONTEXT_SYSTEM));
+$PAGE->set_context($context);
 $PAGE->set_pagelayout('course');
 $PAGE->set_title($heading);
 $PAGE->set_heading($heading);

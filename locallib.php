@@ -190,7 +190,7 @@ function course_template_create_archive($coursetemplate, $userid) {
             $filename .= '.mbz';
 
             // File API copy to location.
-            $cxt = get_context_instance(CONTEXT_SYSTEM);
+            $cxt = context_system::instance();
             $fs = get_file_storage();
 
             $fileinfo = array(

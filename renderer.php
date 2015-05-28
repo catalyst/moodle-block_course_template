@@ -42,7 +42,7 @@ class block_course_template_renderer extends plugin_renderer_base {
         $html .= get_string('noimage', 'block_course_template');
         $html .= html_writer::end_tag('div');
 
-        $context = get_context_instance(CONTEXT_SYSTEM);
+        $context = context_system::instance();
         $fs = get_file_storage();
         $file = $fs->get_file(
             $context->id,
@@ -166,9 +166,9 @@ class block_course_template_renderer extends plugin_renderer_base {
 
         // Determine context.
         if ($courseid == SITEID) {
-            $context = get_context_instance(CONTEXT_SYSTEM);
+            $context = context_system::instance();
         } else {
-            $context = get_context_instance(CONTEXT_COURSE, $courseid);
+            $context = context_course::instance($courseid);
         }
 
         $tempurl = new moodle_url('/blocks/course_template/edit.php', array('c' => $courseid));

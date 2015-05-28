@@ -37,16 +37,17 @@ $templateid = optional_param('t', 0, PARAM_INT);
 $courseid = optional_param('c', 0, PARAM_INT);
 $referer = optional_param('referer', get_referer(false), PARAM_URL);
 $setchannel = optional_param('setchannel', 0, PARAM_BOOL); // New course should be a learning channel.
+$systemcontext = context_system::instance();
 
 if ($courseid === 0) {
-    $context = get_context_instance(CONTEXT_SYSTEM);
+    $context = $systemcontext;
     require_capability('block/course_template:createcourse', $context);
     $insert = false;
 } else {
     if ($courseid == 1) {
         totara_set_notification(get_string('error:sitecourse', 'block_course_template'), $referer);
     }
-    $context = get_context_instance(CONTEXT_COURSE, $courseid);
+    $context = context_course::instance($courseid);
     require_capability('block/course_template:import', $context);
     $course = $DB->get_record('course', array('id' => $courseid));
     $insert = true;
@@ -112,7 +113,6 @@ if ($data = $mform->get_data()) {
     }
 
     $fs = get_file_storage();
-    $systemcontext = get_context_instance(CONTEXT_SYSTEM);
     $restorefile = $fs->get_file_by_hash(
         sha1("/$systemcontext->id/block_course_template/backupfile/$coursetemplate->id/$coursetemplate->file")
     );
