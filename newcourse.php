@@ -129,6 +129,21 @@ if ($data = $mform->get_data()) {
 
     if (!$insert) {
         $courseid = restore_dbops::create_new_course($data->fullname, $data->shortname, $data->category);
+        // Copy audience visibility
+        if ($course = get_course($courseid)) {
+            if (!empty($CFG->audiencevisibility) && ($CFG->audiencevisibility === '1')) {
+                $visiblecohorts = totara_cohort_get_visible_learning($coursetemplate->course);
+                // Add new cohort associations.
+                foreach ($visiblecohorts as $cohort) {
+                    totara_cohort_add_association($cohort->id, $courseid, COHORT_ASSN_ITEMTYPE_COURSE, COHORT_ASSN_VALUE_VISIBLE);
+                }
+                // Set audience visibility.
+                $course->audiencevisible = $DB->get_field('course', 'audiencevisible', array('id' => $coursetemplate->course));
+                update_course($course);
+            }
+        }
+        // Update solr search
+        events_trigger('course_created', $course);
     }
 
     $fb = get_file_packer();
@@ -204,6 +219,9 @@ if ($data = $mform->get_data()) {
         $updaterec->id = $courseid;
         $updaterec->idnumber = $data->idnumber;
         $DB->update_record('course', $updaterec);
+        // Update solr search
+        $course = get_course($courseid);
+        events_trigger('course_updated', $course);
     }
 
     if ($insert) {
@@ -226,6 +244,9 @@ if ($data = $mform->get_data()) {
     // Update course summary.
     if (!empty($data->summary_editor['text'])) {
         $DB->set_field('course', 'summary', $data->summary_editor['text'], array('id' => $courseid));
+        // Update solr search
+        $course = get_course($courseid);
+        events_trigger('course_updated', $course);
     }
 
     // Save course custom field data.
