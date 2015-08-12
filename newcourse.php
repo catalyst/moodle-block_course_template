@@ -139,6 +139,7 @@ if ($data = $mform->get_data()) {
                 }
                 // Set audience visibility.
                 $course->audiencevisible = $DB->get_field('course', 'audiencevisible', array('id' => $coursetemplate->course));
+
                 update_course($course);
             }
         }
@@ -218,10 +219,8 @@ if ($data = $mform->get_data()) {
         $updaterec = new stdClass();
         $updaterec->id = $courseid;
         $updaterec->idnumber = $data->idnumber;
-        $DB->update_record('course', $updaterec);
-        // Update solr search
-        $course = get_course($courseid);
-        events_trigger('course_updated', $course);
+
+        update_course($updaterec);
     }
 
     if ($insert) {
@@ -243,10 +242,11 @@ if ($data = $mform->get_data()) {
 
     // Update course summary.
     if (!empty($data->summary_editor['text'])) {
-        $DB->set_field('course', 'summary', $data->summary_editor['text'], array('id' => $courseid));
-        // Update solr search
-        $course = get_course($courseid);
-        events_trigger('course_updated', $course);
+        $updaterec = new stdClass();
+        $updaterec->id = $courseid;
+        $updaterec->summary = $data->summary_editor['text'];
+
+        update_course($updaterec);
     }
 
     // Save course custom field data.
