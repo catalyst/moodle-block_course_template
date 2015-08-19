@@ -143,8 +143,6 @@ if ($data = $mform->get_data()) {
                 update_course($course);
             }
         }
-        // Update solr search
-        events_trigger('course_created', $course);
     }
 
     $fb = get_file_packer();
