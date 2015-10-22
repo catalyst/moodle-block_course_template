@@ -144,21 +144,20 @@ if ($templateid !== 0) {
         unset($toform->screenshot);
 
         $itemid = (isset($toform)) ? $toform->id : null;
-        $draftitemid = file_get_submitted_draft_itemid('screenshot');
 
-        file_prepare_draft_area(
-            $draftitemid,
-            $syscontext->id,
-            'block_course_template',
-            'screenshot',
-            $itemid,
-            array(
-                'subdirs' => 0,
-                'maxfiles' => 1
-            )
-        );
+        // Screenshot.
+        $fileoptions = $FILEPICKER_OPTIONS;
 
-        $toform->screenshot = $draftitemid;
+        if ($itemid) {
+            try {
+                $toform->screenshot = file_prepare_standard_filemanager($toform, 'screenshot',
+                    $fileoptions, $FILEPICKER_OPTIONS['context'], 'block_course_template', 'screenshot', $itemid);
+            } catch (Exception $e) {
+                // We could not rename the file for some reason...
+                debugging('Error while loading image', DEBUG_DEVELOPER);
+            }
+        }
+        // Screenshot END.
 
         $mform->set_data($toform);
     }
@@ -166,7 +165,6 @@ if ($templateid !== 0) {
 
 if ($data = $mform->get_data()) {
     require_sesskey();
-
     $transaction = $DB->start_delegated_transaction();
     $success = true;
     $errormsg = '';
@@ -214,42 +212,10 @@ if ($data = $mform->get_data()) {
     }
 
     // Screenshot.
-    $fs = get_file_storage();
-    $draftid = file_get_submitted_draft_itemid('screenshot');
-
-    // Delete any existing files.
-    $existingfiles = $fs->get_area_files(
-        $syscontext->id,
-        'block_course_template',
-        'screenshot',
-        $tempobj->id
-    );
-
-    if (!empty($existingfiles)) {
-        foreach ($existingfiles as $file) {
-            $file->delete();
-        }
-    }
-
-    $tempobj->screenshot = $mform->get_new_filename('screenshot');
-    file_save_draft_area_files($draftid,
-        $syscontext->id,
-        'block_course_template',
-        'screenshot',
-        $tempobj->id,
-        array(
-            'subdirs' => false,
-            'maxfiles' => 1
-        )
-    );
-
-    // Update the course_template record to store filename.
-    $DB->set_field(
-        'block_course_template',
-        'screenshot',
-        $tempobj->screenshot,
-        array('id' => $tempobj->id)
-    );
+    $fileoptions = $FILEPICKER_OPTIONS;
+    $tempobj->screenshot = file_postupdate_standard_filemanager($data, 'screenshot',
+            $fileoptions, $FILEPICKER_OPTIONS['context'], 'block_course_template', 'screenshot', $tempobj->id);
+    // Screenshot END.
 
     // Tag and tag instance records.
     $oldtags = $DB->get_records('block_course_template_tag_in', array('template' => $tempobj->id));
@@ -277,7 +243,7 @@ if ($data = $mform->get_data()) {
                 // Insert tag into database if it doesn't already exist.
                 $tagobj = new stdClass();
                 $tagobj->name = preg_replace('/\s/', '_', $tagfiltered);
-                $tagobj->name = ucfirst($tagfiltered);
+                $tagobj->name = ucfirst($tagobj->name);
                 $tagobj->timemodified = time();
 
                 $tagobj->id = $DB->get_field('block_course_template_tag', 'id', array('name' => $tagobj->name));

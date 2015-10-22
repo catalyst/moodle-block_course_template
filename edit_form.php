@@ -33,7 +33,7 @@ require_once($CFG->libdir . '/formslib.php');
 class course_template_edit_form extends moodleform {
 
     public function definition() {
-        global $CFG, $DB;
+        global $CFG, $DB, $FILEPICKER_OPTIONS;
 
         $mform =& $this->_form;
 
@@ -61,16 +61,9 @@ class course_template_edit_form extends moodleform {
         $mform->addElement('editor', 'description', get_string('description'), $editoroptions);
         $mform->setType('description', PARAM_TEXT);
 
-        $mform->addElement(
-            'filepicker',
-            'screenshot',
-            get_string('screenshot', 'block_course_template'),
-            null,
-            array(
-                'maxbytes' => get_max_upload_file_size($CFG->maxbytes),
-                'accepted_types' => 'image'
-            )
-        );
+        $options = $FILEPICKER_OPTIONS;
+        $mform->addElement('filemanager', 'screenshot_filemanager', get_string('screenshot', 'block_course_template'), null, $options);
+        $mform->addHelpButton('screenshot_filemanager', 'screenshot', 'block_course_template');
 
         $mform->addElement('header', 'tagsheading', get_string('tags'));
 

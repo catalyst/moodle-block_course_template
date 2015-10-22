@@ -36,33 +36,44 @@ class block_course_template_renderer extends plugin_renderer_base {
      * @return string HTML
      */
     public function display_template_screenshot($template) {
+        global $FILEPICKER_OPTIONS, $OUTPUT;
 
-        // No image default.
-        $html  = html_writer::start_tag('div', array('class' => 'course-template-noimage'));
-        $html .= get_string('noimage', 'block_course_template');
-        $html .= html_writer::end_tag('div');
+        $out = '';
+        $out .= html_writer::start_tag('div', array('class' => 'course-template-noimage'));
+        $out .= get_string('noimage', 'block_course_template');
+        $out .= html_writer::end_tag('div');
 
-        $context = context_system::instance();
+        $context = $FILEPICKER_OPTIONS['context'];
+
         $fs = get_file_storage();
-        $file = $fs->get_file(
-            $context->id,
-            'block_course_template',
-            'screenshot',
-            $template->id,
-            '/',
-            $template->screenshot
-        );
+        $files = $fs->get_area_files($context->id, 'block_course_template', 'screenshot', $template->id, null, FALSE);
 
-        if ($file) {
-            $filename = $file->get_filename();
-            $path = "/{$context->id}/block_course_template/screenshot/{$template->id}/$filename";
-            $imageurl = file_encode_url('/pluginfile.php', $path, false);
-            $screenshotstr = get_string('screenshotof', 'block_course_template', s($template->name));
-            $screenshot = html_writer::tag('img', null, array('src' => $imageurl, 'class' => 'preview', 'alt' => $screenshotstr));
-            $html = $screenshot;
+        if (!empty($files)) {
+            foreach ($files as $file) {
+                $filename = $file->get_filename();
+                $path = '/'.$file->get_contextid().'/block_course_template/screenshot'.
+                    $file->get_filepath().$file->get_itemid().'/'.$filename;
+                $fileurl = moodle_url::make_file_url('/pluginfile.php', $path);
+
+                $mimetype = $file->get_mimetype();
+                $fileicon = html_writer::empty_tag('img', array(
+                    'class' => 'icon',
+                    'src' => $OUTPUT->pix_url(file_mimetype_icon($mimetype)),
+                    'alt' => $mimetype
+                ));
+
+                $screenshotstr = get_string('screenshotof', 'block_course_template', s($template->name));
+                $screenshot = html_writer::tag('img', null, array(
+                    'src' => $fileurl,
+                    'class' => 'preview',
+                    'alt' => $screenshotstr
+                ));
+
+                $out = $screenshot;
+            }
         }
 
-        return $html;
+        return $out;
     }
 
     /**
