@@ -93,5 +93,13 @@ $capabilities = array(
             'manager' => CAP_ALLOW
         )
     ),
+    'block/course_template:duplicatecourse' => array(
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+            'manager' => CAP_ALLOW,
+            'coursecreator' => CAP_ALLOW
+        )
+    ),
 
 );

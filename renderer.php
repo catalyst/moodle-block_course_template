@@ -167,6 +167,18 @@ class block_course_template_renderer extends plugin_renderer_base {
     public function display_block_links($courseid) {
         global $PAGE;
 
+        $referer = $PAGE->pagetype;
+
+        if (stristr($referer, 'view')) {
+            $pagetype = 'view';
+        } elseif (stristr($referer, 'info')) {
+            $pagetype = 'info';
+        } elseif (stristr($referer, 'edit')) {
+            $pagetype = 'edit';
+        } else {
+            $pagetype = 'view';
+        }
+
         $allowedformats = get_config('block_course_template', 'allowedformats');
         if (isset($allowedformats) && !empty($allowedformats)) {
             $allowedformats = explode(',', $allowedformats);
@@ -182,12 +194,19 @@ class block_course_template_renderer extends plugin_renderer_base {
             $context = context_course::instance($courseid);
         }
 
+        $duplicateurl = new moodle_url('/blocks/course_template/duplicate_course.php', array(
+            'courseid' => $courseid,
+            'pagetype' => $pagetype,
+        ));
         $tempurl = new moodle_url('/blocks/course_template/edit.php', array('c' => $courseid));
         $courseurl = new moodle_url('/blocks/course_template/newcourse.php');
         $intocourseurl = new moodle_url('/blocks/course_template/newcourse.php', array('c' => $courseid));
         $viewurl = new moodle_url('/blocks/course_template/view.php', array('course' => $courseid));
 
         $items = array();
+        if (has_capability('block/course_template:duplicatecourse', $context)) {
+            $items[] = html_writer::link($duplicateurl, get_string('duplicatecourse', 'block_course_template'));
+        }
         if (has_capability('block/course_template:edit', $context)) {
             $items[] = html_writer::link($tempurl, get_string('newtemplate', 'block_course_template'));
         }

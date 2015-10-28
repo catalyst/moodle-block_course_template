@@ -28,7 +28,7 @@
 // No direct script access.
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2015081900;                // The current plugin version (Date: YYYYMMDDXX).
+$plugin->version = 2015102800;                // The current plugin version (Date: YYYYMMDDXX).
 $plugin->requires  = 2014051209;                // Requires this Moodle version.
 $plugin->component = 'block_course_template';   // Full name of the plugin (used for diagnostics).
 $plugin->dependencies = array(
