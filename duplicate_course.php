@@ -26,6 +26,7 @@
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once($CFG->dirroot . '/blocks/course_template/duplicate_course_form.php');
+require_once($CFG->dirroot . '/blocks/course_template/locallib.php');
 require_once($CFG->dirroot . '/course/externallib.php');
 
 // Get the course ID.
@@ -68,9 +69,11 @@ if ($mform->is_cancelled()) {
     $categoryid = $data->category;
 
     try {
-        $newcourse = core_course_external::duplicate_course($courseid, $fullname, $shortname, $categoryid);
+        // Duplicate old course.
+        $newcourse = course_template_duplicate_course($courseid, $fullname, $shortname, $categoryid);
+
         totara_set_notification(get_string('duplicatecoursesuccess', 'block_course_template'),
-            new moodle_url('/course/edit.php', array('id' => $newcourse['id'])),
+            new moodle_url('/course/edit.php', array('id' => $newcourse->id)),
             array('class' => 'notifysuccess'));
     } catch (Exception $e) {
         print_error($e->getMessage());
