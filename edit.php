@@ -165,135 +165,140 @@ if ($templateid !== 0) {
 
 if ($data = $mform->get_data()) {
     require_sesskey();
-    $transaction = $DB->start_delegated_transaction();
-    $success = true;
-    $errormsg = '';
+    try {
+        $transaction = $DB->start_delegated_transaction();
+        $success = true;
+        $errormsg = '';
 
-    // New/updated template record.
-    $tempobj = new stdClass();
-    $tempobj->name = $data->name;
-    $tempobj->description = $data->description['text'];
-    $tempobj->course = $basecourseid;
-    $tempobj->file = null;
-    $tempobj->screenshot = null;
-    $tempobj->timecreated = time();
-    $tempobj->timemodified = time();
+        // New/updated template record.
+        $tempobj = new stdClass();
+        $tempobj->name = $data->name;
+        $tempobj->description = $data->description['text'];
+        $tempobj->course = $basecourseid;
+        $tempobj->file = null;
+        $tempobj->screenshot = null;
+        $tempobj->timecreated = time();
+        $tempobj->timemodified = time();
 
-    if ($templateid !== 0) {
-        // Update an existing record.
-        $tempobj->id = $templaterec->id;
-        $tempobj->timecreated = $templaterec->timecreated;
-        if (!$DB->update_record('block_course_template', $tempobj)) {
-            totara_set_notification(get_string('error:couldntupdate', 'block_course_template'), $redirecturl);
-        }
-    } else {
-        // Insert new record.
-        if (!$tempobj->id = $DB->insert_record('block_course_template', $tempobj)) {
-            totara_set_notification(get_string('error:couldntinsert', 'block_course_template'), $redirecturl);
-        }
-    }
-
-    // Create backup .mbz file (we only do this if this is a new template record)
-    // we need the template id for storage in the filesystem.
-    if ($templateid === 0) {
-        if (!$backupfile = course_template_create_archive($tempobj, $USER->id)) {
-            $DB->delete_records('block_course_template', array('id' => $tempobj->id));
-            totara_set_notification(get_string('error:createtemplatefile', 'block_course_template', $tempobj->id), $redirecturl);
-        }
-
-        // Update the template db record to store filename.
-        $tempobj->file = $backupfile->get_filename();
-        $DB->set_field(
-            'block_course_template',
-            'file',
-            $tempobj->file,
-            array('id' => $tempobj->id)
-        );
-    }
-
-    // Screenshot.
-    $fileoptions = $FILEPICKER_OPTIONS;
-    $tempobj->screenshot = file_postupdate_standard_filemanager($data, 'screenshot',
-            $fileoptions, $FILEPICKER_OPTIONS['context'], 'block_course_template', 'screenshot', $tempobj->id);
-    // Screenshot END.
-
-    // Tag and tag instance records.
-    $oldtags = $DB->get_records('block_course_template_tag_in', array('template' => $tempobj->id));
-
-    // This to store the tag instances we'll create for values submitted in the form.
-    $currenttags = array();
-
-    // Save tags.
-    if (!empty($data->tags)) {
-
-        $tags = explode(',', $data->tags);
-        $tags = array_map(
-            function($n) {
-                return trim($n);
-            },
-            $tags
-        );
-
-        foreach ($tags as $tag) {
-
-            $tagfiltered = strtolower(preg_replace('/\s+/', ' ', $tag));
-
-            if (preg_match('/^\s+$/', $tagfiltered) === 0 && $tagfiltered != '') {
-
-                // Insert tag into database if it doesn't already exist.
-                $tagobj = new stdClass();
-                $tagobj->name = preg_replace('/\s/', '_', $tagfiltered);
-                $tagobj->name = ucfirst($tagobj->name);
-                $tagobj->timemodified = time();
-
-                $tagobj->id = $DB->get_field('block_course_template_tag', 'id', array('name' => $tagobj->name));
-                if (!$tagobj->id) {
-                    if (!$tagobj->id = $DB->insert_record('block_course_template_tag', $tagobj)) {
-                        $success = false;
-                        $errormsg = get_string('error:couldnotinserttag', 'block_course_template', $tagobj->name);
-                    }
-                }
-
-                // Create a tag instance record.
-                $instobj = new stdClass();
-                $instobj->tag = $tagobj->id;
-                $instobj->template = $tempobj->id;
-                $instobj->timemodified = time();
-                $instobj->id = $DB->get_field(
-                    'block_course_template_tag_in',
-                    'id',
-                    array(
-                        'tag' => $instobj->tag,
-                        'template' => $instobj->template
-                    )
-                );
-
-                if (!$instobj->id) {
-                    if (!$instobj->id = $DB->insert_record('block_course_template_tag_in', $instobj)) {
-                        $success = false;
-                        $errormsg = get_string('error:couldnotinserttag', 'block_course_template', $tagobj->name);
-                    }
-                }
-
-                $currenttags[] = $instobj->id;
+        if ($templateid !== 0) {
+            // Update an existing record.
+            $tempobj->id = $templaterec->id;
+            $tempobj->timecreated = $templaterec->timecreated;
+            if (!$DB->update_record('block_course_template', $tempobj)) {
+                totara_set_notification(get_string('error:couldntupdate', 'block_course_template'), $redirecturl);
+            }
+        } else {
+            // Insert new record.
+            if (!$tempobj->id = $DB->insert_record('block_course_template', $tempobj)) {
+                totara_set_notification(get_string('error:couldntinsert', 'block_course_template'), $redirecturl);
             }
         }
-    }
 
-    $oldtags = array_keys($oldtags);
+        // Create backup .mbz file (we only do this if this is a new template record)
+        // we need the template id for storage in the filesystem.
+        if ($templateid === 0) {
+            if (!$backupfile = course_template_create_archive($tempobj, $USER->id)) {
+                $DB->delete_records('block_course_template', array('id' => $tempobj->id));
+                totara_set_notification(get_string('error:createtemplatefile', 'block_course_template', $tempobj->id), $redirecturl);
+            }
 
-    // Any old tag instances which are not in the current tags array need deleting.
-    $deleteins = array_diff($oldtags, $currenttags);
-    if (!empty($deleteins)) {
-        $success = $success && course_template_delete_tag_instances($deleteins);
-        $error = get_string('error:deleteinst', 'block_course_template');
-    }
+            // Update the template db record to store filename.
+            $tempobj->file = $backupfile->get_filename();
+            $DB->set_field(
+                'block_course_template',
+                'file',
+                $tempobj->file,
+                array('id' => $tempobj->id)
+            );
+        }
 
-    if (!$success) {
-        totara_set_notification(get_string('error:save', 'block_course_template'), $redirecturl);
-    } else {
+        // Screenshot.
+        $fileoptions = $FILEPICKER_OPTIONS;
+        $tempobj->screenshot = file_postupdate_standard_filemanager($data, 'screenshot',
+                $fileoptions, $FILEPICKER_OPTIONS['context'], 'block_course_template', 'screenshot', $tempobj->id);
+        // Screenshot END.
+
+        // Tag and tag instance records.
+        $oldtags = $DB->get_records('block_course_template_tag_in', array('template' => $tempobj->id));
+
+        // This to store the tag instances we'll create for values submitted in the form.
+        $currenttags = array();
+
+        // Save tags.
+        if (!empty($data->tags)) {
+
+            $tags = explode(',', $data->tags);
+            $tags = array_map(
+                function($n) {
+                    return trim($n);
+                },
+                $tags
+            );
+
+            foreach ($tags as $tag) {
+
+                $tagfiltered = strtolower(preg_replace('/\s+/', ' ', $tag));
+
+                if (preg_match('/^\s+$/', $tagfiltered) === 0 && $tagfiltered != '') {
+
+                    // Insert tag into database if it doesn't already exist.
+                    $tagobj = new stdClass();
+                    $tagobj->name = preg_replace('/\s/', '_', $tagfiltered);
+                    $tagobj->name = ucfirst($tagobj->name);
+                    $tagobj->timemodified = time();
+
+                    $tagobj->id = $DB->get_field('block_course_template_tag', 'id', array('name' => $tagobj->name));
+                    if (!$tagobj->id) {
+                        if (!$tagobj->id = $DB->insert_record('block_course_template_tag', $tagobj)) {
+                            $success = false;
+                            $errormsg = get_string('error:couldnotinserttag', 'block_course_template', $tagobj->name);
+                        }
+                    }
+
+                    // Create a tag instance record.
+                    $instobj = new stdClass();
+                    $instobj->tag = $tagobj->id;
+                    $instobj->template = $tempobj->id;
+                    $instobj->timemodified = time();
+                    $instobj->id = $DB->get_field(
+                        'block_course_template_tag_in',
+                        'id',
+                        array(
+                            'tag' => $instobj->tag,
+                            'template' => $instobj->template
+                        )
+                    );
+
+                    if (!$instobj->id) {
+                        if (!$instobj->id = $DB->insert_record('block_course_template_tag_in', $instobj)) {
+                            $success = false;
+                            $errormsg = get_string('error:couldnotinserttag', 'block_course_template', $tagobj->name);
+                        }
+                    }
+
+                    $currenttags[] = $instobj->id;
+                }
+            }
+        }
+
+        $oldtags = array_keys($oldtags);
+
+        // Any old tag instances which are not in the current tags array need deleting.
+        $deleteins = array_diff($oldtags, $currenttags);
+        if (!empty($deleteins)) {
+            $success = $success && course_template_delete_tag_instances($deleteins);
+            $error = get_string('error:deleteinst', 'block_course_template');
+        }
+
         $transaction->allow_commit();
-        totara_set_notification(get_string('savesuccess', 'block_course_template'), $redirecturl, array('class' => 'notifysuccess'));
+        if (!$success) {
+            totara_set_notification(get_string('error:save', 'block_course_template'), $redirecturl);
+        } else {
+            totara_set_notification(get_string('savesuccess', 'block_course_template'), $redirecturl, array('class' => 'notifysuccess'));
+        }
+    } catch (Exception $e) {
+        //extra cleanup steps
+        $transaction->rollback($e); // rethrows exception
     }
 }
 

@@ -303,44 +303,50 @@ function course_template_duplicate_course($courseid, $fullname, $shortname, $cat
     require_once($CFG->dirroot.'/local/courseprovider/lib.php');
     require_once($CFG->dirroot.'/local/search/lib.php');
 
-    $transaction = $DB->start_delegated_transaction();
-    // Set options for course copying.
-    $options[] = array('name' => 'users', 'value' => false);
-    // Duplicate the course.
-    $newcourse = core_course_external::duplicate_course($courseid, $fullname, $shortname, $categoryid, 1, $options);
-    // Get the new course object.
-    $newcourse = get_course($newcourse['id']);
+    try {
+        $transaction = $DB->start_delegated_transaction();
+        // Set options for course copying.
+        $options[] = array('name' => 'users', 'value' => false);
+        // Duplicate the course.
+        $newcourse = core_course_external::duplicate_course($courseid, $fullname, $shortname, $categoryid, 1, $options);
+        // Get the new course object.
+        $newcourse = get_course($newcourse['id']);
 
-    // Set additional data for the new course.
-    $topics = tool_topics_get_course_topics($courseid);
-    tool_topics_save_course_topics($topics, $newcourse->id);
+        // Set additional data for the new course.
+        $topics = tool_topics_get_course_topics($courseid);
+        tool_topics_save_course_topics($topics, $newcourse->id);
 
-    // Save languages
-    $languages = local_content_get_course_language_ids($courseid);
-    local_content_set_course_languages($newcourse->id, $languages);
+        // Save languages
+        $languages = local_content_get_course_language_ids($courseid);
+        local_content_set_course_languages($newcourse->id, $languages);
 
-    // Save course providers
-    $courseproviders = local_courseprovider_get_course_provider_ids($courseid);
-    local_courseprovider_save_course_providers($newcourse->id, $courseproviders);
+        // Save course providers
+        $courseproviders = local_courseprovider_get_course_provider_ids($courseid);
+        local_courseprovider_save_course_providers($newcourse->id, $courseproviders);
 
-    // Save course locations
-    $locations = local_search_get_course_locations($courseid);
-    local_search_save_course_locations($newcourse->id, $locations);
+        // Save course locations
+        $locations = local_search_get_course_locations($courseid);
+        local_search_save_course_locations($newcourse->id, $locations);
 
-    // Save course content formats
-    $contentformats = local_search_get_course_contentformats($courseid);
-    local_search_save_course_contentformats($newcourse->id, $contentformats);
+        // Save course content formats
+        $contentformats = local_search_get_course_contentformats($courseid);
+        local_search_save_course_contentformats($newcourse->id, $contentformats);
 
-    // Learning time.
-    $newcourse->learningtime = $DB->get_field('course', 'learningtime', array('id' => $courseid));
-    // Content type.
-    $newcourse->contenttype = $DB->get_field('course', 'contenttype', array('id' => $courseid));
-    // Author.
-    $newcourse->author = $USER->id;
+        // Learning time.
+        $newcourse->learningtime = $DB->get_field('course', 'learningtime', array('id' => $courseid));
+        // Content type.
+        $newcourse->contenttype = $DB->get_field('course', 'contenttype', array('id' => $courseid));
+        // Author.
+        $newcourse->author = $USER->id;
 
-    update_course($newcourse);
+        update_course($newcourse);
 
-    $transaction->allow_commit();
+        $transaction->allow_commit();
 
-    return $newcourse;
+        return $newcourse;
+
+    } catch (Exception $e) {
+        //extra cleanup steps
+        $transaction->rollback($e); // rethrows exception
+    }
 }
