@@ -3,4 +3,4 @@ host=reviews.elearning.wgtn.cat-it.co.nz
 port=29418
 project=UNICEF-Totara-Block-Course-Template.git
 defaultremote=origin
-defaultbranch=client-unicef-2.7-dev
+defaultbranch=client-catalystlms-2.9-dev
