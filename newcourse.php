@@ -256,7 +256,7 @@ if ($data = $mform->get_data()) {
         // Set course custom field for course heading.
         $todb = new stdClass();
         $todb->courseid = $courseid;
-        $todb->fieldid = get_config('local_agora', 'customcourseheading');
+        $todb->fieldid = get_config('local_catalystlms', 'customcourseheading');
         $todb->data = $data->customcourseheading['text'];
         $DB->insert_record('course_info_data', $todb);
 
