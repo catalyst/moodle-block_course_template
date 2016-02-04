@@ -33,6 +33,7 @@ $string['pluginname'] = 'Course Templates';
 // Capabilities strings.
 $string['course_template:addinstance'] = 'Add a course template block';
 $string['course_template:createcourse'] = 'Create a new course from a course template';
+$string['course_template:duplicatecourse'] = 'Duplicate course';
 $string['course_template:edit'] = 'Create and administer course templates';
 $string['course_template:import'] = 'Import a template into a course';
 $string['course_template:managechannels'] = 'Manage Learning Channels';

@@ -305,10 +305,8 @@ function course_template_duplicate_course($courseid, $fullname, $shortname, $cat
 
     try {
         $transaction = $DB->start_delegated_transaction();
-        // Set options for course copying.
-        $options[] = array('name' => 'users', 'value' => false);
         // Duplicate the course.
-        $newcourse = core_course_external::duplicate_course($courseid, $fullname, $shortname, $categoryid, 1, $options);
+        $newcourse = core_course_external::duplicate_course($courseid, $fullname, $shortname, $categoryid);
         // Get the new course object.
         $newcourse = get_course($newcourse['id']);
 
