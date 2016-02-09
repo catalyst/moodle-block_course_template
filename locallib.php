@@ -329,8 +329,8 @@ function course_template_duplicate_course($courseid, $fullname, $shortname, $cat
         local_search_save_course_locations($newcourse->id, $locations);
 
         // Save course content formats
-        $contentformats = local_search_get_course_contentformats($courseid);
-        local_search_save_course_contentformats($newcourse->id, $contentformats);
+        $contentformats = local_content_get_formats($courseid);
+        local_content_save_course_formats($newcourse->id, $contentformats);
 
         // Learning time.
         $newcourse->learningtime = $DB->get_field('course', 'learningtime', array('id' => $courseid));

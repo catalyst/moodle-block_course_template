@@ -263,7 +263,7 @@ if ($data = $mform->get_data()) {
         // Set classification for catalogue search.
         require_once($CFG->dirroot . '/local/search/lib.php');
         $formatid = $DB->get_field('local_search_contentformats', 'id', array('format' => 'learningchannel'));
-        local_search_save_course_contentformats($courseid, array($formatid));
+        local_content_save_course_formats($courseid, array($formatid));
     }
 
     totara_set_notification($message, new moodle_url('/course/view.php', array('id' => $courseid)), array('class' => 'notifysuccess'));
