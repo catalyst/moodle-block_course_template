@@ -29,6 +29,8 @@
 // No direct script access.
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->dirroot . '/local/content/lib/locationlib.php');
+
 /**
  * Delete a course template and related tag instances
  *
@@ -325,8 +327,8 @@ function course_template_duplicate_course($courseid, $fullname, $shortname, $cat
         local_courseprovider_save_course_providers($newcourse->id, $courseproviders);
 
         // Save course locations
-        $locations = local_search_get_course_locations($courseid);
-        local_search_save_course_locations($newcourse->id, $locations);
+        $locations = local_content_get_locations($courseid);
+        local_content_save_course_locations($newcourse->id, $locations);
 
         // Save course content formats
         $contentformats = local_content_get_formats($courseid);
