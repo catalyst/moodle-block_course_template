@@ -33,6 +33,5 @@ $plugin->requires  = 2014051209;                // Requires this Moodle version.
 $plugin->component = 'block_course_template';   // Full name of the plugin (used for diagnostics).
 $plugin->dependencies = array(
     'local_content' => 2014111100,
-    'local_catalystlms' => 2015021600,
-    'local_courseprovider' => 2014121700,
+    'local_catalystlms' => 2015021600
 );

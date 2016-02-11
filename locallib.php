@@ -302,7 +302,6 @@ function course_template_duplicate_course($courseid, $fullname, $shortname, $cat
 
     require_once($CFG->dirroot.'/admin/tool/topics/lib.php');
     require_once($CFG->dirroot.'/local/content/lib.php');
-    require_once($CFG->dirroot.'/local/courseprovider/lib.php');
     require_once($CFG->dirroot.'/local/search/lib.php');
 
     try {
@@ -323,8 +322,7 @@ function course_template_duplicate_course($courseid, $fullname, $shortname, $cat
         local_content_set_course_languages($newcourse->id, $languages);
 
         // Save course providers
-        $courseproviders = local_courseprovider_get_course_provider_ids($courseid);
-        local_courseprovider_save_course_providers($newcourse->id, $courseproviders);
+        // Todo: course providers from local/content.
 
         // Save course locations
         $locations = local_content_get_locations($courseid);
