@@ -29,6 +29,8 @@
 // No direct script access.
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->dirroot . '/course/externallib.php');
+
 /**
  * Delete a course template and related tag instances
  *
@@ -295,7 +297,7 @@ function course_template_get_settings() {
  * @param int $categoryid The category id number for the new course.
  * @return object $newcourse The new course object.
  */
-function course_template_duplicate_course($courseid, $fullname, $shortname, $categoryid) {
+function course_template_duplicate_course($courseid, $fullname, $shortname, $categoryid, $visibility = 1, $enrolmentcopy = 0) {
     global $CFG, $DB, $USER;
 
     require_once($CFG->dirroot.'/admin/tool/topics/lib.php');
@@ -305,8 +307,17 @@ function course_template_duplicate_course($courseid, $fullname, $shortname, $cat
 
     try {
         $transaction = $DB->start_delegated_transaction();
+
         // Duplicate the course.
-        $newcourse = core_course_external::duplicate_course($courseid, $fullname, $shortname, $categoryid);
+        $options = array();
+        if ($enrolmentcopy) {
+            $value = 1;
+        } else {
+            $value = 0;
+        }
+        $options[] = array('name' => 'users', 'value' => $value);
+        $newcourse = core_course_external::duplicate_course($courseid, $fullname, $shortname, $categoryid, $visibility, $options);
+
         // Get the new course object.
         $newcourse = get_course($newcourse['id']);
 
@@ -346,5 +357,13 @@ function course_template_duplicate_course($courseid, $fullname, $shortname, $cat
     } catch (Exception $e) {
         //extra cleanup steps
         $transaction->rollback($e); // rethrows exception
+    }
+}
+
+class block_course_template_core_course_external extends core_course_external {
+
+    public function __construct($type, $id, $format, $interactive, $mode, $userid) {
+        parent::__construct();
+        $this->set_status(backup_setting::NOT_LOCKED);
     }
 }

@@ -53,6 +53,24 @@ class duplicate_course_form extends moodleform {
         $mform->addElement('select', 'category', get_string('coursecategory'), $displaylist);
         $mform->addHelpButton('category', 'coursecategory');
         $mform->setDefault('category', $course->category);
+        $no  = get_string('no');
+        $yes = get_string('yes');
+        // Set visibility.
+        $visibilitychoices = array (
+            0 => $no,
+            1 => $yes,
+        );
+        $mform->addElement('select', 'visibility', get_string('visibility', 'block_course_template'), $visibilitychoices);
+        $mform->addHelpButton('visibility', 'visibility', 'block_course_template');
+        $mform->setDefault('visibility', 1);
+        // Duplicate enrolment data.
+        $enrolmentchoices = array (
+            0 => $no,
+            1 => $yes,
+        );
+        $mform->addElement('select', 'enrolment', get_string('enrolment', 'block_course_template'), $enrolmentchoices);
+        $mform->addHelpButton('enrolment', 'enrolment', 'block_course_template');
+        $mform->setDefault('enrolment', 0);
         // Pass some values.
         $mform->addElement('hidden', 'courseid', $course->id);
         $mform->setType('courseid', PARAM_INT);
