@@ -300,7 +300,7 @@ function course_template_get_settings() {
 function course_template_duplicate_course($courseid, $fullname, $shortname, $categoryid) {
     global $CFG, $DB, $USER;
 
-    require_once($CFG->dirroot.'/admin/tool/topics/lib.php');
+    require_once($CFG->dirroot.'/local/content/lib/topiclib.php');
     require_once($CFG->dirroot.'/local/content/lib.php');
     require_once($CFG->dirroot.'/local/search/lib.php');
 
@@ -314,8 +314,8 @@ function course_template_duplicate_course($courseid, $fullname, $shortname, $cat
         $newcourse = get_course($newcourse['id']);
 
         // Set additional data for the new course.
-        $topics = tool_topics_get_course_topics($courseid);
-        tool_topics_save_course_topics($topics, $newcourse->id);
+        $topics = local_content_get_topics($courseid);
+        save_course_classifications($newcourse->id, $topics);
 
         // Save languages
         $languages = local_content_get_course_language_ids($courseid);
