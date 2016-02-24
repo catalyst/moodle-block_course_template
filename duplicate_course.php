@@ -43,7 +43,7 @@ if ($courseid === SITEID) {
 $coursecontext = context_course::instance($courseid);
 $systemcontext = context_system::instance();
 // Check course creation capability.
-require_capability('block/course_template:duplicatecourse', $systemcontext);
+require_capability('block/course_template:duplicatecourse', $coursecontext);
 // Get existing course from DB.
 $course = get_course($courseid);
 // Set $PAGE vars.
@@ -63,15 +63,23 @@ if ($mform->is_cancelled()) {
     redirect($CFG->wwwroot.'/course/'.$pagetype.'.php?id='.$courseid);
 } else if ($data = $mform->get_data()) {
     require_sesskey();
-    $courseid   = $data->courseid;
-    $fullname   = $data->fullname;
-    $shortname  = $data->shortname;
-    $categoryid = $data->category;
-
+    $courseid      = $data->courseid;
+    $fullname      = $data->fullname;
+    $shortname     = $data->shortname;
+    $categoryid    = $data->category;
+    $visibility    = $data->visibility;
+    $enrolmentcopy = $data->enrolment;
+    $categoryctx = context_coursecat::instance($course->category);
     try {
+        // Assign the user a role that can do a course restore.
+        role_assign(1, $USER->id, $categoryctx->id);
         // Duplicate old course.
-        $newcourse = course_template_duplicate_course($courseid, $fullname, $shortname, $categoryid);
-
+        $newcourse = course_template_duplicate_course($courseid, $fullname, $shortname, $categoryid, (int)$visibility, (int)$enrolmentcopy);
+        // Unassign the role now.
+        role_unassign(1, $USER->id, $categoryctx->id);
+        // Then assign teacher role in the new course so user can access it.
+        role_assign(3, $USER->id, context_course::instance($newcourse->id));
+        // Output notification and redirect to edit page.
         totara_set_notification(get_string('duplicatecoursesuccess', 'block_course_template'),
             new moodle_url('/course/edit.php', array('id' => $newcourse->id)),
             array('class' => 'notifysuccess'));
