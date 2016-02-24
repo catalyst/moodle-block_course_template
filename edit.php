@@ -60,6 +60,14 @@ if ($templateid === 0) {
     $headingtxt = $titletxt . ' \'' . $templatename . '\'';
 }
 
+// Warn the user if the site isn't set up to handle backups yet.
+$backupconfig = get_config('backup');
+if (!isset($backupconfig->backup_auto_destination)
+    || empty($backupconfig->backup_auto_destination)
+    || !is_writeable($backupconfig->backup_auto_destination)) {
+        print_error(get_string('error:needsconfig', 'block_course_template'));
+}
+
 // Templates stored under system context but cap to create them is at course level.
 $syscontext = context_system::instance();
 $coursecontext = context_course::instance($basecourseid);

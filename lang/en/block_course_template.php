@@ -128,3 +128,4 @@ $string['error:paramrequired'] = 'Missing parameter - you must specify EITHER co
 $string['error:processerror'] = 'Unable to process archive file.';
 $string['error:save'] = 'Unable to save template.';
 $string['error:sitecourse'] = 'Site context course may NOT be used.';
+$string['error:needsconfig'] = 'The Automated backups location has not been configured, and is required for course templates to work. Please ask an administrator to set this up.';
