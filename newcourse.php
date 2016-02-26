@@ -145,7 +145,7 @@ if ($data = $mform->get_data()) {
         }
     }
 
-    $fb = get_file_packer();
+    $fb = get_file_packer('application/vnd.moodle.backup');
     $tmpdirnewname = restore_controller::get_tempdir_name($context->id, $USER->id);
     $tmpdirpath =  $CFG->tempdir . '/backup/' . $tmpdirnewname . '/';
     $outcome = $fb->extract_to_pathname($CFG->tempdir . '/backup/' . $tmpcopyname, $tmpdirpath);
