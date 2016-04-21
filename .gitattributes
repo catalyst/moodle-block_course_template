@@ -1,4 +1,6 @@
-config.php export-ignore
+# This file lists files/directories that are not included in Totara packages built by git-archive
 .gitattributes export-ignore
 .gitignore export-ignore
-.git/ export-ignore
+.gitreview export-ignore
+.git export-ignore
+.gitreview merge=ours
