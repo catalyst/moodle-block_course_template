@@ -300,14 +300,6 @@ function course_template_get_settings() {
 function course_template_duplicate_course($courseid, $fullname, $shortname, $categoryid, $visibility = 1, $enrolmentcopy = 0) {
     global $CFG, $DB, $USER;
 
-    // Todo: these should be moved to autoloaded classes.
-    require_once($CFG->dirroot.'/local/content/lib/topiclib.php');
-    require_once($CFG->dirroot.'/local/content/lib/languagelib.php');
-    require_once($CFG->dirroot.'/local/content/lib/locationlib.php');
-    require_once($CFG->dirroot.'/local/content/lib/formatlib.php');
-    require_once($CFG->dirroot.'/local/content/lib.php');
-    require_once($CFG->dirroot.'/local/search/lib.php');
-
     try {
         $transaction = $DB->start_delegated_transaction();
 
@@ -324,29 +316,6 @@ function course_template_duplicate_course($courseid, $fullname, $shortname, $cat
         // Get the new course object.
         $newcourse = get_course($newcourse['id']);
 
-        // Set additional data for the new course.
-        $topics = local_content_get_topics($courseid);
-        local_content_topic_node::save_course_classifications($newcourse->id, $topics);
-
-        // Save languages
-        $languages = local_content_get_course_language_ids($courseid);
-        local_content_language_node ::save_course_classifications($newcourse->id, $languages);
-
-        // Save course providers
-        // Todo: course providers from local/content.
-
-        // Save course locations
-        $locations = local_content_get_locations($courseid);
-        local_content_location_node::save_course_classifications($newcourse->id, $locations);
-
-        // Save course content formats
-        $contentformats = local_content_get_formats($courseid);
-        local_content_format_node::save_course_classifications($newcourse->id, $contentformats);
-
-        // Learning time.
-        $newcourse->learningtime = $DB->get_field('course', 'learningtime', array('id' => $courseid));
-        // Content type.
-        $newcourse->contenttype = $DB->get_field('course', 'contenttype', array('id' => $courseid));
         // Author.
         $newcourse->author = $USER->id;
 
