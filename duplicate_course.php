@@ -57,19 +57,17 @@ $PAGE->set_heading($headingstr);
 $PAGE->navbar->add(get_string('coursetemplates', 'block_course_template'));
 $PAGE->navbar->add($headingstr);
 // Call the form.
-$mform = new duplicate_course_form(null, array('course' => $course, 'pagetype' => $pagetype));
-// Handle the form.
-if ($mform->is_cancelled()) {
-    redirect($CFG->wwwroot.'/course/'.$pagetype.'.php?id='.$courseid);
-} else if ($data = $mform->get_data()) {
+if (!empty($_POST['submitbutton'])) {
     require_sesskey();
-    $courseid      = $data->courseid;
-    $fullname      = $data->fullname;
-    $shortname     = $data->shortname;
-    $categoryid    = $data->category;
-    $visibility    = $data->visibility;
-    $enrolmentcopy = $data->enrolment;
+
+    $courseid = required_param('courseid', PARAM_INT);
+    $fullname = required_param('fullname', PARAM_TEXT);
+    $shortname = required_param('shortname', PARAM_TEXT);
+    $categoryid = required_param('category', PARAM_INT);
+    $visibility = required_param('visibility', PARAM_TEXT);
+    $enrolmentcopy = required_param('enrolment', PARAM_TEXT);
     $categoryctx = context_coursecat::instance($course->category);
+
     try {
         // Assign the user a role that can do a course restore.
         role_assign(1, $USER->id, $categoryctx->id);
@@ -88,6 +86,10 @@ if ($mform->is_cancelled()) {
     }
 
 } else {
+    $mform = new duplicate_course_form(null, array('course' => $course, 'pagetype' => $pagetype));
+    if ($mform->is_cancelled()) {
+        redirect($CFG->wwwroot.'/course/'.$pagetype.'.php?id='.$courseid);
+    }
     echo $OUTPUT->header();
     echo $OUTPUT->heading($headingstr);
 
