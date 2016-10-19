@@ -69,7 +69,6 @@ if (!isset($backupconfig->backup_auto_destination)
 }
 
 // Templates stored under system context but cap to create them is at course level.
-$syscontext = context_system::instance();
 $coursecontext = context_course::instance($basecourseid);
 require_capability('block/course_template:edit', $coursecontext);
 

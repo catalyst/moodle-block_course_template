@@ -85,7 +85,7 @@ class block_course_template_course_form extends moodleform {
                 $mform->setType('setchannel', PARAM_BOOL);
             }
 
-            $selectcat = coursecat::make_categories_list('moodle/course:create');
+            $selectcat = coursecat::make_categories_list('block/course_template:createcourse');
             $mform->addElement('select', 'category', get_string('category'), $selectcat);
             $mform->addElement('text', 'fullname', get_string('fullnamecourse'), 'maxlength="254" size="50"');
             $mform->addHelpButton('fullname', 'fullnamecourse');

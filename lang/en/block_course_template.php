@@ -122,6 +122,7 @@ $string['error:extractarchive'] = 'Unable to extract archive';
 $string['error:movearchive'] = 'Unable to copy restore archive';
 $string['error:nameempty'] = 'Name field may not be empty.';
 $string['error:nametaken'] = 'That template name is already in use. Please choose another.';
+$string['error:nocategoryperms'] = 'You don\'t have permission to create a course in any category...';
 $string['error:nodirectory'] = 'No backup template directory';
 $string['error:notemplate'] = 'No template record for id {$a}';
 $string['error:paramrequired'] = 'Missing parameter - you must specify EITHER course or template';

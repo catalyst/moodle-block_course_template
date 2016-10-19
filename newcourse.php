@@ -41,7 +41,10 @@ $systemcontext = context_system::instance();
 
 if ($courseid === 0) {
     $context = $systemcontext;
-    require_capability('block/course_template:createcourse', $context);
+    $coursecategories = coursecat::make_categories_list('block/course_template:createcourse');
+    if (empty($coursecategories)) {
+        print_error('error:nocategoryperms', 'block_course_template');
+    }
     $insert = false;
 } else {
     if ($courseid == 1) {

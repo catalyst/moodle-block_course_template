@@ -49,7 +49,7 @@ class duplicate_course_form extends moodleform {
         $mform->setType('shortname', PARAM_TEXT);
         $mform->setDefault('shortname', $course->shortname);
         // Set the category
-        $displaylist = coursecat::make_categories_list('moodle/course:create');
+        $displaylist = coursecat::make_categories_list('block/course_template:createcourse');
         $mform->addElement('select', 'category', get_string('coursecategory'), $displaylist);
         $mform->addHelpButton('category', 'coursecategory');
         $mform->setDefault('category', $course->category);

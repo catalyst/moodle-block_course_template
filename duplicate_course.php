@@ -41,7 +41,6 @@ if ($courseid === SITEID) {
 }
 // Set context vars.
 $coursecontext = context_course::instance($courseid);
-$systemcontext = context_system::instance();
 // Check course creation capability.
 require_capability('block/course_template:duplicatecourse', $coursecontext);
 // Get existing course from DB.
