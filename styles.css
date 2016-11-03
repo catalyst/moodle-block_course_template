@@ -1,0 +1,70 @@
+/* block_course_template.php ----------------------------*/
+
+.block_course_template ul {
+    margin: 0;
+    text-align: center;
+}
+
+.block_course_template li {
+    list-style-type: none;
+}
+
+/* manage.php -------------------------------------------*/
+
+#manage_coursetemplates .fgroup span {
+    display: block;
+    float: left;
+    width: 10em;
+    padding: 0.5em 0;
+}
+
+#manage_coursetemplates .notemplates {
+    text-align: center;
+}
+
+#manage_coursetemplates table ul {
+    padding: 0;
+    margin: 0;
+}
+
+#manage_coursetemplates table ul li {
+    list-style-type: none;
+}
+
+#manage_coursetemplates table img.preview {
+    margin-top: 5px;
+    width: 200px;
+    height: 150px;
+}
+
+#manage_coursetemplates table .action-icon {
+    padding: 3px;
+}
+
+/* view.php -------------------------------------------*/
+
+table#block-course-template td.preview {
+    width: 206px;
+    height: 150px;
+    text-align: center;
+}
+
+table#block-course-template img.preview {
+    padding: 0px;
+    margin: 4px 0 0 0;
+    max-width: 206px;
+    max-height: 150px;
+}
+
+table#block-course-template .tags {
+    max-width: 14em;
+}
+
+table#block-course-template .course-template-noimage {
+    width: 206px;
+    height: 150px;
+}
+
+table#block-course-template .actions a {
+    padding: 0 3px;
+}
