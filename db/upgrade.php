@@ -124,5 +124,19 @@ function xmldb_block_course_template_upgrade($oldversion) {
         upgrade_block_savepoint(true, 2015011500, 'course_template');
     }
 
+    if ($oldversion < 2017110805) {
+        // Rename 'file' column to 'filename' because 'file' is a reserved word
+        // and it was breaking core tests
+        $table = new xmldb_table('block_course_template');
+        if ($dbman->table_exists($table) and $dbman->field_exists($table, 'file')) {
+            $sql = "ALTER TABLE {block_course_template}
+                      RENAME file TO filename";
+            $DB->execute($sql);
+        }
+
+        // Blocks savepoint reached.
+        upgrade_block_savepoint(true, 2017110805, 'course_template');
+    }
+
     return true;
 }

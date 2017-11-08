@@ -102,22 +102,22 @@ if ($data = $mform->get_data()) {
     }
 
     // If the template file is missing, create it now
-    if (empty($coursetemplate->file)) {
+    if (empty($coursetemplate->filename)) {
         require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
 
         $backupfile = course_template_create_archive($coursetemplate, $USER->id);
-        $coursetemplate->file = $backupfile->get_filename();
+        $coursetemplate->filename = $backupfile->get_filename();
         $DB->set_field(
             'block_course_template',
-            'file',
-            $coursetemplate->file,
+            'filename',
+            $coursetemplate->filename,
             array('id' => $coursetemplate->id)
         );
     }
 
     $fs = get_file_storage();
     $restorefile = $fs->get_file_by_hash(
-        sha1("/$systemcontext->id/block_course_template/backupfile/$coursetemplate->id/$coursetemplate->file")
+        sha1("/$systemcontext->id/block_course_template/backupfile/$coursetemplate->id/$coursetemplate->filename")
     );
 
     if (empty($restorefile)) {
@@ -125,7 +125,7 @@ if ($data = $mform->get_data()) {
         totara_set_notification(get_string('error:processerror', 'block_course_template'), $referer);
     }
 
-    $tmpcopyname = md5($coursetemplate->file);
+    $tmpcopyname = md5($coursetemplate->filename);
     if (!$tmpcopy = $restorefile->copy_content_to($CFG->tempdir . '/backup/' . $tmpcopyname)) {
         print_error('error:movearchive', 'block_course_template');
     }

@@ -182,7 +182,7 @@ if ($data = $mform->get_data()) {
         $tempobj->name = $data->name;
         $tempobj->description = $data->description['text'];
         $tempobj->course = $basecourseid;
-        $tempobj->file = null;
+        $tempobj->filename = null;
         $tempobj->screenshot = null;
         $tempobj->timecreated = time();
         $tempobj->timemodified = time();
@@ -210,11 +210,11 @@ if ($data = $mform->get_data()) {
             }
 
             // Update the template db record to store filename.
-            $tempobj->file = $backupfile->get_filename();
+            $tempobj->filename = $backupfile->get_filename();
             $DB->set_field(
                 'block_course_template',
-                'file',
-                $tempobj->file,
+                'filename',
+                $tempobj->filename,
                 array('id' => $tempobj->id)
             );
         }
