@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="blocks/course_template/db" VERSION="20120508" COMMENT="XMLDB file for Moodle course template block"
+<XMLDB PATH="blocks/course_template/db" VERSION="20190306" COMMENT="XMLDB file for Moodle course template block"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="../../lib/xmldb/xmldb.xsd"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
     <TABLE NAME="block_course_template" COMMENT="Table for course template block">

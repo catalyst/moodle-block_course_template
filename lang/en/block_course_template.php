@@ -132,4 +132,4 @@ $string['error:sitecourse'] = 'Site context course may NOT be used.';
 $string['error:needsconfig'] = 'The Automated backups location has not been configured, and is required for course templates to work. Please ask an administrator to set this up.';
 
 // Privacy API.
-$string['privacy:metadata'] = 'The course_template plugin does not share data to external services, store user preferences, or identify users in its database.';
+$string['privacy:no_userid_data'] = 'The course_template plugin does not share data to external services, store user preferences, or identify users in its database.';
