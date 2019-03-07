@@ -28,9 +28,10 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Privacy Subsystem for block_course_summary implementing null_provider.
  *
- * @copyright  2019 bO Pierce <bo.pierce@catalyst.net.nz>
+ * @copyright 	Catalyst IT {@link http://catalyst.net.nz}
+ * @author 	bO Pierce 
  * @contributor Michael Nixon <michael.nixon@catalyst.net.nz>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license    	http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class provider implements \core_privacy\local\metadata\null_provider {
     // This plugin does not store any personal user data.
